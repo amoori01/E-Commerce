@@ -98,13 +98,19 @@ export function Navbar() {
             </div>
           ) : (
             <div className="flex items-center space-x-2">
-              <span className="text-slate-400 text-[10px]">Staff & Procurement Access:</span>
+              <span className="text-slate-400 text-[10px]">Commercial & Retail:</span>
+              <Link
+                href="/login?tab=register"
+                className="px-2.5 py-0.5 bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-[10px] rounded-sm transition-colors shadow-sm"
+              >
+                <span>Register Account</span>
+              </Link>
               <Link
                 href="/login"
                 className="px-2.5 py-0.5 bg-amg-red hover:bg-red-700 text-white font-bold text-[10px] rounded-sm transition-colors flex items-center space-x-1 shadow-sm"
               >
                 <LogIn className="w-3 h-3" />
-                <span>Sign In to Portal</span>
+                <span>Sign In</span>
               </Link>
             </div>
           )}
@@ -211,13 +217,21 @@ export function Navbar() {
               </div>
             </Link>
           ) : (
-            <Link
-              href="/login"
-              className="flex items-center space-x-1.5 pl-2 border-l border-slate-300 text-amg-navy hover:text-amg-red font-bold text-xs transition-colors"
-            >
-              <UserCheck className="w-4 h-4" />
-              <span>Sign In</span>
-            </Link>
+            <div className="flex items-center space-x-2 pl-2 border-l border-slate-300">
+              <Link
+                href="/login"
+                className="text-amg-navy hover:text-amg-red font-bold text-xs transition-colors"
+              >
+                Sign In
+              </Link>
+              <span className="text-slate-300">|</span>
+              <Link
+                href="/login?tab=register"
+                className="px-2.5 py-1 bg-amg-navy hover:bg-amg-navy-900 text-white font-bold text-xs rounded-sm transition-colors shadow-xs"
+              >
+                Register
+              </Link>
+            </div>
           )}
         </div>
       </div>
