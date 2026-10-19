@@ -3,7 +3,50 @@
 // ENTERPRISE SEED DATA & CONSTANTS
 // ====================================================================
 
-import { Branch, InventoryItem, Order, Product, Quote, Subsidiary, UserProfile } from '@/types';
+import { Branch, Category, InventoryItem, Order, Product, Quote, Subsidiary, UserProfile } from '@/types';
+
+export const CATEGORIES: Category[] = [
+  {
+    id: 'c1111111-1111-1111-1111-111111111111',
+    subsidiaryId: '11111111-1111-1111-1111-111111111111',
+    name: 'Heavy Structural Steel & Beams',
+    slug: 'heavy-structural-steel',
+    description: 'Pre-engineered frames, columns, rafters, and hot-rolled structural sections.',
+    displayOrder: 1,
+  },
+  {
+    id: 'c2222222-2222-2222-2222-222222222222',
+    subsidiaryId: '22222222-2222-2222-2222-222222222222',
+    name: 'Stone-Coated & Galvanized Roofing',
+    slug: 'roofing-solutions',
+    description: 'Tile profiles, corrugated zinc sheets, and continuous gutter accessories.',
+    displayOrder: 2,
+  },
+  {
+    id: 'c3333333-3333-3333-3333-333333333333',
+    subsidiaryId: '33333333-3333-3333-3333-333333333333',
+    name: 'Sinotruk Commercial Transport & Trailers',
+    slug: 'commercial-transport',
+    description: 'Heavy prime movers, cargo beds, lowbeds, and fuel tanker bodies.',
+    displayOrder: 3,
+  },
+  {
+    id: 'c4444444-4444-4444-4444-444444444444',
+    subsidiaryId: '44444444-4444-4444-4444-444444444444',
+    name: 'Industrial Cryogenic Gases & Lubricants',
+    slug: 'gases-lubricants',
+    description: 'Medical and industrial cylinders, cryogenic tanks, and heavy motor oils.',
+    displayOrder: 4,
+  },
+  {
+    id: 'c5555555-5555-5555-5555-555555555555',
+    subsidiaryId: '55555555-5555-5555-5555-555555555555',
+    name: 'Specialty Coffee & Consumer Goods',
+    slug: 'specialty-coffee',
+    description: 'Roasted and ground export Arabica blends in degassing packaging.',
+    displayOrder: 5,
+  },
+];
 
 export const SUBSIDIARIES: Subsidiary[] = [
   {
