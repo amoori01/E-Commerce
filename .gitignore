@@ -1,0 +1,46 @@
+# Dependencies
+/node_modules
+/.pnp
+.pnp.js
+
+# Testing
+/coverage
+
+# Next.js build output
+/.next/
+/out/
+
+# Production build artifacts
+/build
+
+# Debug logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# Local environment secret files (NEVER commit secrets to GitHub)
+.env*.local
+.env
+
+# Mobile Flutter build artifacts
+mobile/.dart_tool/
+mobile/.flutter-plugins
+mobile/.flutter-plugins-dependencies
+mobile/build/
+mobile/.packages
+
+# Operating System files
+.DS_Store
+*.pem
+
+# Internal specifications and documentation
+/AMG Holdings ECommerce and App SRS.pdf
+/BACKLOG.md
+/CHANGELOG.md
+/COMMIT_MESSAGES.md
+/DEPLOYMENT_INSTRUCTIONS.md
+/DESIGN.md
+/PRODUCT.md
+/docs/
+/image.png
