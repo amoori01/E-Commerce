@@ -1,0 +1,44 @@
+services:
+  # AMG Holdings Web & API Service
+  amg-web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: amg-ecommerce-web
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - NEXT_PUBLIC_APP_URL=http://localhost:3000
+      - DATABASE_URL=${DATABASE_URL:-postgresql://postgres:postgres@db:5432/amg_commerce}
+      - JWT_SECRET=${JWT_SECRET:-amg_holdings_enterprise_jwt_super_secret_key_32_characters_minimum}
+      - REDIS_URL=redis://redis:6379
+      - CHAPA_SECRET_KEY=${CHAPA_SECRET_KEY}
+      - TELEBIRR_APP_ID=${TELEBIRR_APP_ID}
+    depends_on:
+      - redis
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:3000/api/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 20s
+
+  # Redis for ERP Sync Message Broker & Idempotency Store
+  redis:
+    image: redis:7-alpine
+    container_name: amg-redis-broker
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+
+volumes:
+  redis_data:
