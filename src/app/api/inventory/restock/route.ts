@@ -72,15 +72,68 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const { branchId, sku, restockQty, supplier } = body;
+    const { branchId, sku, restockQty, supplier, action = 'restock_po', delta, reason } = body;
 
+    const targetBranchId = branchId || BRANCHES[1].id;
+    const targetSku = sku || 'AMG-STEEL-RB-16MM';
+
+    // 1. If Action is direct Stock Intake / Adjustment
+    if (action === 'intake' || action === 'adjust' || delta !== undefined) {
+      const intakeAmount = delta !== undefined ? Number(delta) : Number(restockQty) || 50;
+      const invItem = INVENTORY_ITEMS.find(
+        (i) => i.sku.toLowerCase() === targetSku.toLowerCase() && i.branchId === targetBranchId
+      );
+
+      let prevStock = 0;
+      let newStock = intakeAmount;
+
+      if (invItem) {
+        prevStock = invItem.quantityOnHand;
+        invItem.quantityOnHand = Math.max(0, invItem.quantityOnHand + intakeAmount);
+        invItem.updatedAt = new Date().toISOString();
+        newStock = invItem.quantityOnHand;
+      }
+
+      // Persist to Supabase if connected
+      try {
+        const { createAdminClient } = await import('@/lib/supabase/admin');
+        const supabase = createAdminClient();
+        if (invItem?.productId) {
+          await supabase
+            .from('product_inventory')
+            .update({
+              quantity_on_hand: newStock,
+            })
+            .match({
+              product_id: invItem.productId,
+              branch_id: targetBranchId,
+            });
+        }
+      } catch (dbErr) {
+        console.warn('Supabase inventory update skipped or errored:', dbErr);
+      }
+
+      return NextResponse.json({
+        success: true,
+        action: 'stock_intake_applied',
+        sku: targetSku,
+        branchId: targetBranchId,
+        previousOnHand: prevStock,
+        newOnHand: newStock,
+        intakeAmount,
+        reason: reason || 'Factory mill consignment delivery intake',
+        message: `Successfully received intake of ${intakeAmount > 0 ? `+${intakeAmount}` : intakeAmount} units for ${targetSku}. New on-hand balance: ${newStock}.`,
+      });
+    }
+
+    // 2. Otherwise generate Automated Restock Purchase Order
     const poNumber = `AMG-PO-2026-${Math.floor(1000 + Math.random() * 9000)}`;
     const newPO: RestockOrder = {
       poNumber,
-      branchId: branchId || BRANCHES[1].id,
-      branchName: 'Adama Industrial Park Hub',
+      branchId: targetBranchId,
+      branchName: BRANCHES.find((b) => b.id === targetBranchId)?.name || 'Adama Industrial Park Hub',
       productId: 'prod-custom',
-      sku: sku || 'AMG-STEEL-16MM',
+      sku: targetSku,
       productName: 'Raw Rolling Billet / Coil Consignment',
       currentOnHand: 0,
       safetyThreshold: 200,
@@ -95,7 +148,8 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({
       success: true,
-      message: `Purchase Requisition ${poNumber} issued to parent plant foundry.`,
+      action: 'purchase_order_issued',
+      message: `Purchase Requisition ${poNumber} issued to parent plant foundry for ${newPO.suggestedRestockQty} units.`,
       purchaseOrder: newPO,
     });
   } catch (err: unknown) {

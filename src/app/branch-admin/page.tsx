@@ -56,14 +56,15 @@ export default function BranchAdminPage() {
   const branchInventory = inventoryList.filter((item) => item.branchId === selectedBranchId);
   const branchOrders = ordersList.filter((ord) => ord.fulfillmentBranchId === selectedBranchId);
 
-  const handleAdjustStock = (e: React.FormEvent) => {
+  const handleAdjustStock = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!selectedItemForAdjustment) return;
+
+    const delta = adjustReason === 'stock_intake' ? adjustQty : -adjustQty;
 
     setInventoryList((prev) =>
       prev.map((item) => {
         if (item.id === selectedItemForAdjustment.id) {
-          const delta = adjustReason === 'stock_intake' ? adjustQty : -adjustQty;
           return {
             ...item,
             quantityOnHand: Math.max(0, item.quantityOnHand + delta),
@@ -74,11 +75,56 @@ export default function BranchAdminPage() {
       })
     );
 
+    try {
+      await fetch('/api/inventory/restock', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          branchId: selectedBranchId,
+          sku: selectedItemForAdjustment.sku,
+          action: 'adjust',
+          delta,
+          reason: adjustReason,
+        }),
+      });
+    } catch (err) {
+      console.warn('Inventory sync error:', err);
+    }
+
     setFeedbackMsg(
-      `Inventory for ${selectedItemForAdjustment.productName} updated successfully (${adjustReason}).`
+      `Inventory for ${selectedItemForAdjustment.productName} updated (${delta > 0 ? `+${delta}` : delta} units logged as ${adjustReason}).`
     );
     setSelectedItemForAdjustment(null);
-    setTimeout(() => setFeedbackMsg(null), 3000);
+    setTimeout(() => setFeedbackMsg(null), 3500);
+  };
+
+  const handleQuickBatchIntake = async (item: InventoryItem, qty: number) => {
+    setInventoryList((prev) =>
+      prev.map((i) =>
+        i.id === item.id
+          ? { ...i, quantityOnHand: i.quantityOnHand + qty, updatedAt: new Date().toISOString() }
+          : i
+      )
+    );
+
+    try {
+      await fetch('/api/inventory/restock', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          branchId: selectedBranchId,
+          sku: item.sku,
+          action: 'intake',
+          delta: qty,
+          reason: 'Quick intake batch from factory consignment',
+        }),
+      });
+    } catch (err) {
+      console.warn('Intake error:', err);
+    }
+
+    setFeedbackMsg(`Received batch intake of +${qty} units for ${item.productName}. Physical on-hand updated.`);
+    setTimeout(() => setFeedbackMsg(null), 3500);
   };
 
   const handleGenerateGatePass = (e: React.FormEvent) => {
@@ -337,7 +383,23 @@ export default function BranchAdminPage() {
                             {item.safetyStockThreshold} {isLow ? '⚠️ REORDER' : ''}
                           </span>
                         </td>
-                        <td className="py-2.5 px-3 text-center space-x-1.5">
+                        <td className="py-2.5 px-3 text-center space-x-1.5 whitespace-nowrap">
+                          <button
+                            type="button"
+                            onClick={() => handleQuickBatchIntake(item, 50)}
+                            className="px-2 py-1 bg-emerald-700 hover:bg-emerald-800 text-white rounded-sm font-bold text-[10px] transition-colors shadow-sm"
+                            title="Receive factory delivery of +50 units"
+                          >
+                            +50 Intake
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => handleQuickBatchIntake(item, 500)}
+                            className="px-2 py-1 bg-indigo-700 hover:bg-indigo-800 text-white rounded-sm font-bold text-[10px] transition-colors shadow-sm"
+                            title="Receive major consignment of +500 units"
+                          >
+                            +500 Batch
+                          </button>
                           <button
                             type="button"
                             onClick={() => setSelectedItemForAdjustment(item)}
