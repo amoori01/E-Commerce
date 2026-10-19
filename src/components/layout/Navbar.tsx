@@ -223,12 +223,12 @@ export function Navbar() {
       </div>
 
       {/* 3. SUBSIDIARY DIRECTORY NAVIGATION BAR */}
-      <nav className="bg-amg-navy text-white border-t border-amg-navy-900">
+      <nav className="bg-amg-navy text-white border-t border-amg-navy-900 shadow-inner">
         <div className="max-w-7xl mx-auto px-4 flex items-center justify-between overflow-x-auto scrollbar-none py-1">
           <div className="flex items-center space-x-1 shrink-0 font-medium text-xs">
             <Link
-              href="/"
-              className="px-3 py-1.5 hover:bg-amg-navy-900 rounded-sm font-bold text-white transition-colors"
+              href="/?subsidiary=all&stream=all#catalog-section"
+              className="px-3 py-1.5 hover:bg-amg-navy-800 rounded-sm font-bold text-white transition-colors"
             >
               Enterprise Catalog
             </Link>
@@ -236,18 +236,32 @@ export function Navbar() {
             {SUBSIDIARIES.map((sub) => (
               <Link
                 key={sub.id}
-                href={`/#${sub.slug}`}
-                className="px-3 py-1.5 text-slate-200 hover:text-white hover:bg-amg-navy-900 rounded-sm transition-colors whitespace-nowrap text-xs"
+                href={`/?subsidiary=${sub.slug}#catalog-section`}
+                className="px-3 py-1.5 text-slate-200 hover:text-white hover:bg-amg-navy-800 rounded-sm transition-colors whitespace-nowrap text-xs"
               >
                 {sub.name.replace('AMG ', '')}
               </Link>
             ))}
           </div>
 
-          <div className="hidden lg:flex items-center space-x-3 text-[11px] text-slate-300 shrink-0 font-mono">
-            <span>Direct Orders: Stream A</span>
-            <span>•</span>
-            <span>Heavy Engineering: Stream B</span>
+          <div className="hidden lg:flex items-center space-x-2 text-[11px] shrink-0 font-mono">
+            <Link
+              href="/?stream=direct_checkout#catalog-section"
+              className="px-2.5 py-1 bg-amg-navy-800 hover:bg-amg-navy-700 text-slate-200 hover:text-white border border-amg-navy-700 hover:border-emerald-500 rounded-sm transition-all flex items-center space-x-1.5 shadow-xs"
+              title="Filter catalog to Stream A instant digital buy products"
+            >
+              <ShoppingCart className="w-3 h-3 text-emerald-400" />
+              <span>Direct Orders: Stream A</span>
+            </Link>
+            <span className="text-slate-500">•</span>
+            <Link
+              href="/?stream=assisted_quote#catalog-section"
+              className="px-2.5 py-1 bg-amg-navy-800 hover:bg-amg-navy-700 text-slate-200 hover:text-white border border-amg-navy-700 hover:border-amg-red rounded-sm transition-all flex items-center space-x-1.5 shadow-xs"
+              title="Filter catalog to Stream B custom engineering RFQ products"
+            >
+              <FileText className="w-3 h-3 text-amg-red" />
+              <span>Heavy Engineering: Stream B</span>
+            </Link>
           </div>
         </div>
       </nav>

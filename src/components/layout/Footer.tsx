@@ -52,7 +52,10 @@ export function Footer() {
           <ul className="space-y-1.5 text-xs">
             {SUBSIDIARIES.map((sub) => (
               <li key={sub.id}>
-                <Link href={`/#${sub.slug}`} className="hover:text-white transition-colors">
+                <Link
+                  href={`/?subsidiary=${sub.slug}#catalog-section`}
+                  className="hover:text-white transition-colors"
+                >
                   {sub.name}
                 </Link>
               </li>

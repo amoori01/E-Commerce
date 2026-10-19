@@ -1,7 +1,8 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
 import Link from 'next/link';
+import { useSearchParams } from 'next/navigation';
 import { PRODUCTS, SUBSIDIARIES, BRANCHES } from '@/lib/constants';
 import { useCart } from '@/lib/cart-context';
 import { Product, TransactionStream } from '@/types';
@@ -19,14 +20,62 @@ import {
   Sparkles,
   Download,
   Flame,
-  Check
+  Check,
+  X
 } from 'lucide-react';
 
-export default function HomePage() {
+function HomePageContent() {
   const { addToCart, openRfq } = useCart();
+  const searchParams = useSearchParams();
   const [selectedSubsidiary, setSelectedSubsidiary] = useState<string>('all');
   const [selectedStream, setSelectedStream] = useState<'all' | TransactionStream>('all');
   const [expandedSpecsId, setExpandedSpecsId] = useState<string | null>(null);
+
+  // Sync state with URL search params and hash (e.g. from navbar or footer links)
+  useEffect(() => {
+    const subParam = searchParams.get('subsidiary');
+    const streamParam = searchParams.get('stream');
+
+    if (subParam) {
+      if (subParam === 'all') {
+        setSelectedSubsidiary('all');
+      } else {
+        const found = SUBSIDIARIES.find(
+          (s) =>
+            s.slug === subParam ||
+            s.id === subParam ||
+            s.code.toLowerCase() === subParam.toLowerCase() ||
+            s.name.toLowerCase().includes(subParam.toLowerCase())
+        );
+        if (found) {
+          setSelectedSubsidiary(found.id);
+        }
+      }
+    }
+
+    if (streamParam) {
+      if (streamParam === 'all' || streamParam === 'direct_checkout' || streamParam === 'assisted_quote') {
+        setSelectedStream(streamParam as 'all' | TransactionStream);
+      }
+    }
+  }, [searchParams]);
+
+  // Support direct hash navigation (e.g., /#amg-roofing)
+  useEffect(() => {
+    const handleHash = () => {
+      const hash = window.location.hash.replace('#', '');
+      if (hash && hash !== 'catalog-section') {
+        const found = SUBSIDIARIES.find((s) => s.slug === hash);
+        if (found) {
+          setSelectedSubsidiary(found.id);
+        }
+      }
+    };
+
+    handleHash();
+    window.addEventListener('hashchange', handleHash);
+    return () => window.removeEventListener('hashchange', handleHash);
+  }, []);
 
   const filteredProducts = PRODUCTS.filter((p) => {
     const matchesSub = selectedSubsidiary === 'all' || p.subsidiaryId === selectedSubsidiary;
@@ -251,8 +300,48 @@ export default function HomePage() {
           ))}
         </div>
 
+        {/* Active Filter Notice & Reset Banner */}
+        {(selectedSubsidiary !== 'all' || selectedStream !== 'all') && (
+          <div className="bg-amg-navy-50 border border-amg-navy-200 px-4 py-2.5 rounded-sm flex flex-col sm:flex-row sm:items-center justify-between text-xs gap-2">
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="font-bold uppercase tracking-wider text-[10px] bg-amg-navy text-white px-2 py-0.5 rounded-xs">
+                Active Filter:
+              </span>
+              <span className="font-bold text-amg-navy">
+                {selectedSubsidiary !== 'all'
+                  ? SUBSIDIARIES.find((s) => s.id === selectedSubsidiary)?.name || 'Filtered Subsidiary'
+                  : 'All 5 Subsidiaries'}
+              </span>
+              <span className="text-slate-400">•</span>
+              <span className="font-semibold text-slate-700">
+                {selectedStream === 'direct_checkout'
+                  ? 'Stream A: Instant Buy'
+                  : selectedStream === 'assisted_quote'
+                  ? 'Stream B: RFQ Required'
+                  : 'All Transaction Streams'}
+              </span>
+              <span className="text-slate-500 font-mono text-[11px]">
+                ({filteredProducts.length} items found)
+              </span>
+            </div>
+            <button
+              type="button"
+              onClick={() => {
+                setSelectedSubsidiary('all');
+                setSelectedStream('all');
+                window.history.pushState({}, '', '/#catalog-section');
+              }}
+              className="font-bold text-amg-red hover:text-red-800 text-xs flex items-center space-x-1 shrink-0 self-start sm:self-auto"
+            >
+              <X className="w-3.5 h-3.5" />
+              <span>Reset All Filters</span>
+            </button>
+          </div>
+        )}
+
         {/* 4. PRODUCT GRID (HIGH INFORMATION DENSITY, GRAINGER-STYLE SPECIFICATION CARDS) */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 pt-4">
+        {filteredProducts.length > 0 ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 pt-2">
           {filteredProducts.map((product) => {
             const isStreamA = product.transactionStream === 'direct_checkout';
             const isExpanded = expandedSpecsId === product.id;
@@ -416,6 +505,26 @@ export default function HomePage() {
             );
           })}
         </div>
+        ) : (
+          <div className="bg-white border border-slate-300 rounded-sm p-12 text-center space-y-3">
+            <Layers className="w-8 h-8 text-slate-400 mx-auto" />
+            <h4 className="font-bold text-slate-900 text-sm">No items found matching the selected filter</h4>
+            <p className="text-xs text-slate-500 max-w-md mx-auto">
+              There are currently no products under this specific subsidiary and transaction stream combination.
+            </p>
+            <button
+              type="button"
+              onClick={() => {
+                setSelectedSubsidiary('all');
+                setSelectedStream('all');
+                window.history.pushState({}, '', '/#catalog-section');
+              }}
+              className="px-4 py-2 bg-amg-navy hover:bg-amg-navy-900 text-white font-bold text-xs rounded-sm transition-colors"
+            >
+              Show All Products
+            </button>
+          </div>
+        )}
       </section>
 
       {/* 5. NATIONAL PAYMENT SWITCH & LOCAL SETTLEMENT BANNER */}
@@ -459,5 +568,19 @@ export default function HomePage() {
         </div>
       </section>
     </div>
+  );
+}
+
+export default function HomePage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-screen bg-slate-50 py-16 text-center text-slate-500 font-mono text-xs">
+          Loading AMG Holdings Enterprise Catalog...
+        </div>
+      }
+    >
+      <HomePageContent />
+    </Suspense>
   );
 }
