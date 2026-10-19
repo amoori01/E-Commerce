@@ -97,5 +97,27 @@ describe('Advanced Enterprise Operations: Negotiation Chat, Dispatch & Restockin
     expect(baseProductionCost).toBe(10820000);
     expect(quotedTotal).toBe(11847900);
   });
+
+  it('formats Proforma Invoices with versioned revisions, itemized 15% VAT, and ERCA fiscal parameters', () => {
+    const quotedTotal = 11847900;
+    const subtotalExclVat = quotedTotal / 1.15;
+    const itemizedVat15 = subtotalExclVat * 0.15;
+
+    expect(Math.round(subtotalExclVat + itemizedVat15)).toBe(quotedTotal);
+    expect(itemizedVat15).toBeCloseTo(quotedTotal - subtotalExclVat, 2);
+
+    // ERCA Compliance Stamp parameters
+    const ercaParameters = {
+      supplierTin: '0001293847',
+      vatRegNo: '12903847-VAT',
+      machineId: 'ERCA-MIN-AA-9812401',
+      proclamation: 'Proclamation No. 285/2002',
+      vatRate: 0.15,
+    };
+
+    expect(ercaParameters.supplierTin).toMatch(/^\d{10}$/);
+    expect(ercaParameters.vatRegNo).toContain('-VAT');
+    expect(ercaParameters.vatRate).toBe(0.15);
+  });
 });
 

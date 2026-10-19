@@ -46,6 +46,7 @@ export default function SalesAgentPage() {
 
   // Proforma Invoice Modal State
   const [isProformaOpen, setIsProformaOpen] = useState(false);
+  const [activeProformaVersion, setActiveProformaVersion] = useState<number | null>(null);
 
   const isSalesAgent = activeRole === 'sales_agent';
 
@@ -299,11 +300,14 @@ export default function SalesAgentPage() {
                 <div className="flex items-center space-x-2">
                   <button
                     type="button"
-                    onClick={() => setIsProformaOpen(true)}
-                    className="px-2.5 py-1 bg-slate-900 hover:bg-sky-900 border border-sky-800 text-sky-300 font-bold rounded-sm text-[11px] transition-colors flex items-center space-x-1"
+                    onClick={() => {
+                      setActiveProformaVersion(selectedQuote.currentVersion || 1);
+                      setIsProformaOpen(true);
+                    }}
+                    className="px-2.5 py-1 bg-slate-900 hover:bg-sky-900 border border-sky-800 text-sky-300 font-bold rounded-sm text-[11px] transition-colors flex items-center space-x-1 shadow-sm"
                   >
                     <Printer className="w-3.5 h-3.5" />
-                    <span>View Proforma</span>
+                    <span>View Proforma (v{selectedQuote.currentVersion || 1})</span>
                   </button>
                   <span className="px-2.5 py-1 bg-amber-950 border border-amber-700/60 text-amber-300 rounded-sm font-bold text-[10px] uppercase self-start sm:self-auto">
                     {selectedQuote.status.replace(/_/g, ' ')}
@@ -332,7 +336,7 @@ export default function SalesAgentPage() {
                     {selectedQuote.revisions.map((rev) => (
                       <div
                         key={rev.version}
-                        className="bg-slate-950 border border-slate-800 p-2.5 rounded-sm flex justify-between items-center text-[11px]"
+                        className="bg-slate-950 border border-slate-800 p-2.5 rounded-sm flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-[11px]"
                       >
                         <div>
                           <div className="font-bold text-white font-mono flex items-center space-x-2">
@@ -343,8 +347,22 @@ export default function SalesAgentPage() {
                           </div>
                           <p className="text-slate-400 text-[10px]">{rev.notes}</p>
                         </div>
-                        <div className="font-mono font-bold text-emerald-400 text-right">
-                          ETB {rev.quotedTotalEtb.toLocaleString('en-US', { minimumFractionDigits: 2 })}
+                        <div className="flex items-center space-x-2.5 self-end sm:self-auto shrink-0">
+                          <span className="font-mono font-bold text-emerald-400">
+                            ETB {rev.quotedTotalEtb.toLocaleString('en-US', { minimumFractionDigits: 2 })}
+                          </span>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setActiveProformaVersion(rev.version);
+                              setIsProformaOpen(true);
+                            }}
+                            className="px-2 py-0.5 bg-slate-900 hover:bg-sky-900 border border-slate-700 hover:border-sky-600 text-sky-300 font-bold rounded-xs text-[10px] transition-colors flex items-center space-x-1"
+                            title={`Inspect official v${rev.version} Proforma with ERCA seal`}
+                          >
+                            <Printer className="w-3 h-3" />
+                            <span>v{rev.version} Proforma</span>
+                          </button>
                         </div>
                       </div>
                     ))}
@@ -593,6 +611,7 @@ export default function SalesAgentPage() {
         <ProformaInvoiceModal
           isOpen={isProformaOpen}
           quote={selectedQuote}
+          initialVersion={activeProformaVersion}
           onClose={() => setIsProformaOpen(false)}
         />
       </div>

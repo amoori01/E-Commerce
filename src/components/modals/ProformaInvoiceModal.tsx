@@ -1,12 +1,13 @@
 'use client';
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Quote, Order } from '@/types';
-import { Printer, X, Download, ShieldCheck, Building2, CheckCircle2 } from 'lucide-react';
+import { Printer, X, ShieldCheck, CheckCircle2, QrCode, FileText, Layers } from 'lucide-react';
 
 interface ProformaInvoiceModalProps {
   quote?: Quote | null;
   order?: Order | null;
+  initialVersion?: number | null;
   isOpen: boolean;
   onClose: () => void;
 }
@@ -14,23 +15,38 @@ interface ProformaInvoiceModalProps {
 export function ProformaInvoiceModal({
   quote,
   order,
+  initialVersion,
   isOpen,
   onClose,
 }: ProformaInvoiceModalProps) {
+  const isQuote = !!quote;
+  const currentVersion = quote?.currentVersion || 1;
+  const [activeVersion, setActiveVersion] = useState<number>(initialVersion || currentVersion);
+
+  useEffect(() => {
+    if (initialVersion) {
+      setActiveVersion(initialVersion);
+    } else if (quote?.currentVersion) {
+      setActiveVersion(quote.currentVersion);
+    }
+  }, [initialVersion, quote?.currentVersion]);
+
   if (!isOpen || (!quote && !order)) return null;
 
-  const isQuote = !!quote;
+  // Resolve target revision if dealing with a Quote
+  const revisions = isQuote && quote?.revisions ? quote.revisions : [];
+  const targetRevision = revisions.find((r) => r.version === activeVersion) || revisions[0] || null;
 
   const invoiceNumber = isQuote
-    ? `PI-${quote?.quoteNumber || '2026-AMG-001'}`
+    ? `PI-${quote?.quoteNumber || '2026-AMG-001'}-REV-0${activeVersion}`
     : `PI-${order?.orderNumber || '2026-AMG-001'}`;
 
   const issueDate = isQuote
-    ? new Date(quote?.createdAt || Date.now()).toLocaleDateString('en-GB')
+    ? new Date(targetRevision?.timestamp || quote?.createdAt || Date.now()).toLocaleDateString('en-GB')
     : new Date(order?.createdAt || Date.now()).toLocaleDateString('en-GB');
 
-  const expiryDate = isQuote && quote?.quoteValidUntil
-    ? new Date(quote.quoteValidUntil).toLocaleDateString('en-GB')
+  const expiryDate = isQuote && (targetRevision?.validUntil || quote?.quoteValidUntil)
+    ? new Date(targetRevision?.validUntil || quote!.quoteValidUntil!).toLocaleDateString('en-GB')
     : new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toLocaleDateString('en-GB');
 
   const buyerCompany = isQuote
@@ -42,14 +58,15 @@ export function ProformaInvoiceModal({
     ? quote?.deliveryDestination
     : order?.deliveryAddress || order?.fulfillmentBranchName;
 
+  // Financial Calculations with Itemized 15% VAT
+  const quoteTotal = targetRevision?.quotedTotalEtb ?? (quote?.finalQuotedTotalEtb || quote?.estimatedTotalEtb || 0);
+
   const subtotal = isQuote
-    ? (quote?.finalQuotedTotalEtb || quote?.estimatedTotalEtb || 0) / 1.15
+    ? quoteTotal / 1.15
     : order?.subtotalEtb || 0;
 
   const vat15 = isQuote ? subtotal * 0.15 : order?.taxEtb || 0;
-  const grandTotal = isQuote
-    ? (quote?.finalQuotedTotalEtb || quote?.estimatedTotalEtb || 0)
-    : order?.totalAmountEtb || 0;
+  const grandTotal = isQuote ? quoteTotal : order?.totalAmountEtb || 0;
 
   const handlePrint = () => {
     window.print();
@@ -58,25 +75,54 @@ export function ProformaInvoiceModal({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm overflow-y-auto print:p-0 print:bg-white animate-in fade-in">
       <div className="relative w-full max-w-3xl bg-white border border-slate-300 shadow-modal rounded-sm overflow-hidden my-8 print:border-none print:shadow-none text-slate-900 text-xs font-sans">
+        
         {/* Modal Controls (Hidden in Print) */}
-        <div className="bg-slate-900 text-white px-6 py-3 flex items-center justify-between print:hidden">
+        <div className="bg-slate-900 text-white px-6 py-3 flex flex-wrap items-center justify-between gap-3 print:hidden">
           <div className="flex items-center space-x-2">
             <span className="px-2 py-0.5 bg-amg-red text-white text-[10px] font-extrabold uppercase rounded-sm">
               Official Document
             </span>
             <span className="font-bold text-xs">Commercial Proforma Invoice (ERCA Format)</span>
           </div>
+
+          {/* Version Selector Pills for Quotes */}
+          {isQuote && revisions.length > 0 && (
+            <div className="flex items-center space-x-1.5 bg-slate-950/80 border border-slate-800 px-2.5 py-1 rounded-sm text-[11px]">
+              <span className="text-slate-400 font-mono text-[10px] uppercase flex items-center space-x-1">
+                <Layers className="w-3 h-3 text-sky-400" />
+                <span>Revision:</span>
+              </span>
+              {revisions.map((rev) => {
+                const isSelected = rev.version === activeVersion;
+                return (
+                  <button
+                    key={rev.version}
+                    type="button"
+                    onClick={() => setActiveVersion(rev.version)}
+                    className={`px-2 py-0.5 font-mono text-[10px] font-bold rounded-xs transition-colors ${
+                      isSelected
+                        ? 'bg-sky-600 text-white shadow-xs'
+                        : 'bg-slate-800 text-slate-300 hover:bg-slate-700'
+                    }`}
+                  >
+                    v{rev.version} {rev.version === currentVersion ? '(Current)' : ''}
+                  </button>
+                );
+              })}
+            </div>
+          )}
+
           <div className="flex items-center space-x-2">
             <button
               onClick={handlePrint}
-              className="px-3 py-1 bg-amg-navy hover:bg-amg-navy-900 text-white font-bold rounded-sm text-xs flex items-center space-x-1.5 transition-colors"
+              className="px-3 py-1 bg-amg-navy hover:bg-amg-navy-900 text-white font-bold rounded-sm text-xs flex items-center space-x-1.5 transition-colors shadow-sm"
             >
               <Printer className="w-3.5 h-3.5" />
               <span>Print / Save PDF</span>
             </button>
             <button
               onClick={onClose}
-              className="p-1 text-slate-400 hover:text-white"
+              className="p-1 text-slate-400 hover:text-white transition-colors"
             >
               <X className="w-5 h-5" />
             </button>
@@ -85,6 +131,7 @@ export function ProformaInvoiceModal({
 
         {/* PRINTABLE PROFORMA INVOICE DOCUMENT */}
         <div className="p-8 sm:p-10 space-y-6">
+          
           {/* 1. Official Header */}
           <div className="flex flex-col sm:flex-row justify-between items-start border-b-2 border-amg-navy pb-5 gap-4">
             <div className="space-y-1">
@@ -108,8 +155,15 @@ export function ProformaInvoiceModal({
               </div>
             </div>
 
-            <div className="text-left sm:text-right space-y-1 font-mono text-[11px] bg-slate-50 border border-slate-200 p-3 rounded-sm">
-              <div className="text-sm font-extrabold text-amg-navy">PROFORMA INVOICE</div>
+            <div className="text-left sm:text-right space-y-1 font-mono text-[11px] bg-slate-50 border border-slate-200 p-3 rounded-sm min-w-[220px]">
+              <div className="flex items-center justify-between sm:justify-end space-x-2">
+                <span className="text-sm font-extrabold text-amg-navy">PROFORMA INVOICE</span>
+                {isQuote && (
+                  <span className="px-1.5 py-0.5 bg-sky-100 text-sky-800 border border-sky-300 text-[9px] font-extrabold rounded-xs uppercase">
+                    Draft v{activeVersion}
+                  </span>
+                )}
+              </div>
               <div>Invoice No: <strong>{invoiceNumber}</strong></div>
               <div>Issue Date: {issueDate}</div>
               <div>Valid Through: <strong className="text-amg-red">{expiryDate}</strong></div>
@@ -149,6 +203,18 @@ export function ProformaInvoiceModal({
             </div>
           </div>
 
+          {/* Revision Formulation Note (If available) */}
+          {targetRevision?.notes && (
+            <div className="bg-sky-50/60 border border-sky-200 p-3 rounded-sm text-[11px]">
+              <span className="font-bold text-sky-950 uppercase text-[10px] block mb-0.5">
+                Draft Revision v{activeVersion} Engineering Formulation Audit:
+              </span>
+              <p className="text-slate-700 font-mono text-[10px] leading-relaxed">
+                {targetRevision.notes}
+              </p>
+            </div>
+          )}
+
           {/* 3. Itemized Bill of Materials / Items Table */}
           <div className="border border-slate-300 rounded-sm overflow-hidden">
             <table className="w-full text-left text-xs">
@@ -180,10 +246,10 @@ export function ProformaInvoiceModal({
                         {item.quantity} {item.unitMeasurement}
                       </td>
                       <td className="py-2.5 px-3 text-right font-mono text-slate-700">
-                        {(item.quotedUnitPriceEtb || 0).toLocaleString('en-US', { minimumFractionDigits: 2 })}
+                        {(item.quotedUnitPriceEtb || (quoteTotal / (item.quantity || 1))).toLocaleString('en-US', { minimumFractionDigits: 2 })}
                       </td>
                       <td className="py-2.5 px-3 text-right font-mono font-bold text-slate-900">
-                        {(item.quotedTotalPriceEtb || 0).toLocaleString('en-US', { minimumFractionDigits: 2 })}
+                        {(item.quotedTotalPriceEtb || quoteTotal).toLocaleString('en-US', { minimumFractionDigits: 2 })}
                       </td>
                     </tr>
                   ))
@@ -211,7 +277,7 @@ export function ProformaInvoiceModal({
             </table>
           </div>
 
-          {/* 4. Financial Totals */}
+          {/* 4. Financial Totals with Itemized 15% VAT */}
           <div className="flex flex-col sm:flex-row justify-between items-start gap-4">
             <div className="max-w-xs space-y-2 text-[11px] text-slate-600">
               <div className="font-bold text-slate-800 uppercase tracking-wide text-[10px]">
@@ -227,27 +293,34 @@ export function ProformaInvoiceModal({
               </p>
             </div>
 
-            <div className="w-full sm:w-72 bg-slate-50 border border-slate-200 p-4 rounded-sm space-y-2 text-xs">
+            <div className="w-full sm:w-80 bg-slate-50 border border-slate-200 p-4 rounded-sm space-y-2.5 text-xs">
               <div className="flex justify-between text-slate-600">
-                <span>Subtotal (Excl. VAT):</span>
-                <span className="font-mono">ETB {subtotal.toLocaleString('en-US', { minimumFractionDigits: 2 })}</span>
+                <span>Subtotal Before Tax (Excl. VAT):</span>
+                <span className="font-mono font-semibold">ETB {subtotal.toLocaleString('en-US', { minimumFractionDigits: 2 })}</span>
               </div>
-              <div className="flex justify-between text-slate-600">
-                <span>Ethiopian VAT (15.0%):</span>
-                <span className="font-mono">ETB {vat15.toLocaleString('en-US', { minimumFractionDigits: 2 })}</span>
+              <div className="flex justify-between text-slate-700 bg-emerald-50/70 border border-emerald-200 p-1.5 rounded-xs">
+                <span className="font-medium flex items-center space-x-1">
+                  <span>Itemized VAT (15.0% ERCA):</span>
+                </span>
+                <span className="font-mono font-bold text-emerald-800">
+                  ETB {vat15.toLocaleString('en-US', { minimumFractionDigits: 2 })}
+                </span>
               </div>
-              <div className="flex justify-between text-base font-extrabold text-slate-900 pt-2 border-t border-slate-300">
+              <div className="flex justify-between text-base font-extrabold text-slate-900 pt-2 border-t-2 border-slate-300">
                 <span>Grand Total (ETB):</span>
                 <span className="font-mono text-amg-red">
                   ETB {grandTotal.toLocaleString('en-US', { minimumFractionDigits: 2 })}
                 </span>
               </div>
+              <div className="text-[9px] text-slate-500 font-mono text-right">
+                All taxes assessed under Ethiopian VAT Proclamation No. 285/2002
+              </div>
             </div>
           </div>
 
-          {/* 5. Terms & Signatures */}
-          <div className="border-t border-slate-200 pt-4 grid grid-cols-2 gap-8 text-[11px]">
-            <div className="space-y-1">
+          {/* 5. Terms, Signatures & ERCA Compliance Seal */}
+          <div className="border-t border-slate-200 pt-4 grid grid-cols-1 md:grid-cols-12 gap-6 text-[11px]">
+            <div className="md:col-span-5 space-y-1">
               <span className="font-bold text-slate-700 block uppercase tracking-wider text-[10px]">
                 Terms & Conditions:
               </span>
@@ -256,21 +329,68 @@ export function ProformaInvoiceModal({
                 2. Surface Coating: High-build SA 2.5 shot blasted primer certified to ISO 8501-1.<br />
                 3. Factory Inspection: Client engineer clearance welcome at Adama Fabrication Plant.
               </p>
+              <div className="pt-2">
+                <div className="inline-block border-b border-slate-400 w-44 pb-1 font-serif italic text-slate-800">
+                  Dawit Haile / Solomon Bekele
+                </div>
+                <div className="text-[10px] uppercase font-bold text-slate-500 mt-0.5">
+                  Authorized Commercial Directorate
+                </div>
+              </div>
             </div>
 
-            <div className="text-right space-y-4">
-              <div className="inline-block border-b border-slate-400 w-48 pb-1 text-center font-serif italic text-slate-800">
-                Dawit Haile / Solomon Bekele
+            {/* ERCA OFFICIAL FISCAL COMPLIANCE SEAL */}
+            <div className="md:col-span-7 bg-emerald-50/70 border-2 border-emerald-700/80 rounded-sm p-3.5 space-y-2">
+              <div className="flex items-start justify-between border-b border-emerald-300 pb-2">
+                <div className="flex items-center space-x-2">
+                  <div className="w-7 h-7 bg-emerald-700 text-white rounded-full flex items-center justify-center font-bold text-xs shadow-xs">
+                    <ShieldCheck className="w-4 h-4" />
+                  </div>
+                  <div>
+                    <div className="font-extrabold text-[11px] text-emerald-950 uppercase tracking-tight">
+                      Federal Democratic Republic of Ethiopia
+                    </div>
+                    <div className="text-[10px] font-bold text-emerald-800 uppercase tracking-wider">
+                      Ministry of Revenues • ERCA Electronic Fiscal Seal
+                    </div>
+                  </div>
+                </div>
+                <span className="px-1.5 py-0.5 bg-emerald-700 text-white font-mono text-[9px] font-extrabold rounded-xs uppercase">
+                  Verified
+                </span>
               </div>
-              <div className="text-[10px] uppercase font-bold text-slate-500">
-                Authorized Commercial Directorate • AMG Holdings PLC
+
+              <div className="grid grid-cols-2 gap-2 text-[10px] font-mono text-emerald-950">
+                <div>
+                  <span className="text-emerald-700 block text-[9px] uppercase">Fiscal Machine ID (MIN):</span>
+                  <strong>ERCA-MIN-AA-9812401</strong>
+                </div>
+                <div>
+                  <span className="text-emerald-700 block text-[9px] uppercase">Fiscal Authorization:</span>
+                  <strong>ERCA-AUTH-2026-ETB-9482</strong>
+                </div>
+                <div>
+                  <span className="text-emerald-700 block text-[9px] uppercase">Supplier TIN:</span>
+                  <strong>0001293847</strong>
+                </div>
+                <div>
+                  <span className="text-emerald-700 block text-[9px] uppercase">VAT Registration:</span>
+                  <strong>12903847-VAT</strong>
+                </div>
               </div>
-              <div className="inline-flex items-center space-x-1 text-[10px] text-emerald-700 font-mono font-bold bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-sm">
-                <CheckCircle2 className="w-3 h-3 text-emerald-600" />
-                <span>ERCA Certified Electronic Seal Attached</span>
+
+              <div className="pt-1.5 border-t border-emerald-200 flex items-center justify-between text-[9px] font-mono text-emerald-800">
+                <div className="flex items-center space-x-1.5">
+                  <CheckCircle2 className="w-3.5 h-3.5 text-emerald-700 shrink-0" />
+                  <span>Certified Digital Seal • Proclamation No. 285/2002 Compliant</span>
+                </div>
+                <span className="text-slate-500 font-normal">
+                  Hash: ERCA-{quote?.id ? quote.id.substring(0, 8).toUpperCase() : '2026-F98B'}
+                </span>
               </div>
             </div>
           </div>
+
         </div>
       </div>
     </div>
