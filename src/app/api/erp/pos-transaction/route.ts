@@ -33,16 +33,24 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const branch = BRANCHES.find((b) => b.id === branchId);
+    const branch = BRANCHES.find(
+      (b) =>
+        b.id === branchId ||
+        b.code.toLowerCase() === branchId.toLowerCase() ||
+        branchId.toLowerCase().includes(b.city.toLowerCase()) ||
+        branchId.toLowerCase().includes(b.code.toLowerCase())
+    );
     if (!branch) {
       return NextResponse.json({ error: 'Invalid branchId' }, { status: 404 });
     }
+
+    const resolvedBranchId = branch.id;
 
     // 1. Verify stock availability and perform atomic inventory decrement
     const inventoryUpdates: { sku: string; previousOnHand: number; newOnHand: number }[] = [];
 
     for (const item of items) {
-      const inv = INVENTORY_ITEMS.find((i) => i.sku === item.sku && i.branchId === branchId);
+      const inv = INVENTORY_ITEMS.find((i) => i.sku === item.sku && i.branchId === resolvedBranchId);
       if (!inv) {
         // Fallback check against product
         const prod = PRODUCTS.find((p) => p.sku === item.sku);

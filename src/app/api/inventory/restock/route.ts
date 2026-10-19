@@ -73,8 +73,14 @@ export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
     const { branchId, sku, restockQty, supplier, action = 'restock_po', delta, reason } = body;
-
-    const targetBranchId = branchId || BRANCHES[1].id;
+    const matchedBranch = BRANCHES.find(
+      (b) =>
+        b.id === branchId ||
+        b.code.toLowerCase() === (branchId || '').toLowerCase() ||
+        (branchId && branchId.toLowerCase().includes(b.city.toLowerCase())) ||
+        (branchId && branchId.toLowerCase().includes(b.code.toLowerCase()))
+    ) || BRANCHES[1];
+    const targetBranchId = matchedBranch.id;
     const targetSku = sku || 'AMG-STEEL-RB-16MM';
 
     // 1. If Action is direct Stock Intake / Adjustment
