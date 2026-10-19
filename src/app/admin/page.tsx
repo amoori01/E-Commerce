@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/lib/auth-context';
 import { INITIAL_ORDERS, INITIAL_QUOTES, PRODUCTS, SUBSIDIARIES, SEEDED_USERS } from '@/lib/constants';
 import { Product } from '@/types';
@@ -35,6 +35,16 @@ import { MfaVerificationModal } from '@/components/modals/MfaVerificationModal';
 export default function SuperAdminPage() {
   const { currentUser, activeRole, switchRole } = useAuth();
   const [activeTab, setActiveTab] = useState<'overview' | 'products' | 'orders' | 'rfqs' | 'users' | 'payments' | 'tax_settings'>('overview');
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      const tabParam = params.get('tab');
+      if (tabParam === 'products' || tabParam === 'catalog') {
+        setActiveTab('products');
+      }
+    }
+  }, []);
 
   // Interactive Product Catalog State
   const [productsList, setProductsList] = useState<Product[]>(PRODUCTS);
