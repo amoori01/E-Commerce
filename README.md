@@ -1,152 +1,156 @@
-# AMG Holdings Multi-Subsidiary Enterprise E-Commerce Platform
+# AMG Holdings Multi-Subsidiary Enterprise E-Commerce & RFQ Platform
 
-Official web and cross-platform mobile commerce infrastructure for **AMG Holdings PLC** (Ethiopia).  
-Engineered under **ISO/IEC/IEEE 29148, OWASP ASVS v4.0, PCI-DSS v4.0, and WCAG 2.1 AA** enterprise standards.
+[![Next.js](https://img.shields.io/badge/Next.js-15.5-black?style=for-the-badge&logo=next.js)](https://nextjs.org/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.7-blue?style=for-the-badge&logo=typescript)](https://www.typescriptlang.org/)
+[![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-3.4-38B2AC?style=for-the-badge&logo=tailwind-css)](https://tailwindcss.com/)
+[![Tests Passing](https://img.shields.io/badge/Vitest-46%2F46%20Passed-success?style=for-the-badge&logo=vitest)](https://vitest.dev/)
+[![Compliance](https://img.shields.io/badge/Compliance-OWASP%20ASVS%20%7C%20PCI--DSS%20%7C%20ERCA-purple?style=for-the-badge)](#security--compliance)
 
----
-
-## 1. System Architecture Overview
-
-AMG Holdings operates across heavy engineering, commercial transport, industrial gases, roofing, and FMCG.  
-This platform bridges two distinct operational procurement streams:
-
-1. **Stream A: Direct Self-Service Commerce (Instant Checkout)**
-   - Fast-moving standardized building supplies, packaged specialty coffee, fasteners, and retail lubricants.
-   - Self-service ordering with localized Ethiopian payment gateways (Telebirr, CBE Birr, Chapa, Bank Wire).
-   - Automated 15% Ethiopian VAT calculation, branch stock reservation, and gate pass clearance.
-2. **Stream B: Agent-Assisted Custom Quotation (RFQ & Negotiation Flow)**
-   - Pre-engineered steel structures, H/I-beams, smart poles, telecom towers, fuel tankers, and commercial transport vehicles (Sinotruk + BPW trailers).
-   - Multi-agent round-robin dispatch based on subsidiary domain expertise and territory.
-   - In-platform negotiation chat, multi-version quote formulation (`v1`, `v2`, `v3`), and 1-click quote-to-order conversion.
+Enterprise-grade multi-subsidiary digital commerce and engineering quotation platform engineered for **AMG Holdings PLC** (Ethiopia). Built under **ISO/IEC/IEEE 29148, OWASP ASVS v4.0, PCI-DSS v4.0, and Ethiopian ERCA fiscal tax compliance** standards.
 
 ---
 
-## 2. Tech Stack
+## 🌟 Key Platform Capabilities
 
-- **Web Frontend**: Next.js 15.5 (App Router), React 19, TypeScript 5.7, Tailwind CSS 3.4, Lucide Icons.
-- **Backend & APIs**: Next.js Serverless Route Handlers, Edge Middleware, Supabase SSR / `@supabase/supabase-js`.
-- **Mobile Client**: Flutter 3.47+ / Dart 3.13+ (`mobile/`) with FaceID/Fingerprint biometric authentication, camera barcode scanner, push notification listeners, and mobile wallet deep-linking (`amg://`).
-- **Database & DDL**: PostgreSQL 15+ / Supabase with Row Level Security (RLS) and custom ENUM types.
-- **ERP Integration**: Enterprise Sales Management System (SMS) bi-directional sync broker with exponential backoff and Dead-Letter Queue (DLQ).
-- **Security & Ciphers**: AES-256-GCM encryption at rest for sensitive PII/financial data, short-lived JWT access tokens (15m) + rotating refresh tokens (7d), and HTTP-only SameSite cookies.
+AMG Holdings encompasses heavy structural steel engineering, commercial transport, industrial gases, roofing solutions, and specialty coffee. The platform unifies two core procurement streams:
+
+```
+┌─────────────────────────────────────────────────────────────────────────────────────────┐
+│                                  AMG HOLDINGS STOREFRONT                                │
+├────────────────────────────────────────────┬────────────────────────────────────────────┤
+│         STREAM A: DIRECT CHECKOUT          │        STREAM B: CUSTOM RFQ ENGINE         │
+├────────────────────────────────────────────┼────────────────────────────────────────────┤
+│ • Fast-moving industrial & retail goods   │ • Engineered pre-engineered buildings (PEB)│
+│ • Real-time warehouse inventory ledger    │ • Sinotruk trailers & bulk cryogenic gases  │
+│ • Local Ethiopian gateways (Telebirr,      │ • Blueprint / CAD technical file upload    │
+│   CBE Birr, Chapa, Bank Wire)              │ • Engineering Cost Breakdown formula:      │
+│ • Automated 15% Ethiopian VAT invoicing   │   (Raw Materials + Machining + Coating +   │
+│ • Branch physical inventory reservation    │    Freight + Target Margin %)              │
+│ • Security QR code Gate Clearance pass     │ • Versioned Proforma Invoices (v1, v2)     │
+│ • Physical POS transaction sync broker     │ • Official Ethiopian ERCA Fiscal Seal      │
+└────────────────────────────────────────────┴────────────────────────────────────────────┘
+```
 
 ---
 
-## 3. Quick Start & Local Execution
+## 🏢 Platform Portals & Role-Based Workflows
+
+The platform features an instant **Role Switcher** in the top navigation bar to test all user personas without logging out:
+
+### 1. Storefront & Customer Portal (`/`, `/catalog`, `/cart`, `/checkout`, `/orders`)
+- **Stream A Shopping**: Add standard products (corrugated roofing, rebars, coffee, lubricants) to cart and pay with **Telebirr**, **CBE Birr**, or **Chapa**.
+- **Stream B Custom RFQ Modal**: Submit technical engineering specs, blueprint drawings, and target delivery timelines.
+- **Account & Orders**: Real-time order tracking, gate clearance status, and proforma PDF download.
+
+### 2. Engineering Sales Agent Workspace (`/agent`)
+- **RFQ Review & Interactive Negotiation**: In-platform messaging with client engineers.
+- **Cost Formulation Engine**: Input exact parameters:
+  $$\text{Total} = \text{Raw Material} + (\text{Machine Hours} \times \text{Rate}) + \text{Protective Coating} + \text{Freight} + \text{Margin \%}$$
+- **Versioned Proforma Generator**: Issues versioned drafts (`v1`, `v2`, `v3`) with itemized 15% Ethiopian VAT calculation and authentic ERCA fiscal compliance seal.
+- **1-Click Conversion**: Converts finalized proformas directly into verified procurement orders.
+
+### 3. Branch Admin & Regional Depot Management (`/branch-admin`)
+- **Depot Inventory Ledger**: Real-time physical stock and reserved units per branch (Addis Ababa, Adama, Hawassa, Dire Dawa).
+- **One-Click Batch Intakes**: Instant **`+50 Intake`** and **`+500 Batch`** factory mill receipts.
+- **Auto-Reorder PO Generation**: Automatically generates purchase orders when safety stock thresholds are breached.
+- **Physical POS Sync**: Integrated with `/api/erp/pos-transaction` for offline cash register reconciliation.
+- **Freight Dispatch & Gate Passes**: Generates secure QR-coded warehouse exit gate passes.
+- **Sales Agent Portfolio Assignments**: Assigns specialized sales agents to corporate accounts (MIDROC, Sunshine Construction, Sur Construction, Dangote) with strict **ABAC subsidiary boundary enforcement**.
+
+### 4. Super Admin Corporate Governance (`/admin`)
+- **Cross-Subsidiary Catalog**: Manage product inventory across all sister subsidiaries.
+- **Security Audit Logs**: Track RBAC/ABAC events, sensitive profile changes, and MFA verifications.
+- **Dead-Letter Queue (DLQ)**: Monitor and retry failed ERP/SMS sync transactions.
+
+---
+
+## 🚀 Quick Start & Local Execution
 
 ### Prerequisites
-- Node.js 18+ (tested on Node 22)
-- Flutter 3.20+ (for mobile app)
-- PostgreSQL 15+ or Supabase account
+- **Node.js** 18+ (tested on Node 22)
+- **npm** or **pnpm**
+- Modern web browser
 
-### Web Application Setup
+### 1. Clone & Install
 ```bash
-# Install dependencies
+git clone https://github.com/amoori01/E-Commerce.git
+cd E-Commerce
 npm install
+```
 
-# Run automated test suite
+### 2. Run Automated Verification Tests
+```bash
 npm test
+```
+> Runs 46 automated Vitest unit & integration tests covering domain logic, Ethiopian VAT calculation, MFA gating, ABAC boundaries, and ERP sync.
 
-# Build production bundle
-npm run build
-
-# Start local development server
+### 3. Start Development Server
+```bash
 npm run dev
 ```
-Open [http://localhost:3000](http://localhost:3000) in your browser.
+Open **[http://localhost:3000](http://localhost:3000)** in your browser.
 
-### Mobile Client Setup (Flutter)
+---
+
+## 🔑 Demo Personas & Test Credentials
+
+Use the **Role Switcher** in the top navigation or log in with these pre-seeded accounts:
+
+| Role | Name | Email | Password | Primary Scope |
+| :--- | :--- | :--- | :--- | :--- |
+| **Super Admin** | Dawit Haile | `superadmin@amgholdings.com` | `AmgAdmin2026!` | Cross-subsidiary governance & catalog management |
+| **Branch Admin** | Mulugeta Tadesse | `roofing.admin@amgholdings.com` | `AmgBranch2026!` | Depot inventory, +50/+500 intakes, gate clearance |
+| **Sales Agent** | Solomon Bekele | `agent.solomon@amgholdings.com` | `AmgAgent2026!` | Engineering pricing matrix, proforma VAT & ERCA seals |
+| **B2B Customer** | Almaz Teferra (MIDROC) | `procurement@midroc-corp.et` | `AmgClient2026!` | Institutional RFQs, large-scale custom procurement |
+| **B2C Customer** | Abebe Kebede | `abebe.kebede@gmail.com` | `AmgCustomer2026!` | Retail shopping with Telebirr & CBE Birr checkout |
+
+---
+
+## 🛠️ Tech Stack & Architecture
+
+- **Framework**: [Next.js 15.5](https://nextjs.org/) (App Router, Server Components & Route Handlers)
+- **UI & Design**: [React 19](https://react.dev/), [Tailwind CSS 3.4](https://tailwindcss.com/), [Lucide React](https://lucide.dev/)
+- **State & Data**: In-memory seeded enterprise ledger + Supabase/PostgreSQL schema ready
+- **Testing**: [Vitest 4.1](https://vitest.dev/) (46/46 unit, integration, and security tests)
+- **Authentication**: JWT, Session cookies, OTP-based MFA, Attribute-Based Access Control (ABAC)
+- **Payment Gateways**: Telebirr, CBE Birr, Chapa Webhooks, Bank Wire transfer simulation
+- **Tax Compliance**: Ethiopian Revenue and Customs Authority (ERCA) itemized 15% VAT & machine seal
+
+---
+
+## 🌐 API Route Specifications
+
+| Endpoint | Method | Description |
+| :--- | :--- | :--- |
+| `/api/products` | `GET`, `POST` | Catalog search, category filters, and product creation |
+| `/api/quotes` | `GET`, `POST` | Stream B custom RFQ submission and quote retrieval |
+| `/api/quotes/[id]` | `PATCH` | Engineering formula update, VAT calculation, proforma revision |
+| `/api/quotes/convert-to-order` | `POST` | 1-click quote conversion to finalized procurement order |
+| `/api/orders` | `GET`, `POST` | Stream A checkout and order status management |
+| `/api/inventory/restock` | `POST` | Factory batch intakes (+50, +500) and restock PO generation |
+| `/api/branch-admin/agents` | `GET`, `POST` | ABAC-enforced sales agent portfolio assignments |
+| `/api/erp/pos-transaction` | `POST` | Physical branch POS cash register synchronization |
+| `/api/webhooks/chapa` | `POST` | Webhook verification and automated payment reconciliation |
+
+---
+
+## 🚢 Deployment Guide
+
+### Deploying to Vercel (1-Click)
+1. Fork or push this repository to GitHub.
+2. Sign in to [Vercel](https://vercel.com) and import the repository.
+3. Keep default settings (`npm run build`) and click **Deploy**.
+
+### Docker Deployment
 ```bash
-cd mobile
+# Build the container image
+docker build -t amg-holdings-ecommerce .
 
-# Install mobile dependencies
-flutter pub get
-
-# Run on connected device or emulator
-flutter run
+# Run container on port 3000
+docker run -p 3000:3000 amg-holdings-ecommerce
 ```
 
 ---
 
-## 4. Test Credentials & Seed Personas
-
-| Role | Email | Password | Scope & Responsibilities |
-|---|---|---|---|
-| **Super Admin** | `superadmin@amgholdings.com` | `AmgAdmin2026!` | Enterprise governance, cross-subsidiary catalog, tax rules, DLQ audit |
-| **Branch Admin** | `roofing.admin@amgholdings.com` | `AmgBranch2026!` | Adama Branch stock thresholds, fulfillment verification, truck gate pass |
-| **Sales Agent** | `agent.solomon@amgholdings.com` | `AmgAgent2026!` | Heavy Structural & Transport RFQ reviews, pricing matrix, quote-to-order |
-| **B2B Customer** | `procurement@midroc-corp.et` | `AmgClient2026!` | Corporate bulk buyer, direct orders, active RFQs, proforma tax invoices |
-| **B2C Customer** | `abebe.kebede@gmail.com` | `AmgCustomer2026!` | Standard customer self-service checkout with Telebirr / CBE Birr |
-
-*(Note: The web platform features an instant **Role Switcher** in the top navigation bar to test all stakeholder workflows in one click).*
-
----
-
-## 5. Environment Variables (`.env.local`)
-
-Copy `.env.example` to `.env.local` and configure your credentials:
-
-```bash
-# Public Application URL
-NEXT_PUBLIC_APP_URL="http://localhost:3000"
-
-# Supabase / PostgreSQL Database
-NEXT_PUBLIC_SUPABASE_URL="https://your-project.supabase.co"
-NEXT_PUBLIC_SUPABASE_ANON_KEY="your-anon-key"
-SUPABASE_SERVICE_ROLE_KEY="your-service-role-key"
-DATABASE_URL="postgresql://postgres:password@localhost:5432/amg_commerce"
-
-# Cryptographic Master Secrets (OWASP ASVS v4.0)
-JWT_SECRET="high_entropy_secret_min_32_characters_here"
-ENCRYPTION_SECRET_KEY="aes256_master_secret_32_bytes_here"
-
-# Ethiopian Payment Gateways (Sandbox / Production)
-CHAPA_SECRET_KEY="CHASECK_TEST-xxxxxxxxxxxxxxxxxxxx"
-CHAPA_PUBLIC_KEY="CHAPUBK_TEST-xxxxxxxxxxxxxxxxxxxx"
-CHAPA_WEBHOOK_SECRET="whsec_xxxxxxxxxxxxxxxxxxxx"
-
-TELEBIRR_APP_ID="telebirr_app_id"
-TELEBIRR_APP_KEY="telebirr_app_key"
-TELEBIRR_SHORT_CODE="102938"
-
-CBE_BIRR_MERCHANT_ID="cbe_merchant_amg"
-CBE_BIRR_API_KEY="cbe_test_api_key"
-```
-
----
-
-## 6. API Documentation & OpenAPI Specification
-
-The complete RESTful API contract is specified in [`docs/openapi.yaml`](docs/openapi.yaml).
-Core routes include:
-- `POST /api/auth/register` & `POST /api/auth/login` (MFA OTP supported)
-- `GET /api/products` (paginated, indexed, cached)
-- `GET / POST / DELETE /api/cart` (cross-platform server cart sync)
-- `POST /api/payments/initiate` (requires `Idempotency-Key` header)
-- `POST /api/payments/verify`
-- `PATCH /api/orders/[id]/status` (state machine transition engine)
-- `POST /api/quotes/convert-to-order` (agent quote conversion)
-- `POST /api/erp/pos-transaction` (branch physical POS sync)
-- `GET /api/health` (system uptime and telemetry)
-
----
-
-## 7. Disaster Recovery & Docker Deployment
-
-### Database Backup Automation
-```bash
-# Run hourly incremental WAL backup (RPO < 1h)
-./scripts/backup.sh hourly
-
-# Run daily full compressed snapshot (RTO < 4h)
-./scripts/backup.sh daily
-```
-
-### Docker Compose
-```bash
-# Build and launch Next.js application and Redis broker
-docker-compose up -d --build
-
-# Verify container health
-docker-compose ps
-```
+## 📄 License
+Copyright © 2026 AMG Holdings PLC. All rights reserved. Enterprise Digital Transformation Platform.
