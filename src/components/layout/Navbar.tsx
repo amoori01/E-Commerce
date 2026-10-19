@@ -22,11 +22,13 @@ import {
   HelpCircle,
   Menu,
   X,
-  Heart
+  Heart,
+  LogOut,
+  LogIn
 } from 'lucide-react';
 
 export function Navbar() {
-  const { currentUser, activeRole, switchRole } = useAuth();
+  const { currentUser, activeRole, isLoggedIn, logout } = useAuth();
   const { totalCount, setIsCartDrawerOpen, openRfq } = useCart();
   const { wishlistCount } = useWishlist();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -41,7 +43,7 @@ export function Navbar() {
 
   return (
     <header className="w-full bg-white border-b border-slate-300 sticky top-0 z-40 text-xs">
-      {/* 1. TOP UTILITY / PROTOTYPE ROLE SWITCHER BAR */}
+      {/* 1. TOP UTILITY & AUTH STATUS BAR */}
       <div className="bg-slate-900 text-slate-300 px-4 py-1.5 border-b border-slate-800 flex flex-wrap justify-between items-center text-[11px]">
         {/* Left: Hotline & Regional Network */}
         <div className="flex items-center space-x-4">
@@ -55,36 +57,57 @@ export function Navbar() {
           </span>
         </div>
 
-        {/* Right: Interactive Prototype Role Switcher */}
-        <div className="flex items-center space-x-2 my-0.5">
-          <span className="font-semibold text-slate-400 uppercase tracking-wider text-[10px]">
-            Test Role:
-          </span>
-          <div className="flex items-center bg-slate-800 border border-slate-700 rounded-sm p-0.5 space-x-1">
-            {(['customer', 'sales_agent', 'branch_admin', 'super_admin'] as UserRole[]).map((r) => (
-              <button
-                key={r}
-                type="button"
-                onClick={() => switchRole(r)}
-                className={`px-2 py-0.5 rounded-sm text-[10px] font-semibold transition-all ${
-                  activeRole === r
-                    ? `${roleLabels[r].badgeColor} text-white shadow-sm`
-                    : 'text-slate-400 hover:text-white'
-                }`}
-              >
-                {r === 'super_admin' ? 'Super Admin' : r === 'branch_admin' ? 'Branch Admin' : r === 'sales_agent' ? 'Sales Agent' : 'Customer'}
-              </button>
-            ))}
-          </div>
+        {/* Right: Authenticated User Status & Portal Navigation */}
+        <div className="flex items-center space-x-2.5 my-0.5">
+          {isLoggedIn && currentUser ? (
+            <div className="flex items-center space-x-2">
+              <span className="text-slate-400 hidden sm:inline text-[10px]">Logged in as:</span>
+              <span className="font-semibold text-white flex items-center space-x-1.5">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 inline-block" />
+                <span>{currentUser.fullName}</span>
+              </span>
+              <span className={`px-1.5 py-0.2 rounded-sm text-[9px] font-bold uppercase text-white ${roleLabels[activeRole]?.badgeColor || 'bg-slate-700'}`}>
+                {activeRole.replace('_', ' ')}
+              </span>
 
-          {/* Quick link to current role's portal */}
-          <Link
-            href={roleLabels[activeRole].route}
-            className="ml-2 px-2 py-0.5 bg-slate-800 hover:bg-slate-700 text-white border border-slate-600 rounded-sm font-semibold text-[10px] flex items-center space-x-1"
-          >
-            <Shield className="w-3 h-3 text-amg-red" />
-            <span>Go to Portal</span>
-          </Link>
+              {/* Quick link to current role's portal */}
+              <Link
+                href={roleLabels[activeRole]?.route || '/portal'}
+                className="ml-1.5 px-2.5 py-0.5 bg-slate-800 hover:bg-slate-700 text-white border border-slate-600 rounded-sm font-semibold text-[10px] flex items-center space-x-1 transition-colors"
+              >
+                <Shield className="w-3 h-3 text-amg-red" />
+                <span>Go to Portal</span>
+              </Link>
+
+              <Link
+                href="/login"
+                className="px-2 py-0.5 text-slate-400 hover:text-sky-300 font-medium text-[10px] transition-colors"
+              >
+                Switch Account
+              </Link>
+
+              <button
+                type="button"
+                onClick={() => logout()}
+                className="px-2 py-0.5 text-slate-400 hover:text-rose-400 text-[10px] font-medium transition-colors flex items-center space-x-1"
+                title="Log out of session"
+              >
+                <LogOut className="w-3 h-3" />
+                <span className="hidden sm:inline">Logout</span>
+              </button>
+            </div>
+          ) : (
+            <div className="flex items-center space-x-2">
+              <span className="text-slate-400 text-[10px]">Staff & Procurement Access:</span>
+              <Link
+                href="/login"
+                className="px-2.5 py-0.5 bg-amg-red hover:bg-red-700 text-white font-bold text-[10px] rounded-sm transition-colors flex items-center space-x-1 shadow-sm"
+              >
+                <LogIn className="w-3 h-3" />
+                <span>Sign In to Portal</span>
+              </Link>
+            </div>
+          )}
         </div>
       </div>
 
@@ -169,23 +192,33 @@ export function Navbar() {
             )}
           </button>
 
-          {/* Active User Persona Badge */}
-          <Link
-            href={roleLabels[activeRole].route}
-            className="flex items-center space-x-2 pl-2 border-l border-slate-300 hover:opacity-90"
-          >
-            <div className="w-8 h-8 rounded-sm bg-amg-navy-100 border border-amg-navy-300 text-amg-navy font-bold flex items-center justify-center text-xs">
-              {currentUser.fullName[0]}
-            </div>
-            <div className="hidden xl:block text-left">
-              <div className="text-xs font-bold text-slate-900 leading-tight">
-                {currentUser.fullName}
+          {/* Active User Persona Badge / Login Link */}
+          {isLoggedIn && currentUser ? (
+            <Link
+              href={roleLabels[activeRole]?.route || '/portal'}
+              className="flex items-center space-x-2 pl-2 border-l border-slate-300 hover:opacity-90"
+            >
+              <div className="w-8 h-8 rounded-sm bg-amg-navy-100 border border-amg-navy-300 text-amg-navy font-bold flex items-center justify-center text-xs">
+                {currentUser.fullName[0]}
               </div>
-              <div className="text-[10px] text-slate-500 font-medium">
-                {roleLabels[activeRole].label}
+              <div className="hidden xl:block text-left">
+                <div className="text-xs font-bold text-slate-900 leading-tight">
+                  {currentUser.fullName}
+                </div>
+                <div className="text-[10px] text-slate-500 font-medium">
+                  {roleLabels[activeRole]?.label}
+                </div>
               </div>
-            </div>
-          </Link>
+            </Link>
+          ) : (
+            <Link
+              href="/login"
+              className="flex items-center space-x-1.5 pl-2 border-l border-slate-300 text-amg-navy hover:text-amg-red font-bold text-xs transition-colors"
+            >
+              <UserCheck className="w-4 h-4" />
+              <span>Sign In</span>
+            </Link>
+          )}
         </div>
       </div>
 
