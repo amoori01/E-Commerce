@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
+import { usePathname } from 'next/navigation';
 import { useAuth } from '@/lib/auth-context';
 import { useCart } from '@/lib/cart-context';
 import { useWishlist } from '@/lib/wishlist-context';
@@ -24,10 +25,12 @@ import {
   X,
   Heart,
   LogOut,
-  LogIn
+  LogIn,
+  ExternalLink
 } from 'lucide-react';
 
 export function Navbar() {
+  const pathname = usePathname();
   const { currentUser, activeRole, isLoggedIn, logout } = useAuth();
   const { totalCount, setIsCartDrawerOpen, openRfq } = useCart();
   const { wishlistCount } = useWishlist();
@@ -40,6 +43,115 @@ export function Navbar() {
     sales_agent: { label: 'Sales Engineer (Agent)', badgeColor: 'bg-blue-700', route: '/agent' },
     customer: { label: 'Corporate B2B Client', badgeColor: 'bg-amber-700', route: '/portal' },
   };
+
+  // When inside staff/management workspaces (/admin, /branch-admin, /agent),
+  // hide all customer shopping navigation (cart, wishlist, RFQ, search, consumer subsidiary bar)
+  const isManagementWorkspace =
+    pathname?.startsWith('/admin') ||
+    pathname?.startsWith('/branch-admin') ||
+    pathname?.startsWith('/agent');
+
+  if (isManagementWorkspace) {
+    const portalConfig = pathname?.startsWith('/admin')
+      ? {
+          badge: 'SUPER ADMIN',
+          badgeColor: 'bg-purple-900/80 border-purple-600 text-purple-200',
+          title: 'Corporate HQ Governance Console',
+          subtitle: 'Multi-subsidiary catalog, direct orders GMV ledger, tax rules & audit logs',
+          workspaceLink: '/admin',
+        }
+      : pathname?.startsWith('/branch-admin')
+      ? {
+          badge: 'BRANCH DEPOT ADMIN',
+          badgeColor: 'bg-emerald-900/80 border-emerald-600 text-emerald-200',
+          title: 'Depot Warehouse & Inventory Management',
+          subtitle: 'Stock intakes (+50/+500), POS sync, gate pass clearance & agent assignments',
+          workspaceLink: '/branch-admin',
+        }
+      : {
+          badge: 'SALES ENGINEER',
+          badgeColor: 'bg-blue-900/80 border-blue-600 text-blue-200',
+          title: 'Technical Quotation & Proforma Workspace',
+          subtitle: 'Cost breakdown formulation, revisions v1/v2, 15% VAT & ERCA fiscal seal',
+          workspaceLink: '/agent',
+        };
+
+    return (
+      <header className="w-full bg-slate-950 border-b border-slate-800 text-white sticky top-0 z-40 text-xs shadow-md">
+        <div className="max-w-7xl mx-auto px-4 py-2.5 flex items-center justify-between gap-4">
+          {/* Left: Brand Logo & Management Console Title */}
+          <Link href={portalConfig.workspaceLink} className="flex items-center space-x-3 group shrink-0">
+            <div className="w-9 h-9 bg-white flex items-center justify-center rounded-sm p-1 border border-slate-700 shadow-sm">
+              <img src="/logo.png" alt="AMG Holdings" className="max-h-full max-w-full object-contain" />
+            </div>
+            <div>
+              <div className="flex items-center space-x-2">
+                <span className="font-extrabold text-sm tracking-tight text-white group-hover:text-slate-200">
+                  AMG HOLDINGS
+                </span>
+                <span className={`px-2 py-0.5 rounded-xs font-mono font-bold text-[9px] uppercase border ${portalConfig.badgeColor}`}>
+                  {portalConfig.badge}
+                </span>
+              </div>
+              <div className="text-[11px] text-slate-400 font-medium hidden md:block">
+                {portalConfig.title}
+              </div>
+            </div>
+          </Link>
+
+          {/* Right: Staff Controls & Storefront Switcher */}
+          <div className="flex items-center space-x-3 text-xs">
+            {/* View Public Storefront Link */}
+            <Link
+              href="/"
+              className="px-2.5 py-1 bg-slate-900 hover:bg-slate-800 text-slate-300 hover:text-white border border-slate-700 rounded-sm font-semibold text-[11px] flex items-center space-x-1.5 transition-colors shadow-xs"
+              title="Open customer-facing public storefront catalog"
+            >
+              <ExternalLink className="w-3.5 h-3.5 text-amg-red" />
+              <span className="hidden sm:inline">View Public Storefront</span>
+              <span className="sm:hidden">Storefront</span>
+            </Link>
+
+            {/* Authenticated Staff User Pill */}
+            {currentUser && (
+              <div className="flex items-center space-x-2 pl-2 border-l border-slate-800">
+                <div className="w-7 h-7 rounded-sm bg-slate-800 border border-slate-700 text-white font-bold flex items-center justify-center text-xs">
+                  {currentUser.fullName[0]}
+                </div>
+                <div className="hidden lg:block text-left">
+                  <div className="text-[11px] font-bold text-white leading-tight">
+                    {currentUser.fullName}
+                  </div>
+                  <div className="text-[10px] text-slate-400 font-mono">
+                    {currentUser.companyName || roleLabels[activeRole]?.label}
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Switch Account */}
+            <Link
+              href="/login"
+              className="px-2 py-1 text-slate-400 hover:text-sky-300 text-[11px] font-medium transition-colors"
+            >
+              Switch Role
+            </Link>
+
+            {/* Logout */}
+            <button
+              type="button"
+              onClick={() => logout()}
+              className="px-2 py-1 bg-slate-900 hover:bg-red-950 text-slate-400 hover:text-rose-400 border border-slate-800 rounded-sm text-[11px] transition-colors flex items-center space-x-1"
+              title="Log out of session"
+            >
+              <LogOut className="w-3 h-3" />
+              <span className="hidden sm:inline">Logout</span>
+            </button>
+          </div>
+        </div>
+      </header>
+    );
+  }
 
   return (
     <header className="w-full bg-white border-b border-slate-300 sticky top-0 z-40 text-xs">

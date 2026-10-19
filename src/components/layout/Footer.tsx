@@ -1,9 +1,36 @@
+'use client';
+
 import React from 'react';
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { Shield, Award, Landmark, Phone, Mail, MapPin } from 'lucide-react';
 import { SUBSIDIARIES, BRANCHES } from '@/lib/constants';
 
 export function Footer() {
+  const pathname = usePathname();
+  const isManagementWorkspace =
+    pathname?.startsWith('/admin') ||
+    pathname?.startsWith('/branch-admin') ||
+    pathname?.startsWith('/agent');
+
+  if (isManagementWorkspace) {
+    return (
+      <footer className="bg-slate-950 text-slate-500 text-[11px] py-4 border-t border-slate-800 font-mono">
+        <div className="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-2">
+          <span>AMG Holdings PLC • Internal Operations & ERP Interface</span>
+          <div className="flex items-center space-x-3 text-slate-400">
+            <span>ISO 29148</span>
+            <span>•</span>
+            <span>OWASP ASVS v4.0</span>
+            <span>•</span>
+            <span>PCI-DSS v4.0</span>
+            <span>•</span>
+            <span>ERCA Tax Compliant</span>
+          </div>
+        </div>
+      </footer>
+    );
+  }
   return (
     <footer className="bg-slate-900 text-slate-400 text-xs border-t border-slate-800">
       {/* Compliance & Standards Verification Bar */}
