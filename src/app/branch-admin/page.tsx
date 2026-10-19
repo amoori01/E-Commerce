@@ -2,8 +2,8 @@
 
 import React, { useState } from 'react';
 import { useAuth } from '@/lib/auth-context';
-import { INVENTORY_ITEMS, BRANCHES, INITIAL_ORDERS } from '@/lib/constants';
-import { InventoryItem, Order } from '@/types';
+import { INVENTORY_ITEMS, BRANCHES, INITIAL_ORDERS, SEEDED_USERS } from '@/lib/constants';
+import { InventoryItem, Order, UserProfile } from '@/types';
 import {
   Building2,
   PackageCheck,
@@ -19,7 +19,13 @@ import {
   ClipboardList,
   QrCode,
   ShieldAlert,
-  ArrowRight
+  ArrowRight,
+  Users,
+  UserCheck,
+  Briefcase,
+  Shield,
+  X,
+  Filter
 } from 'lucide-react';
 
 export default function BranchAdminPage() {
@@ -51,10 +57,95 @@ export default function BranchAdminPage() {
   const [isRestocking, setIsRestocking] = useState(false);
   const [restockSuccessNotice, setRestockSuccessNotice] = useState<string | null>(null);
 
+  // Tab Switcher
+  const [activeTab, setActiveTab] = useState<'inventory' | 'dispatch' | 'agents'>('inventory');
+
+  // Sales Agent & Client Portfolio Assignment State (SRS Section 2)
+  const [agentsList, setAgentsList] = useState<UserProfile[]>(
+    SEEDED_USERS.filter((u) => u.role === 'sales_agent')
+  );
+  const [editingAgent, setEditingAgent] = useState<UserProfile | null>(null);
+  const [targetAgentBranch, setTargetAgentBranch] = useState<string>(selectedBranchId);
+  const [portfolioInput, setPortfolioInput] = useState<string>('');
+  const [specializationInput, setSpecializationInput] = useState<string>('');
+  const [isSavingAgent, setIsSavingAgent] = useState(false);
+  const [agentSearch, setAgentSearch] = useState('');
+
   const isBranchAdmin = activeRole === 'branch_admin';
   const activeBranch = BRANCHES.find((b) => b.id === selectedBranchId) || BRANCHES[1];
+  const activeSubsidiaryName = currentUser.subsidiaryName || 'AMG Heavy Industry Division';
   const branchInventory = inventoryList.filter((item) => item.branchId === selectedBranchId);
   const branchOrders = ordersList.filter((ord) => ord.fulfillmentBranchId === selectedBranchId);
+
+  const subsidiaryAgents = agentsList.filter(
+    (a) => !currentUser.subsidiaryId || a.subsidiaryId === currentUser.subsidiaryId || activeRole === 'super_admin'
+  );
+  const filteredAgents = subsidiaryAgents.filter(
+    (a) =>
+      a.fullName.toLowerCase().includes(agentSearch.toLowerCase()) ||
+      (a.clientPortfolio && a.clientPortfolio.toLowerCase().includes(agentSearch.toLowerCase())) ||
+      (a.specialization && a.specialization.toLowerCase().includes(agentSearch.toLowerCase()))
+  );
+
+  const handleOpenAssignModal = (agent: UserProfile) => {
+    setEditingAgent(agent);
+    setTargetAgentBranch(agent.branchId || selectedBranchId);
+    setPortfolioInput(agent.clientPortfolio || 'MIDROC Construction Ethiopia PLC');
+    setSpecializationInput(agent.specialization || 'Technical Industrial Sales');
+  };
+
+  const handleSaveAgentPortfolio = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingAgent) return;
+    setIsSavingAgent(true);
+
+    try {
+      const res = await fetch('/api/branch-admin/agents', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-user-role': 'branch_admin',
+          'x-user-id': currentUser.id,
+        },
+        body: JSON.stringify({
+          agentId: editingAgent.id,
+          targetBranchId: targetAgentBranch,
+          clientPortfolio: portfolioInput,
+          specialization: specializationInput,
+        }),
+      });
+
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.error || data.details || 'Failed to update agent assignment');
+      }
+
+      const assignedBranchName = BRANCHES.find((b) => b.id === targetAgentBranch)?.name || editingAgent.branchName;
+
+      setAgentsList((prev) =>
+        prev.map((a) =>
+          a.id === editingAgent.id
+            ? {
+                ...a,
+                branchId: targetAgentBranch,
+                branchName: assignedBranchName,
+                clientPortfolio: portfolioInput,
+                specialization: specializationInput,
+              }
+            : a
+        )
+      );
+
+      setFeedbackMsg(`Successfully assigned ${editingAgent.fullName} to ${assignedBranchName} for portfolio: "${portfolioInput}".`);
+      setEditingAgent(null);
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : 'Assignment error';
+      setFeedbackMsg(`Error assigning agent: ${msg}`);
+    } finally {
+      setIsSavingAgent(false);
+      setTimeout(() => setFeedbackMsg(null), 4000);
+    }
+  };
 
   const handleAdjustStock = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -316,15 +407,65 @@ export default function BranchAdminPage() {
           </div>
         </div>
 
+        {/* Navigation Tabs */}
+        <div className="flex border-b border-slate-300 space-x-1 pt-1">
+          <button
+            type="button"
+            onClick={() => setActiveTab('inventory')}
+            className={`px-4 py-2.5 font-bold text-xs rounded-t-sm flex items-center space-x-2 transition-all ${
+              activeTab === 'inventory'
+                ? 'bg-emerald-800 text-white shadow-sm border-t-2 border-emerald-500'
+                : 'bg-white text-slate-700 hover:bg-slate-100 border border-b-0 border-slate-200'
+            }`}
+          >
+            <Boxes className="w-4 h-4" />
+            <span>Depot Inventory Ledger & Intakes</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setActiveTab('dispatch')}
+            className={`px-4 py-2.5 font-bold text-xs rounded-t-sm flex items-center space-x-2 transition-all ${
+              activeTab === 'dispatch'
+                ? 'bg-emerald-800 text-white shadow-sm border-t-2 border-emerald-500'
+                : 'bg-white text-slate-700 hover:bg-slate-100 border border-b-0 border-slate-200'
+            }`}
+          >
+            <Truck className="w-4 h-4" />
+            <span>Freight Dispatch & Gate Clearance</span>
+            <span className="ml-1.5 px-1.5 py-0.2 bg-emerald-950 text-emerald-200 text-[10px] rounded-full">
+              {branchOrders.length}
+            </span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setActiveTab('agents')}
+            className={`px-4 py-2.5 font-bold text-xs rounded-t-sm flex items-center space-x-2 transition-all ${
+              activeTab === 'agents'
+                ? 'bg-emerald-800 text-white shadow-sm border-t-2 border-emerald-500'
+                : 'bg-white text-slate-700 hover:bg-slate-100 border border-b-0 border-slate-200'
+            }`}
+          >
+            <Users className="w-4 h-4" />
+            <span>Sales Agent Portfolio Assignments</span>
+            <span className="ml-1.5 px-1.5 py-0.2 bg-emerald-950 text-emerald-200 text-[10px] rounded-full">
+              {subsidiaryAgents.length} Agents
+            </span>
+          </button>
+        </div>
+
         {/* Local Inventory Ledger */}
-        <div className="bg-white border border-slate-300 rounded-sm shadow-crisp p-5 space-y-4">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-3 border-b border-slate-200 gap-2">
-            <div className="flex items-center space-x-2">
-              <Boxes className="w-4 h-4 text-emerald-700" />
-              <h3 className="text-sm font-bold text-slate-900 uppercase tracking-wider">
-                Physical Inventory & Warehouse Storage Ledger ({activeBranch.city})
-              </h3>
-            </div>
+        {activeTab === 'inventory' && (
+          <div className="space-y-6">
+            <div className="bg-white border border-slate-300 rounded-sm shadow-crisp p-5 space-y-4">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-3 border-b border-slate-200 gap-2">
+              <div className="flex items-center space-x-2">
+                <Boxes className="w-4 h-4 text-emerald-700" />
+                <h3 className="text-sm font-bold text-slate-900 uppercase tracking-wider">
+                  Physical Inventory & Warehouse Storage Ledger ({activeBranch.city})
+                </h3>
+              </div>
             <div className="flex items-center space-x-2">
               <button
                 type="button"
@@ -494,73 +635,179 @@ export default function BranchAdminPage() {
             </form>
           </div>
         )}
+      </div>
+    )}
 
-        {/* Regional Order Fulfillment & Gate Pass Generator */}
-        <div className="bg-white border border-slate-300 rounded-sm shadow-crisp p-5 space-y-4">
-          <div className="flex items-center space-x-2 pb-3 border-b border-slate-200">
-            <Truck className="w-4 h-4 text-emerald-700" />
-            <h3 className="text-sm font-bold text-slate-900 uppercase tracking-wider">
-              Regional Order Fulfillment & Gate Clearance Queue
-            </h3>
-          </div>
+    {/* Regional Order Fulfillment & Gate Pass Generator */}
+    {activeTab === 'dispatch' && (
+      <div className="bg-white border border-slate-300 rounded-sm shadow-crisp p-5 space-y-4">
+        <div className="flex items-center space-x-2 pb-3 border-b border-slate-200">
+          <Truck className="w-4 h-4 text-emerald-700" />
+          <h3 className="text-sm font-bold text-slate-900 uppercase tracking-wider">
+            Regional Order Fulfillment & Gate Clearance Queue
+          </h3>
+        </div>
 
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs">
-              <thead className="bg-slate-100 text-slate-700 font-semibold border-b border-slate-300">
-                <tr>
-                  <th className="py-2 px-3">Order Number</th>
-                  <th className="py-2 px-3">Buyer Company</th>
-                  <th className="py-2 px-3">Delivery Method</th>
-                  <th className="py-2 px-3">Status</th>
-                  <th className="py-2 px-3">Consignment</th>
-                  <th className="py-2 px-3 text-center">Fulfillment Action</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-200">
-                {branchOrders.length > 0 ? (
-                  branchOrders.map((ord) => (
-                    <tr key={ord.id} className="hover:bg-slate-50">
-                      <td className="py-2.5 px-3 font-mono font-bold text-emerald-800">{ord.orderNumber}</td>
-                      <td className="py-2.5 px-3 font-medium text-slate-900">
-                        {ord.customerName}
-                        <span className="block text-[10px] text-slate-500">{ord.customerCompany}</span>
-                      </td>
-                      <td className="py-2.5 px-3 capitalize text-slate-700">
-                        {ord.deliveryType.replace(/_/g, ' ')}
-                      </td>
-                      <td className="py-2.5 px-3">
-                        <span className="px-2 py-0.5 bg-emerald-100 text-emerald-800 rounded-sm font-bold text-[10px] uppercase">
-                          {ord.status.replace(/_/g, ' ')}
-                        </span>
-                      </td>
-                      <td className="py-2.5 px-3 text-[11px] text-slate-600">
-                        {ord.items.map((i) => `${i.quantity}x ${i.productName}`).join(', ')}
-                      </td>
-                      <td className="py-2.5 px-3 text-center">
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setActiveDispatchOrder(ord);
-                            setGatePassCode(null);
-                          }}
-                          className="px-2.5 py-1 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-sm text-[10px] transition-colors"
-                        >
-                          Generate Gate Pass / Dispatch
-                        </button>
-                      </td>
-                    </tr>
-                  ))
-                ) : (
-                  <tr>
-                    <td colSpan={6} className="text-center py-6 text-slate-500">
-                      No active orders queued for clearance at this depot.
+        <div className="overflow-x-auto">
+          <table className="w-full text-left text-xs">
+            <thead className="bg-slate-100 text-slate-700 font-semibold border-b border-slate-300">
+              <tr>
+                <th className="py-2 px-3">Order Number</th>
+                <th className="py-2 px-3">Buyer Company</th>
+                <th className="py-2 px-3">Delivery Method</th>
+                <th className="py-2 px-3">Status</th>
+                <th className="py-2 px-3">Consignment</th>
+                <th className="py-2 px-3 text-center">Fulfillment Action</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-200">
+              {branchOrders.length > 0 ? (
+                branchOrders.map((ord) => (
+                  <tr key={ord.id} className="hover:bg-slate-50">
+                    <td className="py-2.5 px-3 font-mono font-bold text-emerald-800">{ord.orderNumber}</td>
+                    <td className="py-2.5 px-3 font-medium text-slate-900">
+                      {ord.customerName}
+                      <span className="block text-[10px] text-slate-500">{ord.customerCompany}</span>
+                    </td>
+                    <td className="py-2.5 px-3 capitalize text-slate-700">
+                      {ord.deliveryType.replace(/_/g, ' ')}
+                    </td>
+                    <td className="py-2.5 px-3">
+                      <span className="px-2 py-0.5 bg-emerald-100 text-emerald-800 rounded-sm font-bold text-[10px] uppercase">
+                        {ord.status.replace(/_/g, ' ')}
+                      </span>
+                    </td>
+                    <td className="py-2.5 px-3 text-[11px] text-slate-600">
+                      {ord.items.map((i) => `${i.quantity}x ${i.productName}`).join(', ')}
+                    </td>
+                    <td className="py-2.5 px-3 text-center">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setActiveDispatchOrder(ord);
+                          setGatePassCode(null);
+                        }}
+                        className="px-2.5 py-1 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-sm text-[10px] transition-colors"
+                      >
+                        Generate Gate Pass / Dispatch
+                      </button>
                     </td>
                   </tr>
-                )}
-              </tbody>
-            </table>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan={6} className="text-center py-6 text-slate-500">
+                    No active orders queued for clearance at this depot.
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    )}
+
+    {/* Sales Agent & Client Portfolio Assignments Tab (SRS Section 2) */}
+    {activeTab === 'agents' && (
+      <div className="bg-white border border-slate-300 rounded-sm shadow-crisp p-5 space-y-4">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-3 border-b border-slate-200 gap-2">
+          <div>
+            <div className="flex items-center space-x-2">
+              <Users className="w-4 h-4 text-emerald-700" />
+              <h3 className="text-sm font-bold text-slate-900 uppercase tracking-wider">
+                Subsidiary Sales Agent & Client Portfolio Assignments
+              </h3>
+            </div>
+            <p className="text-[11px] text-slate-500 mt-0.5">
+              Assign specialized sales engineers to client portfolios within your subsidiary boundary.
+            </p>
+          </div>
+
+          <div className="flex items-center space-x-2">
+            <span className="inline-flex items-center space-x-1 px-2.5 py-1 bg-emerald-50 border border-emerald-200 text-emerald-800 text-[10px] font-bold rounded-sm">
+              <Shield className="w-3 h-3 text-emerald-600" />
+              <span>Boundary: {activeSubsidiaryName}</span>
+            </span>
+            <div className="relative">
+              <Search className="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-2" />
+              <input
+                type="text"
+                placeholder="Search agents or portfolios..."
+                value={agentSearch}
+                onChange={(e) => setAgentSearch(e.target.value)}
+                className="pl-8 pr-2.5 py-1 border border-slate-300 rounded-sm text-xs bg-slate-50 focus:bg-white focus:border-emerald-600 outline-none w-56 font-sans"
+              />
+            </div>
           </div>
         </div>
+
+        <div className="overflow-x-auto">
+          <table className="w-full text-left text-xs">
+            <thead className="bg-emerald-50 text-emerald-900 font-semibold border-b border-emerald-200">
+              <tr>
+                <th className="py-2.5 px-3">Sales Agent</th>
+                <th className="py-2.5 px-3">Subsidiary Division</th>
+                <th className="py-2.5 px-3">Assigned Branch Hub</th>
+                <th className="py-2.5 px-3">Engineering Specialization</th>
+                <th className="py-2.5 px-3">Client Portfolio Assignment</th>
+                <th className="py-2.5 px-3 text-center">Action</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-200">
+              {filteredAgents.length > 0 ? (
+                filteredAgents.map((agent) => (
+                  <tr key={agent.id} className="hover:bg-slate-50 transition-colors">
+                    <td className="py-3 px-3">
+                      <div className="font-bold text-slate-900">{agent.fullName}</div>
+                      <div className="text-[10px] font-mono text-slate-500">{agent.email}</div>
+                      <div className="text-[10px] font-mono text-slate-400">{agent.phone}</div>
+                    </td>
+                    <td className="py-3 px-3">
+                      <span className="px-2 py-0.5 bg-slate-100 text-slate-800 rounded-sm font-semibold text-[10px] block w-fit">
+                        {agent.subsidiaryName || 'General Industrial'}
+                      </span>
+                    </td>
+                    <td className="py-3 px-3">
+                      <div className="font-semibold text-slate-800 flex items-center space-x-1">
+                        <MapPin className="w-3 h-3 text-emerald-600" />
+                        <span>{agent.branchName || 'Adama Industrial Park Hub'}</span>
+                      </div>
+                    </td>
+                    <td className="py-3 px-3">
+                      <span className="text-[11px] font-medium text-slate-700 bg-emerald-50/60 border border-emerald-200/60 px-2 py-0.5 rounded-sm inline-block">
+                        {agent.specialization || 'Technical Industrial Sales'}
+                      </span>
+                    </td>
+                    <td className="py-3 px-3">
+                      <div className="font-bold text-emerald-950 font-mono text-[11px]">
+                        {agent.clientPortfolio || 'General Enterprise Accounts'}
+                      </div>
+                      <span className="text-[10px] text-slate-500">Certified dedicated account desk</span>
+                    </td>
+                    <td className="py-3 px-3 text-center">
+                      <button
+                        type="button"
+                        onClick={() => handleOpenAssignModal(agent)}
+                        className="px-3 py-1.5 bg-emerald-700 hover:bg-emerald-800 text-white font-bold rounded-sm text-[11px] transition-colors shadow-xs flex items-center space-x-1 mx-auto"
+                      >
+                        <Briefcase className="w-3 h-3" />
+                        <span>Reassign Portfolio</span>
+                      </button>
+                    </td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan={6} className="text-center py-8 text-slate-500">
+                    No sales agents found within this subsidiary boundary.
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    )}
 
         {/* Gate Pass Modal */}
         {activeDispatchOrder && (
@@ -791,6 +1038,131 @@ export default function BranchAdminPage() {
                     className="px-4 py-1.5 bg-amber-600 hover:bg-amber-700 text-white font-bold rounded-sm transition-colors shadow-sm disabled:opacity-50"
                   >
                     {isRestocking ? 'Issuing PO...' : 'Commit Purchase Order to Factory'}
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        )}
+
+        {/* Modal: Reassign Sales Agent Portfolio (SRS Section 2) */}
+        {editingAgent && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/70 backdrop-blur-sm animate-in fade-in">
+            <div className="bg-white border border-slate-300 rounded-sm shadow-modal max-w-lg w-full p-5 space-y-4 text-xs">
+              <div className="flex justify-between items-center border-b border-slate-200 pb-2">
+                <div className="flex items-center space-x-2 text-emerald-800 font-bold">
+                  <UserCheck className="w-4 h-4" />
+                  <span className="text-sm">Assign Agent to Client Portfolio</span>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setEditingAgent(null)}
+                  className="text-slate-400 hover:text-slate-600"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+
+              <div className="bg-emerald-50 border border-emerald-200 p-3 rounded-sm space-y-1">
+                <div className="flex justify-between items-center">
+                  <span className="text-[10px] uppercase font-bold text-emerald-900">
+                    Target Sales Agent:
+                  </span>
+                  <span className="px-1.5 py-0.2 bg-emerald-700 text-white font-bold text-[9px] rounded-xs uppercase">
+                    ABAC Boundary Verified
+                  </span>
+                </div>
+                <div className="font-extrabold text-sm text-slate-900">{editingAgent.fullName}</div>
+                <div className="text-[11px] text-slate-600 font-mono">
+                  {editingAgent.email} • {editingAgent.subsidiaryName}
+                </div>
+              </div>
+
+              <form onSubmit={handleSaveAgentPortfolio} className="space-y-3.5">
+                <div>
+                  <label className="block text-[11px] font-bold text-slate-700 mb-1">
+                    1. Regional Fulfillment Branch Hub:
+                  </label>
+                  <select
+                    value={targetAgentBranch}
+                    onChange={(e) => setTargetAgentBranch(e.target.value)}
+                    className="w-full border border-slate-300 bg-white px-3 py-2 text-xs rounded-sm font-semibold outline-none focus:border-emerald-600"
+                  >
+                    {BRANCHES.map((b) => (
+                      <option key={b.id} value={b.id}>
+                        {b.name} ({b.city})
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-[11px] font-bold text-slate-700 mb-1">
+                    2. Assigned Client Portfolio (Institutional Accounts):
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={portfolioInput}
+                    onChange={(e) => setPortfolioInput(e.target.value)}
+                    placeholder="e.g. MIDROC Construction Ethiopia PLC & Commercial Hubs"
+                    className="w-full border border-slate-300 px-3 py-2 rounded-sm font-mono text-xs outline-none focus:border-emerald-600"
+                  />
+                  {/* Preset quick suggestions */}
+                  <div className="flex flex-wrap gap-1 mt-1.5">
+                    {[
+                      'MIDROC Construction PLC',
+                      'Sunshine Construction & Housing',
+                      'Sur Construction & Regional Depots',
+                      'Dangote & National Fleet Accounts',
+                    ].map((preset) => (
+                      <button
+                        key={preset}
+                        type="button"
+                        onClick={() => setPortfolioInput(preset)}
+                        className="px-2 py-0.5 bg-slate-100 hover:bg-slate-200 text-slate-600 text-[10px] rounded-xs border border-slate-200 transition-colors"
+                      >
+                        + {preset}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-[11px] font-bold text-slate-700 mb-1">
+                    3. Technical Engineering Specialization:
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={specializationInput}
+                    onChange={(e) => setSpecializationInput(e.target.value)}
+                    placeholder="e.g. Pre-Painted Roofing Profiles & Fasteners"
+                    className="w-full border border-slate-300 px-3 py-2 rounded-sm font-mono text-xs outline-none focus:border-emerald-600"
+                  />
+                </div>
+
+                <div className="pt-2 flex justify-end space-x-2 border-t border-slate-200">
+                  <button
+                    type="button"
+                    onClick={() => setEditingAgent(null)}
+                    className="px-3 py-1.5 border border-slate-300 bg-white font-semibold rounded-sm hover:bg-slate-50 text-xs"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={isSavingAgent}
+                    className="px-4 py-1.5 bg-emerald-700 hover:bg-emerald-800 text-white font-bold rounded-sm transition-colors shadow-sm disabled:opacity-50 text-xs flex items-center space-x-1"
+                  >
+                    {isSavingAgent ? (
+                      <span>Updating Assignment...</span>
+                    ) : (
+                      <>
+                        <UserCheck className="w-3.5 h-3.5" />
+                        <span>Commit Portfolio Assignment</span>
+                      </>
+                    )}
                   </button>
                 </div>
               </form>

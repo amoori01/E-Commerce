@@ -67,6 +67,8 @@ export interface UserProfile {
   companyName?: string;
   tinNumber?: string;
   isVerified: boolean;
+  clientPortfolio?: string;
+  specialization?: string;
 }
 
 export interface Category {
