@@ -1,6 +1,8 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { useAuth } from '@/lib/auth-context';
 import { INITIAL_ORDERS, INITIAL_QUOTES } from '@/lib/constants';
 import { Order, Quote } from '@/types';
@@ -58,7 +60,24 @@ export default function CustomerPortalPage() {
   const [chatInput, setChatInput] = useState('');
   const [isChatLoading, setIsChatLoading] = useState(false);
 
+  const router = useRouter();
   const isCustomer = activeRole === 'customer';
+
+  const roleRedirectMap: Record<string, { url: string; title: string }> = {
+    super_admin: { url: '/admin', title: 'Corporate Super Admin Portal' },
+    branch_admin: { url: '/branch-admin', title: 'Branch Depot Admin Portal' },
+    sales_agent: { url: '/agent', title: 'Sales Engineering Workspace' },
+  };
+
+  useEffect(() => {
+    if (!isCustomer && roleRedirectMap[activeRole]) {
+      const timer = setTimeout(() => {
+        router.push(roleRedirectMap[activeRole].url);
+      }, 2500);
+      return () => clearTimeout(timer);
+    }
+  }, [isCustomer, activeRole, router]);
+
   const myOrders = INITIAL_ORDERS.filter((o) => o.customerId === currentUser.id || currentUser.role === 'customer');
   const myQuotes = quotesList.filter((q) => q.customerId === currentUser.id || currentUser.role === 'customer');
 
@@ -185,6 +204,62 @@ export default function CustomerPortalPage() {
       console.error(e);
     }
   };
+
+  if (!isCustomer) {
+    const dest = roleRedirectMap[activeRole] || { url: '/admin', title: 'Management Workspace' };
+    return (
+      <div className="min-h-[75vh] flex items-center justify-center p-4 bg-slate-50">
+        <div className="max-w-md w-full bg-white border border-slate-300 rounded-sm p-6 shadow-modal text-center space-y-4">
+          <div className="w-12 h-12 bg-amber-100 border border-amber-300 text-amber-800 rounded-full flex items-center justify-center mx-auto">
+            <ShieldCheck className="w-6 h-6" />
+          </div>
+          <div className="space-y-1">
+            <h2 className="text-base font-bold text-slate-900">
+              Customer Orders Portal: Role Restricted
+            </h2>
+            <p className="text-xs text-slate-600 leading-relaxed">
+              You are signed in as <strong className="text-slate-900 capitalize font-mono">{activeRole.replace('_', ' ')}</strong> ({currentUser.fullName}).
+              Order placement, proforma review, and buying accounts are reserved for verified commercial customers.
+            </p>
+          </div>
+
+          <div className="bg-slate-50 border border-slate-200 p-3 rounded-sm text-xs text-slate-700 text-left space-y-1">
+            <div className="font-semibold text-slate-900 text-[11px] uppercase tracking-wider">
+              Management Access:
+            </div>
+            <div className="text-[11px] text-slate-600">
+              • To manage fulfillment, inventory, or quotes, open your designated workspace below.
+            </div>
+            <div className="text-[11px] text-slate-600">
+              • To test order placement and view proformas, switch to a Customer account.
+            </div>
+          </div>
+
+          <div className="pt-2 flex flex-col gap-2">
+            <Link
+              href={dest.url}
+              className="w-full py-2 bg-amg-navy hover:bg-amg-navy-900 text-white font-bold rounded-sm text-xs transition-colors flex items-center justify-center space-x-1.5 shadow-sm"
+            >
+              <span>Go to {dest.title}</span>
+              <ArrowRight className="w-4 h-4" />
+            </Link>
+            <button
+              type="button"
+              onClick={() => switchRole('customer')}
+              className="w-full py-2 bg-amber-600 hover:bg-amber-700 text-white font-bold rounded-sm text-xs transition-colors flex items-center justify-center space-x-1.5 shadow-sm"
+            >
+              <Building2 className="w-4 h-4" />
+              <span>Switch to Customer Persona (MIDROC Corporate)</span>
+            </button>
+          </div>
+
+          <div className="text-[10px] text-slate-400 font-mono">
+            Auto-navigating to your workspace in 2 seconds...
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-slate-50 text-slate-800">

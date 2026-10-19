@@ -9,7 +9,7 @@ import { CheckCircle2, Building2, Truck, ShieldCheck, X, ArrowRight, CreditCard,
 
 export function CheckoutModal() {
   const { isCheckoutOpen, closeCheckout, items, subtotal, tax, total, clearCart } = useCart();
-  const { currentUser } = useAuth();
+  const { currentUser, activeRole, switchRole } = useAuth();
 
   const [step, setStep] = useState<'details' | 'payment' | 'confirmation'>('details');
   const [deliveryType, setDeliveryType] = useState<'branch_pickup' | 'freight_delivery'>('branch_pickup');
@@ -37,6 +37,15 @@ export function CheckoutModal() {
   const handlePlaceOrder = async () => {
     setIsProcessing(true);
     setErrorMessage(null);
+
+    if (activeRole !== 'customer') {
+      setErrorMessage(
+        `Staff account detected (${activeRole.replace('_', ' ')}). Order placement is restricted to verified Customer accounts. Click "Switch to Customer" above to complete this order.`
+      );
+      setIsProcessing(false);
+      return;
+    }
+
     try {
       const payload = {
         customerId: currentUser.id,
@@ -100,6 +109,28 @@ export function CheckoutModal() {
 
         {/* Modal Body */}
         <div className="p-6 overflow-y-auto space-y-6 flex-1 text-slate-800 text-sm">
+          {/* Staff Mode Role Guard Banner */}
+          {activeRole !== 'customer' && (
+            <div className="bg-amber-50 border border-amber-300 p-3.5 rounded-sm flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 text-xs text-amber-900 shadow-xs">
+              <div className="flex items-start space-x-2">
+                <ShieldCheck className="w-4 h-4 text-amber-700 shrink-0 mt-0.5" />
+                <div className="space-y-0.5">
+                  <div className="font-bold">Staff Account Detected ({activeRole.replace('_', ' ')})</div>
+                  <div className="text-[11px] text-amber-800">
+                    Commercial order checkout is reserved for Customer buyers. Click below to switch to a verified Customer account and test checkout.
+                  </div>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => switchRole('customer')}
+                className="px-3 py-1.5 bg-amber-700 hover:bg-amber-800 text-white font-bold rounded-xs text-[11px] shrink-0 transition-colors shadow-xs"
+              >
+                Switch to Customer (MIDROC)
+              </button>
+            </div>
+          )}
+
           {step === 'details' && (
             <>
               {/* Order Summary Snapshot */}

@@ -2,10 +2,12 @@
 
 import React from 'react';
 import { useCart } from '@/lib/cart-context';
+import { useAuth } from '@/lib/auth-context';
 import { getProductUnitPrice } from '@/lib/constants';
 import { X, Trash2, ArrowRight, ShoppingBag, ShieldCheck } from 'lucide-react';
 
 export function CartDrawer() {
+  const { activeRole, switchRole } = useAuth();
   const {
     items,
     isCartDrawerOpen,
@@ -60,6 +62,23 @@ export function CartDrawer() {
               <X className="w-5 h-5" />
             </button>
           </div>
+
+          {/* Staff Mode Banner */}
+          {activeRole !== 'customer' && (
+            <div className="bg-amber-50 border-b border-amber-300 px-4 py-2 flex items-center justify-between text-[11px] text-amber-900">
+              <div className="flex items-center space-x-1.5 truncate">
+                <ShieldCheck className="w-3.5 h-3.5 text-amber-700 shrink-0" />
+                <span className="truncate">Staff ({activeRole.replace('_', ' ')}): Orders require Customer account.</span>
+              </div>
+              <button
+                type="button"
+                onClick={() => switchRole('customer')}
+                className="font-bold underline text-amber-800 hover:text-amber-950 ml-2 shrink-0"
+              >
+                Switch
+              </button>
+            </div>
+          )}
 
           {/* Cart Content */}
           <div className="flex-1 overflow-y-auto p-6 space-y-4">
