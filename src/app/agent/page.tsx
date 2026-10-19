@@ -61,15 +61,16 @@ export default function SalesAgentPage() {
     setIsSaved(false);
   };
 
-  const handleSaveQuoteMatrix = (e: React.FormEvent) => {
+  const handleSaveQuoteMatrix = async (e: React.FormEvent) => {
     e.preventDefault();
     const nextVersion = (selectedQuote.currentVersion || 1) + 1;
+    const formulaSummary = `Formula applied: [Raw Materials: ETB ${rawMaterialCost.toLocaleString()}] + [Machining: ${fabricationHours}hrs @ ETB ${hourlyMachineRate}/hr] + [Coating: ETB ${coatingTariff.toLocaleString()}] + [Freight: ETB ${freightTariff.toLocaleString()}] + [Target Margin: ${marginPercent}%].`;
     const newRevision = {
       version: nextVersion,
       timestamp: new Date().toISOString(),
       quotedTotalEtb: calculatedQuotedTotal,
       validUntil: validUntil,
-      notes: agentNotes || `Revision ${nextVersion}: Formulated via Engineering Matrix with ${marginPercent}% margin.`,
+      notes: agentNotes ? `${agentNotes} | ${formulaSummary}` : `Revision ${nextVersion}: ${formulaSummary}`,
       status: 'draft' as const,
       changedBy: `${currentUser.fullName} (Sales Engineer)`,
     };
@@ -100,8 +101,28 @@ export default function SalesAgentPage() {
       revisions: [...(prev.revisions || []), newRevision],
     }));
 
+    try {
+      const quoteIdentifier = selectedQuote.quoteNumber || selectedQuote.id;
+      await fetch(`/api/quotes/${encodeURIComponent(quoteIdentifier)}/status`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-user-role': 'sales_agent',
+          'x-user-id': currentUser.id,
+        },
+        body: JSON.stringify({
+          targetStatus: 'draft_quote_issued',
+          reason: `Engineering pricing matrix formulated: ${formulaSummary}`,
+          quotedTotalEtb: calculatedQuotedTotal,
+          validUntil: validUntil,
+        }),
+      });
+    } catch (err) {
+      console.warn('Quote state machine sync warning:', err);
+    }
+
     setIsSaved(true);
-    setTimeout(() => setIsSaved(false), 3000);
+    setTimeout(() => setIsSaved(false), 3500);
   };
 
   const handleSendMessage = async (e: React.FormEvent) => {
@@ -333,99 +354,143 @@ export default function SalesAgentPage() {
 
               {/* DYNAMIC PRICING MATRIX CALCULATOR (Interactive Tool) */}
               <form onSubmit={handleSaveQuoteMatrix} className="border-t border-slate-800 pt-4 space-y-4">
-                <div className="flex items-center space-x-1.5 text-sky-400 font-bold text-xs uppercase tracking-wide">
-                  <Calculator className="w-4 h-4" />
-                  <span>Engineering Cost Model & Dynamic Pricing Matrix</span>
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                  <div className="flex items-center space-x-1.5 text-sky-400 font-bold text-xs uppercase tracking-wide">
+                    <Calculator className="w-4 h-4" />
+                    <span>Engineering Cost Model & Dynamic Pricing Matrix</span>
+                  </div>
+                  <div className="text-[10px] font-mono bg-sky-950 border border-sky-800/80 px-2 py-0.5 rounded-sm text-sky-300">
+                    Formula: Raw Materials + (Machine Hours × Rate) + Coating + Freight + Margin %
+                  </div>
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 bg-slate-900/80 border border-slate-800 p-3.5 rounded-sm">
+                <div className="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-4 gap-3 bg-slate-900/80 border border-slate-800 p-3.5 rounded-sm">
                   <div>
                     <label className="block text-slate-400 text-[10px] font-bold uppercase mb-1">
-                      Raw Steel Billet / Materials (ETB):
+                      1. Raw Material Cost (ETB):
                     </label>
                     <input
                       type="number"
                       value={rawMaterialCost}
                       onChange={(e) => setRawMaterialCost(Number(e.target.value))}
-                      className="w-full bg-slate-950 border border-slate-700 px-2.5 py-1.5 rounded-sm font-mono text-white text-xs outline-none"
+                      className="w-full bg-slate-950 border border-slate-700 px-2.5 py-1.5 rounded-sm font-mono text-white text-xs outline-none focus:border-sky-500"
                     />
                   </div>
 
                   <div>
                     <label className="block text-slate-400 text-[10px] font-bold uppercase mb-1">
-                      Fabrication Hours @ ETB {hourlyMachineRate}/hr:
+                      2. Machine Hours (hrs):
                     </label>
                     <input
                       type="number"
                       value={fabricationHours}
                       onChange={(e) => setFabricationHours(Number(e.target.value))}
-                      className="w-full bg-slate-950 border border-slate-700 px-2.5 py-1.5 rounded-sm font-mono text-white text-xs outline-none"
+                      className="w-full bg-slate-950 border border-slate-700 px-2.5 py-1.5 rounded-sm font-mono text-white text-xs outline-none focus:border-sky-500"
                     />
                   </div>
 
                   <div>
                     <label className="block text-slate-400 text-[10px] font-bold uppercase mb-1">
-                      Epoxy Primer & Coating (ETB):
+                      3. Machine Rate (ETB / hr):
+                    </label>
+                    <input
+                      type="number"
+                      value={hourlyMachineRate}
+                      onChange={(e) => setHourlyMachineRate(Number(e.target.value))}
+                      className="w-full bg-slate-950 border border-slate-700 px-2.5 py-1.5 rounded-sm font-mono text-white text-xs outline-none focus:border-sky-500"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-slate-400 text-[10px] font-bold uppercase mb-1">
+                      4. Protective Coating (ETB):
                     </label>
                     <input
                       type="number"
                       value={coatingTariff}
                       onChange={(e) => setCoatingTariff(Number(e.target.value))}
-                      className="w-full bg-slate-950 border border-slate-700 px-2.5 py-1.5 rounded-sm font-mono text-white text-xs outline-none"
+                      className="w-full bg-slate-950 border border-slate-700 px-2.5 py-1.5 rounded-sm font-mono text-white text-xs outline-none focus:border-sky-500"
                     />
                   </div>
 
                   <div>
                     <label className="block text-slate-400 text-[10px] font-bold uppercase mb-1">
-                      Heavy Haulage Freight Tariff (ETB):
+                      5. Freight Tariff (ETB):
                     </label>
                     <input
                       type="number"
                       value={freightTariff}
                       onChange={(e) => setFreightTariff(Number(e.target.value))}
-                      className="w-full bg-slate-950 border border-slate-700 px-2.5 py-1.5 rounded-sm font-mono text-white text-xs outline-none"
+                      className="w-full bg-slate-950 border border-slate-700 px-2.5 py-1.5 rounded-sm font-mono text-white text-xs outline-none focus:border-sky-500"
                     />
                   </div>
 
                   <div>
                     <label className="block text-slate-400 text-[10px] font-bold uppercase mb-1">
-                      Commercial Margin Markup (%):
+                      6. Target Margin (%):
                     </label>
                     <input
                       type="number"
                       step="0.1"
                       value={marginPercent}
                       onChange={(e) => setMarginPercent(Number(e.target.value))}
-                      className="w-full bg-slate-950 border border-slate-700 px-2.5 py-1.5 rounded-sm font-mono text-white text-xs outline-none"
+                      className="w-full bg-slate-950 border border-slate-700 px-2.5 py-1.5 rounded-sm font-mono text-white text-xs outline-none focus:border-sky-500"
                     />
                   </div>
 
-                  <div>
+                  <div className="sm:col-span-2">
                     <label className="block text-slate-400 text-[10px] font-bold uppercase mb-1">
-                      Valid Guaranteed Until:
+                      7. Valid Guaranteed Until:
                     </label>
                     <input
                       type="date"
                       required
                       value={validUntil}
                       onChange={(e) => setValidUntil(e.target.value)}
-                      className="w-full bg-slate-950 border border-slate-700 px-2.5 py-1.5 rounded-sm font-mono text-white text-xs outline-none"
+                      className="w-full bg-slate-950 border border-slate-700 px-2.5 py-1.5 rounded-sm font-mono text-white text-xs outline-none focus:border-sky-500"
                     />
                   </div>
                 </div>
 
-                {/* Live Formula Calculated Total Banner */}
-                <div className="p-3 bg-sky-950/60 border border-sky-800 rounded-sm flex justify-between items-center">
-                  <div>
-                    <span className="text-[10px] font-bold uppercase text-sky-400 block">
-                      Calculated Final Quoted Total (ETB)
-                    </span>
-                    <span className="text-[11px] text-slate-400 font-mono">
-                      Base Cost ETB {baseProductionCost.toLocaleString()} + {marginPercent}% Margin
-                    </span>
+                {/* Mathematical Formula Breakdown Card */}
+                <div className="bg-slate-950 border border-sky-900/60 rounded-sm p-3.5 space-y-2.5">
+                  <div className="text-[10px] font-bold uppercase tracking-wider text-slate-400 flex items-center justify-between">
+                    <span>Engineering Formula Breakdown</span>
+                    <span className="font-mono text-sky-400">Live Auto-Computed</span>
                   </div>
-                  <div className="text-xl font-extrabold font-mono text-emerald-400">
-                    ETB {calculatedQuotedTotal.toLocaleString('en-US', { minimumFractionDigits: 2 })}
+
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 font-mono text-[10px]">
+                    <div className="bg-slate-900/70 p-2 rounded-sm border border-slate-800">
+                      <div className="text-slate-500">Raw Materials</div>
+                      <div className="text-white font-bold mt-0.5">ETB {rawMaterialCost.toLocaleString()}</div>
+                    </div>
+                    <div className="bg-slate-900/70 p-2 rounded-sm border border-slate-800">
+                      <div className="text-slate-500">Machining ({fabricationHours}h × {hourlyMachineRate})</div>
+                      <div className="text-sky-300 font-bold mt-0.5">ETB {subtotalFabrication.toLocaleString()}</div>
+                    </div>
+                    <div className="bg-slate-900/70 p-2 rounded-sm border border-slate-800">
+                      <div className="text-slate-500">Protective Coating</div>
+                      <div className="text-white font-bold mt-0.5">ETB {coatingTariff.toLocaleString()}</div>
+                    </div>
+                    <div className="bg-slate-900/70 p-2 rounded-sm border border-slate-800">
+                      <div className="text-slate-500">Freight Logistics</div>
+                      <div className="text-white font-bold mt-0.5">ETB {freightTariff.toLocaleString()}</div>
+                    </div>
+                  </div>
+
+                  {/* Live Formula Calculated Total Banner */}
+                  <div className="p-3 bg-sky-950/70 border border-sky-700/60 rounded-sm flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                    <div>
+                      <span className="text-[10px] font-bold uppercase text-sky-400 block">
+                        Calculated Final Quoted Total (ETB)
+                      </span>
+                      <span className="text-[11px] text-slate-300 font-mono">
+                        Base Production Cost ETB {baseProductionCost.toLocaleString()} + {marginPercent}% Margin (+ETB {Math.round(baseProductionCost * (marginPercent / 100)).toLocaleString()})
+                      </span>
+                    </div>
+                    <div className="text-xl sm:text-2xl font-extrabold font-mono text-emerald-400">
+                      ETB {calculatedQuotedTotal.toLocaleString('en-US', { minimumFractionDigits: 2 })}
+                    </div>
                   </div>
                 </div>
 

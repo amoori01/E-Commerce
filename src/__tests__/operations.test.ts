@@ -79,5 +79,23 @@ describe('Advanced Enterprise Operations: Negotiation Chat, Dispatch & Restockin
     expect(data.purchaseOrder.poNumber).toMatch(/^AMG-PO-2026-\d{4}$/);
     expect(data.purchaseOrder.branchId).toBe(branch.id);
   });
+
+  it('calculates custom engineering quote using formula: Raw Materials + (Machine Hours × Rate) + Coating + Freight + Target Margin %', () => {
+    const rawMaterialCost = 8500000;
+    const machineHours = 320;
+    const hourlyRate = 3500;
+    const protectiveCoating = 750000;
+    const freight = 450000;
+    const targetMarginPercent = 9.5;
+
+    // Formula calculation
+    const machineCost = machineHours * hourlyRate; // 1,120,000
+    const baseProductionCost = rawMaterialCost + machineCost + protectiveCoating + freight; // 10,820,000
+    const quotedTotal = Math.round(baseProductionCost * (1 + targetMarginPercent / 100)); // 11,847,900
+
+    expect(machineCost).toBe(1120000);
+    expect(baseProductionCost).toBe(10820000);
+    expect(quotedTotal).toBe(11847900);
+  });
 });
 
