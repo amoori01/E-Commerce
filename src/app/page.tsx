@@ -21,7 +21,8 @@ import {
   Download,
   Flame,
   Check,
-  X
+  X,
+  Search
 } from 'lucide-react';
 
 function HomePageContent() {
@@ -29,12 +30,20 @@ function HomePageContent() {
   const searchParams = useSearchParams();
   const [selectedSubsidiary, setSelectedSubsidiary] = useState<string>('all');
   const [selectedStream, setSelectedStream] = useState<'all' | TransactionStream>('all');
+  const [catalogSearch, setCatalogSearch] = useState<string>('');
   const [expandedSpecsId, setExpandedSpecsId] = useState<string | null>(null);
 
   // Sync state with URL search params and hash (e.g. from navbar or footer links)
   useEffect(() => {
     const subParam = searchParams.get('subsidiary');
     const streamParam = searchParams.get('stream');
+    const qParam = searchParams.get('q');
+
+    if (qParam !== null) {
+      setCatalogSearch(qParam);
+    } else {
+      setCatalogSearch('');
+    }
 
     if (subParam) {
       if (subParam === 'all') {
@@ -80,7 +89,21 @@ function HomePageContent() {
   const filteredProducts = PRODUCTS.filter((p) => {
     const matchesSub = selectedSubsidiary === 'all' || p.subsidiaryId === selectedSubsidiary;
     const matchesStream = selectedStream === 'all' || p.transactionStream === selectedStream;
-    return matchesSub && matchesStream;
+
+    const query = catalogSearch.trim().toLowerCase();
+    const matchesQuery =
+      !query ||
+      p.name.toLowerCase().includes(query) ||
+      p.sku.toLowerCase().includes(query) ||
+      p.description.toLowerCase().includes(query) ||
+      (p.categoryName && p.categoryName.toLowerCase().includes(query)) ||
+      Object.entries(p.technicalSpecs || {}).some(
+        ([key, val]) =>
+          key.toLowerCase().includes(query) ||
+          String(val).toLowerCase().includes(query)
+      );
+
+    return matchesSub && matchesStream && matchesQuery;
   });
 
   return (
@@ -218,7 +241,7 @@ function HomePageContent() {
 
       {/* 3. CATALOG FILTER CONTROLS (GRAINGER / ALIBABA STYLE) */}
       <section id="catalog-section" className="max-w-7xl mx-auto px-4 sm:px-6 space-y-4">
-        <div className="flex flex-col md:flex-row md:items-center justify-between border-b border-slate-300 pb-3 gap-3">
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between border-b border-slate-300 pb-3 gap-3">
           <div>
             <h2 className="text-xl font-extrabold text-slate-900 tracking-tight">
               Enterprise Catalog & Technical Specifications
@@ -228,45 +251,86 @@ function HomePageContent() {
             </p>
           </div>
 
-          {/* Stream Filter Pills */}
-          <div className="flex items-center space-x-2">
-            <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">
-              Filter Stream:
-            </span>
-            <div className="inline-flex bg-slate-200 p-0.5 rounded-sm border border-slate-300 text-xs">
-              <button
-                type="button"
-                onClick={() => setSelectedStream('all')}
-                className={`px-3 py-1 font-semibold rounded-sm transition-all ${
-                  selectedStream === 'all'
-                    ? 'bg-white text-slate-900 shadow-sm'
-                    : 'text-slate-600 hover:text-slate-900'
-                }`}
-              >
-                All Products
-              </button>
-              <button
-                type="button"
-                onClick={() => setSelectedStream('direct_checkout')}
-                className={`px-3 py-1 font-semibold rounded-sm transition-all ${
-                  selectedStream === 'direct_checkout'
-                    ? 'bg-amg-navy text-white shadow-sm'
-                    : 'text-slate-600 hover:text-slate-900'
-                }`}
-              >
-                Stream A (Instant)
-              </button>
-              <button
-                type="button"
-                onClick={() => setSelectedStream('assisted_quote')}
-                className={`px-3 py-1 font-semibold rounded-sm transition-all ${
-                  selectedStream === 'assisted_quote'
-                    ? 'bg-amg-red text-white shadow-sm'
-                    : 'text-slate-600 hover:text-slate-900'
-                }`}
-              >
-                Stream B (RFQ)
-              </button>
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+            {/* Live In-Catalog Search Bar */}
+            <div className="relative min-w-[240px] sm:w-64">
+              <Search className="w-4 h-4 text-slate-400 absolute left-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+              <input
+                type="text"
+                value={catalogSearch}
+                onChange={(e) => {
+                  const val = e.target.value;
+                  setCatalogSearch(val);
+                  const params = new URLSearchParams(window.location.search);
+                  if (val.trim()) {
+                    params.set('q', val.trim());
+                  } else {
+                    params.delete('q');
+                  }
+                  const qs = params.toString();
+                  window.history.replaceState({}, '', qs ? `/?${qs}#catalog-section` : '/#catalog-section');
+                }}
+                placeholder="Filter by SKU, steel, gauge..."
+                className="w-full pl-8 pr-7 py-1.5 text-xs border border-slate-300 rounded-sm bg-white focus:outline-none focus:border-amg-navy focus:ring-1 focus:ring-amg-navy placeholder-slate-400"
+              />
+              {catalogSearch && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setCatalogSearch('');
+                    const params = new URLSearchParams(window.location.search);
+                    params.delete('q');
+                    const qs = params.toString();
+                    window.history.replaceState({}, '', qs ? `/?${qs}#catalog-section` : '/#catalog-section');
+                  }}
+                  className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+                  title="Clear search"
+                >
+                  <X className="w-3.5 h-3.5" />
+                </button>
+              )}
+            </div>
+
+            {/* Stream Filter Pills */}
+            <div className="flex items-center space-x-2 shrink-0">
+              <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider hidden md:inline">
+                Stream:
+              </span>
+              <div className="inline-flex bg-slate-200 p-0.5 rounded-sm border border-slate-300 text-xs">
+                <button
+                  type="button"
+                  onClick={() => setSelectedStream('all')}
+                  className={`px-3 py-1 font-semibold rounded-sm transition-all ${
+                    selectedStream === 'all'
+                      ? 'bg-white text-slate-900 shadow-sm'
+                      : 'text-slate-600 hover:text-slate-900'
+                  }`}
+                >
+                  All
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setSelectedStream('direct_checkout')}
+                  className={`px-3 py-1 font-semibold rounded-sm transition-all ${
+                    selectedStream === 'direct_checkout'
+                      ? 'bg-amg-navy text-white shadow-sm'
+                      : 'text-slate-600 hover:text-slate-900'
+                  }`}
+                >
+                  Stream A (Instant)
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setSelectedStream('assisted_quote')}
+                  className={`px-3 py-1 font-semibold rounded-sm transition-all ${
+                    selectedStream === 'assisted_quote'
+                      ? 'bg-amg-red text-white shadow-sm'
+                      : 'text-slate-600 hover:text-slate-900'
+                  }`}
+                >
+                  Stream B (RFQ)
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -301,12 +365,31 @@ function HomePageContent() {
         </div>
 
         {/* Active Filter Notice & Reset Banner */}
-        {(selectedSubsidiary !== 'all' || selectedStream !== 'all') && (
+        {(selectedSubsidiary !== 'all' || selectedStream !== 'all' || catalogSearch.trim() !== '') && (
           <div className="bg-amg-navy-50 border border-amg-navy-200 px-4 py-2.5 rounded-sm flex flex-col sm:flex-row sm:items-center justify-between text-xs gap-2">
             <div className="flex flex-wrap items-center gap-2">
               <span className="font-bold uppercase tracking-wider text-[10px] bg-amg-navy text-white px-2 py-0.5 rounded-xs">
                 Active Filter:
               </span>
+              {catalogSearch.trim() && (
+                <span className="inline-flex items-center space-x-1.5 px-2 py-0.5 bg-white border border-amg-navy-300 rounded-sm font-semibold text-amg-navy text-xs shadow-2xs">
+                  <span>Query: &ldquo;{catalogSearch}&rdquo;</span>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setCatalogSearch('');
+                      const params = new URLSearchParams(window.location.search);
+                      params.delete('q');
+                      const qs = params.toString();
+                      window.history.replaceState({}, '', qs ? `/?${qs}#catalog-section` : '/#catalog-section');
+                    }}
+                    className="text-slate-400 hover:text-amg-red transition-colors"
+                    title="Clear search query"
+                  >
+                    <X className="w-3 h-3" />
+                  </button>
+                </span>
+              )}
               <span className="font-bold text-amg-navy">
                 {selectedSubsidiary !== 'all'
                   ? SUBSIDIARIES.find((s) => s.id === selectedSubsidiary)?.name || 'Filtered Subsidiary'
@@ -329,6 +412,7 @@ function HomePageContent() {
               onClick={() => {
                 setSelectedSubsidiary('all');
                 setSelectedStream('all');
+                setCatalogSearch('');
                 window.history.pushState({}, '', '/#catalog-section');
               }}
               className="font-bold text-amg-red hover:text-red-800 text-xs flex items-center space-x-1 shrink-0 self-start sm:self-auto"
@@ -508,20 +592,25 @@ function HomePageContent() {
         ) : (
           <div className="bg-white border border-slate-300 rounded-sm p-12 text-center space-y-3">
             <Layers className="w-8 h-8 text-slate-400 mx-auto" />
-            <h4 className="font-bold text-slate-900 text-sm">No items found matching the selected filter</h4>
+            <h4 className="font-bold text-slate-900 text-sm">
+              {catalogSearch ? `No products match "${catalogSearch}"` : 'No items found matching the selected filter'}
+            </h4>
             <p className="text-xs text-slate-500 max-w-md mx-auto">
-              There are currently no products under this specific subsidiary and transaction stream combination.
+              {catalogSearch
+                ? `Try searching with a different SKU (e.g. AMG-STL-001), standard (ASTM, S355JR), or reset your filters.`
+                : `There are currently no products under this specific subsidiary and transaction stream combination.`}
             </p>
             <button
               type="button"
               onClick={() => {
                 setSelectedSubsidiary('all');
                 setSelectedStream('all');
+                setCatalogSearch('');
                 window.history.pushState({}, '', '/#catalog-section');
               }}
               className="px-4 py-2 bg-amg-navy hover:bg-amg-navy-900 text-white font-bold text-xs rounded-sm transition-colors"
             >
-              Show All Products
+              Reset Filters & Show All Products
             </button>
           </div>
         )}
