@@ -73,7 +73,7 @@ export function QuickViewModal({ product, isOpen, onClose }: QuickViewModalProps
           <div className="flex items-center space-x-2">
             <span className="w-2.5 h-2.5 rounded-full bg-[#C6F432]" />
             <span className="text-xs font-mono font-bold uppercase tracking-wider text-[#71717A] dark:text-[#A1A1AA]">
-              {product.subsidiaryName} • Quick Inspection
+              {product.subsidiaryName} • Quick View
             </span>
           </div>
 

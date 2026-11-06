@@ -563,7 +563,7 @@ function HomePageContent() {
                         />
                       </Link>
 
-                      {/* Interactive Quick Inspect Floating Button on Mouse Hover */}
+                      {/* Quick View Button on Left Side of Picture (No text label) */}
                       <button
                         type="button"
                         onClick={(e) => {
@@ -571,11 +571,10 @@ function HomePageContent() {
                           e.stopPropagation();
                           setQuickViewProduct(product);
                         }}
-                        className="absolute inset-0 m-auto w-36 h-10 bg-[#0B0B0C]/90 dark:bg-[#141416]/95 backdrop-blur-md text-white border border-[#C6F432]/60 hover:border-[#C6F432] hover:bg-[#0B0B0C] hover:text-[#C6F432] rounded-full text-xs font-bold opacity-0 group-hover:opacity-100 transition-all duration-300 flex items-center justify-center space-x-1.5 shadow-xl transform translate-y-3 group-hover:translate-y-0 z-20"
-                        title="Quick inspect product specifications"
+                        className="absolute bottom-3.5 left-3.5 w-9 h-9 bg-[#0B0B0C]/90 dark:bg-[#141416]/95 backdrop-blur-md text-white border border-[#C6F432]/60 hover:border-[#C6F432] hover:bg-[#0B0B0C] hover:text-[#C6F432] rounded-full shadow-lg transition-all duration-300 flex items-center justify-center z-20 hover:scale-110"
+                        title="Quick View"
                       >
                         <Eye className="w-4 h-4 text-[#C6F432]" />
-                        <span>Quick Inspect</span>
                       </button>
 
                       <div className="absolute top-3.5 left-3.5 flex flex-col gap-1.5 z-10 pointer-events-none">
@@ -591,14 +590,6 @@ function HomePageContent() {
                       </div>
 
                       <div className="absolute top-3.5 right-3.5 flex items-center space-x-1.5 z-10">
-                        <button
-                          type="button"
-                          onClick={() => setQuickViewProduct(product)}
-                          className="p-1.5 bg-[#0B0B0C]/80 hover:bg-[#0B0B0C] text-white hover:text-[#C6F432] rounded-full backdrop-blur-md border border-[#2A2A2E] hover:border-[#C6F432]/50 transition-colors shadow-xs"
-                          title="Quick View component"
-                        >
-                          <Eye className="w-3.5 h-3.5" />
-                        </button>
                         <span className="bg-[#0B0B0C]/80 backdrop-blur-md text-white text-[10px] font-mono font-medium px-2.5 py-1 rounded-full border border-[#2A2A2E]">
                           {product.sku}
                         </span>
