@@ -3,7 +3,7 @@
 // CORE TYPES & DOMAIN MODELS
 // ====================================================================
 
-export type UserRole = 'customer' | 'sales_agent' | 'branch_admin' | 'super_admin';
+export type UserRole = 'customer' | 'sales_agent' | 'branch_admin' | 'finance' | 'super_admin';
 
 export type TransactionStream = 'direct_checkout' | 'assisted_quote';
 
@@ -28,9 +28,9 @@ export type QuoteStatus =
   | 'fulfilled'
   | 'rejected';
 
-export type PaymentGateway = 'telebirr' | 'chapa' | 'cbe_birr' | 'bank_transfer';
+export type PaymentGateway = 'cbe_transfer' | 'telebirr' | 'chapa' | 'cbe_birr' | 'bank_transfer';
 
-export type PaymentStatus = 'pending' | 'verified' | 'failed' | 'refunded';
+export type PaymentStatus = 'pending' | 'verified' | 'failed' | 'rejected' | 'refunded';
 
 export interface Subsidiary {
   id: string;
@@ -158,6 +158,13 @@ export interface Order {
   taxEtb: number;
   totalAmountEtb: number;
   paymentMethod?: PaymentGateway;
+  cbeFtReference?: string;
+  cbePayerAccount?: string;
+  paymentSubmittedAt?: string;
+  paymentVerifiedAt?: string;
+  paymentVerifiedBy?: string;
+  paymentRejectionReason?: string;
+  reservationExpiresAt?: string;
   createdAt: string;
   items: OrderItem[];
 }

@@ -579,22 +579,97 @@ export default function CustomerPortalPage() {
                   </div>
                 </div>
 
+                {/* CBE FT Reference Submission / Status Banner */}
+                {ord.status === 'payment_pending' && (
+                  <div className="bg-amber-50 border border-amber-300 p-4 rounded-xl space-y-3">
+                    <div className="flex items-center justify-between">
+                      <span className="font-bold text-xs text-amber-900 flex items-center space-x-1.5">
+                        <Clock className="w-4 h-4 text-amber-700" />
+                        <span>Awaiting CBE Bank Transfer Verification</span>
+                      </span>
+                      <span className="text-[10px] bg-amber-200 text-amber-900 px-2 py-0.5 rounded font-bold uppercase">
+                        Finance Action Required
+                      </span>
+                    </div>
+
+                    <p className="text-[11px] text-amber-800 leading-relaxed">
+                      Please transfer <strong>ETB {ord.totalAmountEtb.toLocaleString('en-US', { minimumFractionDigits: 2 })}</strong> to AMG Holdings CBE Account <strong className="font-mono text-slate-900">1000192837461</strong> and confirm your FT Reference Number below.
+                    </p>
+
+                    <div className="flex flex-col sm:flex-row gap-2 pt-1">
+                      <input
+                        type="text"
+                        defaultValue={ord.cbeFtReference || ''}
+                        placeholder="Paste CBE FT Reference (e.g. FT26110699281744)..."
+                        id={`cbe-input-${ord.id}`}
+                        className="flex-1 text-xs px-3.5 py-2 border border-amber-300 rounded-lg bg-white font-mono font-bold uppercase text-slate-900 focus:outline-none focus:border-slate-900"
+                      />
+                      <button
+                        type="button"
+                        onClick={async () => {
+                          const input = document.getElementById(`cbe-input-${ord.id}`) as HTMLInputElement;
+                          const val = input?.value.trim();
+                          if (!val) {
+                            alert('Please enter a valid CBE FT reference code');
+                            return;
+                          }
+                          try {
+                            const res = await fetch('/api/payments/cbe-submit', {
+                              method: 'POST',
+                              headers: { 'Content-Type': 'application/json' },
+                              body: JSON.stringify({
+                                orderId: ord.id,
+                                orderNumber: ord.orderNumber,
+                                cbeFtReference: val,
+                              }),
+                            });
+                            const data = await res.json();
+                            if (res.ok) {
+                              alert(`CBE FT Reference ${val.toUpperCase()} submitted! Finance will verify against the bank ledger.`);
+                              window.location.reload();
+                            } else {
+                              alert(data.error || 'Failed to submit FT reference');
+                            }
+                          } catch (e: any) {
+                            alert(e.message || 'Network error');
+                          }
+                        }}
+                        className="px-4 py-2 bg-[#0B0B0C] hover:bg-[#1A1A1D] text-[#C6F432] font-bold text-xs rounded-lg transition-colors shrink-0 shadow-sm"
+                      >
+                        {ord.cbeFtReference ? 'Update FT Reference' : 'Submit FT Reference'}
+                      </button>
+                    </div>
+
+                    {ord.cbeFtReference && (
+                      <div className="text-[10px] text-amber-800 font-mono">
+                        Currently submitted code: <strong>{ord.cbeFtReference}</strong>
+                      </div>
+                    )}
+
+                    {ord.paymentRejectionReason && (
+                      <div className="text-[11px] text-rose-800 bg-rose-50 p-2.5 rounded-lg border border-rose-200">
+                        <strong>Rejection Notice:</strong> {ord.paymentRejectionReason}. Please double check your CBE slip and resubmit.
+                      </div>
+                    )}
+                  </div>
+                )}
+
                 {/* Delivery Progress Stepper */}
                 <div className="bg-slate-50 border border-slate-200 p-3 rounded-sm">
                   <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500 block mb-2">
                     Fulfillment Milestone Pipeline:
                   </span>
                   <div className="grid grid-cols-4 gap-2 text-center text-[10px] font-semibold">
-                    <div className="bg-emerald-100 text-emerald-800 p-1.5 rounded-sm">
-                      1. Payment Cleared
+                    <div className={`p-1.5 rounded-sm ${ord.status !== 'payment_pending' ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800 font-bold'}`}>
+                      1. {ord.status === 'payment_pending' ? 'CBE Audit Pending' : 'CBE Verified'}
                     </div>
-                    <div className="bg-emerald-100 text-emerald-800 p-1.5 rounded-sm">
+                    <div className={`p-1.5 rounded-sm ${ord.status === 'fulfillment_processing' || ord.status === 'ready_for_pickup' || ord.status === 'shipped' || ord.status === 'completed' ? 'bg-emerald-100 text-emerald-800' : 'bg-slate-200 text-slate-500'}`}>
                       2. Warehouse Staged
                     </div>
-                    <div className="bg-blue-100 text-blue-800 p-1.5 rounded-sm">
+                    <div className={`p-1.5 rounded-sm ${ord.status === 'shipped' || ord.status === 'completed' ? 'bg-blue-100 text-blue-800' : 'bg-slate-200 text-slate-500'}`}>
                       3. Dispatch / Transit
                     </div>
-                    <div className="bg-slate-200 text-slate-600 p-1.5 rounded-sm">
+                    <div className={`p-1.5 rounded-sm ${ord.status === 'completed' ? 'bg-emerald-100 text-emerald-800' : 'bg-slate-200 text-slate-500'}`}>
                       4. Gate Handover
                     </div>
                   </div>

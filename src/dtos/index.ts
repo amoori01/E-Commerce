@@ -11,6 +11,8 @@ export interface CreateOrderDto {
   deliveryType: 'branch_pickup' | 'freight_delivery';
   deliveryAddress?: string;
   paymentMethod: PaymentGateway;
+  cbeFtReference?: string;
+  cbePayerAccount?: string;
   items: {
     productId: string;
     quantity: number;

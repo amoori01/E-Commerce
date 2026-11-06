@@ -1,11 +1,12 @@
 'use client';
 
 import React, { useState } from 'react';
+import Link from 'next/link';
 import { useCart } from '@/lib/cart-context';
 import { useAuth } from '@/lib/auth-context';
 import { BRANCHES } from '@/lib/constants';
 import { PaymentGateway } from '@/types';
-import { CheckCircle2, Building2, Truck, ShieldCheck, X, ArrowRight, CreditCard, Phone, Landmark } from 'lucide-react';
+import { CheckCircle2, Building2, Truck, ShieldCheck, X, ArrowRight, CreditCard, Phone, Landmark, Receipt } from 'lucide-react';
 
 export function CheckoutModal() {
   const { isCheckoutOpen, closeCheckout, items, subtotal, tax, total, clearCart } = useCart();
@@ -16,8 +17,9 @@ export function CheckoutModal() {
   const [selectedBranchId, setSelectedBranchId] = useState(BRANCHES[0].id);
   const [deliveryAddress, setDeliveryAddress] = useState('');
   const [destinationCity, setDestinationCity] = useState('Addis Ababa Metro');
-  const [paymentMethod, setPaymentMethod] = useState<PaymentGateway>('telebirr');
-  const [telebirrPhone, setTelebirrPhone] = useState(currentUser.phone || '+251 91 123 4567');
+  const [paymentMethod, setPaymentMethod] = useState<PaymentGateway>('cbe_transfer');
+  const [cbeFtCode, setCbeFtCode] = useState('');
+  const [cbePayerAccount, setCbePayerAccount] = useState('');
   const [confirmedOrderNumber, setConfirmedOrderNumber] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -52,7 +54,9 @@ export function CheckoutModal() {
         fulfillmentBranchId: selectedBranchId,
         deliveryType,
         deliveryAddress: deliveryType === 'freight_delivery' ? deliveryAddress : undefined,
-        paymentMethod,
+        paymentMethod: 'cbe_transfer',
+        cbeFtReference: cbeFtCode.trim() ? cbeFtCode.trim().toUpperCase() : undefined,
+        cbePayerAccount: cbePayerAccount.trim() || undefined,
         items: items.map((i) => ({
           productId: i.product.id,
           quantity: i.quantity,
@@ -277,136 +281,91 @@ export function CheckoutModal() {
           {step === 'payment' && (
             <div className="space-y-5">
               <div>
-                <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-2">
-                  2. Select National Payment Gateway
-                </label>
-                <div className="grid grid-cols-2 gap-3">
-                  {/* Telebirr */}
-                  <label
-                    className={`flex items-start p-3.5 border rounded-sm cursor-pointer transition-all ${
-                      paymentMethod === 'telebirr'
-                        ? 'border-amg-navy bg-amg-navy-50'
-                        : 'border-slate-200 hover:border-slate-300'
-                    }`}
-                  >
-                    <input
-                      type="radio"
-                      name="payment"
-                      checked={paymentMethod === 'telebirr'}
-                      onChange={() => setPaymentMethod('telebirr')}
-                      className="mt-1 mr-2.5 text-amg-navy"
-                    />
-                    <div>
-                      <div className="font-bold text-xs text-slate-900">Telebirr SuperApp</div>
-                      <div className="text-[11px] text-slate-500">Ethio Telecom Mobile Money API</div>
-                    </div>
+                <div className="flex items-center justify-between mb-2">
+                  <label className="block text-xs font-bold uppercase tracking-wider text-slate-700">
+                    2. Official Settlement: CBE Bank Transfer
                   </label>
+                  <span className="text-[10px] bg-[#C6F432] text-[#0B0B0C] px-2 py-0.5 rounded-full font-bold">
+                    Architecture Spec: CBE Only
+                  </span>
+                </div>
 
-                  {/* CBE Birr */}
-                  <label
-                    className={`flex items-start p-3.5 border rounded-sm cursor-pointer transition-all ${
-                      paymentMethod === 'cbe_birr'
-                        ? 'border-amg-navy bg-amg-navy-50'
-                        : 'border-slate-200 hover:border-slate-300'
-                    }`}
-                  >
-                    <input
-                      type="radio"
-                      name="payment"
-                      checked={paymentMethod === 'cbe_birr'}
-                      onChange={() => setPaymentMethod('cbe_birr')}
-                      className="mt-1 mr-2.5 text-amg-navy"
-                    />
-                    <div>
-                      <div className="font-bold text-xs text-slate-900">CBE Birr</div>
-                      <div className="text-[11px] text-slate-500">Commercial Bank of Ethiopia switch</div>
-                    </div>
-                  </label>
+                {/* CBE Settlement Instruction Box */}
+                <div className="bg-[#0B0B0C] text-white p-5 rounded-2xl border border-[#1A1A1D] space-y-3">
+                  <div className="flex items-center space-x-2 text-[#C6F432] font-semibold text-xs">
+                    <Landmark className="w-4 h-4 text-[#C6F432]" />
+                    <span>AMG Holdings PLC Official Settlement Account</span>
+                  </div>
 
-                  {/* Chapa */}
-                  <label
-                    className={`flex items-start p-3.5 border rounded-sm cursor-pointer transition-all ${
-                      paymentMethod === 'chapa'
-                        ? 'border-amg-navy bg-amg-navy-50'
-                        : 'border-slate-200 hover:border-slate-300'
-                    }`}
-                  >
-                    <input
-                      type="radio"
-                      name="payment"
-                      checked={paymentMethod === 'chapa'}
-                      onChange={() => setPaymentMethod('chapa')}
-                      className="mt-1 mr-2.5 text-amg-navy"
-                    />
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs bg-[#141416] p-3.5 rounded-xl border border-[#222225]">
                     <div>
-                      <div className="font-bold text-xs text-slate-900">Chapa Gateway</div>
-                      <div className="text-[11px] text-slate-500">Visa / Mastercard / Local Wallets</div>
+                      <span className="text-[10px] text-[#A1A1AA] uppercase block">Bank Name:</span>
+                      <span className="font-bold text-white">Commercial Bank of Ethiopia (CBE)</span>
                     </div>
-                  </label>
+                    <div>
+                      <span className="text-[10px] text-[#A1A1AA] uppercase block">Account Number:</span>
+                      <span className="font-mono font-black text-sm text-[#C6F432] tracking-wider">
+                        1000192837461
+                      </span>
+                    </div>
+                    <div>
+                      <span className="text-[10px] text-[#A1A1AA] uppercase block">Beneficiary Name:</span>
+                      <span className="font-semibold text-white">AMG Holdings PLC</span>
+                    </div>
+                    <div>
+                      <span className="text-[10px] text-[#A1A1AA] uppercase block">Branch:</span>
+                      <span className="text-white">Finfine / Bole Corporate Hub</span>
+                    </div>
+                  </div>
 
-                  {/* Direct Bank Wire */}
-                  <label
-                    className={`flex items-start p-3.5 border rounded-sm cursor-pointer transition-all ${
-                      paymentMethod === 'bank_transfer'
-                        ? 'border-amg-navy bg-amg-navy-50'
-                        : 'border-slate-200 hover:border-slate-300'
-                    }`}
-                  >
-                    <input
-                      type="radio"
-                      name="payment"
-                      checked={paymentMethod === 'bank_transfer'}
-                      onChange={() => setPaymentMethod('bank_transfer')}
-                      className="mt-1 mr-2.5 text-amg-navy"
-                    />
-                    <div>
-                      <div className="font-bold text-xs text-slate-900">Corporate Bank Transfer</div>
-                      <div className="text-[11px] text-slate-500">Awash / CBE / Dashen Direct Wire</div>
-                    </div>
-                  </label>
+                  <p className="text-[11px] text-[#A1A1AA] leading-relaxed">
+                    Transfer the total amount via <strong>CBE Mobile Banking (App/USSD)</strong>, CBE Internet Banking, or in-person at any CBE branch teller. Copy your transaction FT reference number and submit it below.
+                  </p>
                 </div>
               </div>
 
-              {/* Payment Details Form */}
-              {paymentMethod === 'telebirr' && (
-                <div className="bg-slate-50 border border-slate-200 p-4 rounded-sm space-y-2">
-                  <div className="flex items-center space-x-2 text-xs font-semibold text-slate-800">
-                    <Phone className="w-4 h-4 text-amg-navy" />
-                    <span>Telebirr Registered Mobile Number:</span>
-                  </div>
+              {/* FT Code Submission Input */}
+              <div className="bg-slate-50 border border-slate-200 p-4 rounded-xl space-y-3">
+                <div className="flex items-center space-x-2 text-xs font-bold text-slate-800">
+                  <Receipt className="w-4 h-4 text-[#0B0B0C]" />
+                  <span>Submit CBE Payment Reference (FT Number)</span>
+                </div>
+
+                <div className="space-y-1">
+                  <label className="text-[11px] font-semibold text-slate-600 block">
+                    CBE Bank FT Reference Number:
+                  </label>
                   <input
                     type="text"
-                    value={telebirrPhone}
-                    onChange={(e) => setTelebirrPhone(e.target.value)}
-                    placeholder="+251 91 123 4567"
-                    className="w-full border border-slate-300 px-3 py-2 text-xs rounded-sm focus:border-amg-navy outline-none font-mono"
+                    required
+                    value={cbeFtCode}
+                    onChange={(e) => setCbeFtCode(e.target.value)}
+                    placeholder="e.g. FT26110699281744 or CBE-10928374"
+                    className="w-full border border-slate-300 px-3.5 py-2 text-xs rounded-lg focus:border-[#0B0B0C] focus:ring-1 focus:ring-[#C6F432]/40 outline-none font-mono font-bold uppercase tracking-wider bg-white"
                   />
-                  <p className="text-[11px] text-slate-500">
-                    A secure push prompt will be sent to your Telebirr app for PIN authorization.
+                  <p className="text-[10px] text-slate-500">
+                    Finance verifies this code against the CBE core banking ledger before releasing warehouse dispatch.
                   </p>
                 </div>
-              )}
 
-              {paymentMethod === 'bank_transfer' && (
-                <div className="bg-slate-50 border border-slate-200 p-4 rounded-sm text-xs space-y-1.5">
-                  <div className="flex items-center space-x-2 font-semibold text-slate-800">
-                    <Landmark className="w-4 h-4 text-amg-navy" />
-                    <span>AMG Holdings Official Settlement Accounts:</span>
-                  </div>
-                  <div className="font-mono text-slate-700 space-y-0.5">
-                    <div>Commercial Bank of Ethiopia (CBE): <strong className="text-slate-900">1000192837461</strong></div>
-                    <div>Awash International Bank: <strong className="text-slate-900">01320492817200</strong></div>
-                  </div>
-                  <p className="text-[11px] text-slate-500 pt-1">
-                    Please reference Order Number on your transfer slip for automatic branch clearance.
-                  </p>
+                <div className="space-y-1">
+                  <label className="text-[11px] font-semibold text-slate-600 block">
+                    Payer Bank Account Number (Optional):
+                  </label>
+                  <input
+                    type="text"
+                    value={cbePayerAccount}
+                    onChange={(e) => setCbePayerAccount(e.target.value)}
+                    placeholder="e.g. 1000918239401"
+                    className="w-full border border-slate-300 px-3.5 py-2 text-xs rounded-lg focus:border-[#0B0B0C] outline-none font-mono bg-white"
+                  />
                 </div>
-              )}
+              </div>
 
               {/* Total Summary */}
-              <div className="p-3 bg-amg-navy-50 border border-amg-navy-200 rounded-sm flex justify-between items-center">
-                <span className="text-xs font-semibold text-amg-navy">Total Authorized Amount:</span>
-                <span className="font-mono font-bold text-base text-amg-navy">
+              <div className="p-3.5 bg-[#0B0B0C] text-white rounded-xl flex justify-between items-center">
+                <span className="text-xs font-semibold text-[#A1A1AA]">Total Settlement Amount:</span>
+                <span className="font-mono font-black text-base text-[#C6F432]">
                   ETB {total.toLocaleString('en-US', { minimumFractionDigits: 2 })}
                 </span>
               </div>
@@ -421,37 +380,66 @@ export function CheckoutModal() {
 
           {step === 'confirmation' && (
             <div className="py-8 text-center space-y-4">
-              <div className="w-16 h-16 bg-emerald-100 text-emerald-700 rounded-full flex items-center justify-center mx-auto">
-                <CheckCircle2 className="w-10 h-10" />
+              <div className="w-16 h-16 bg-[#F4FDE6] text-[#0B0B0C] border border-[#C6F432] rounded-full flex items-center justify-center mx-auto shadow-sm">
+                <CheckCircle2 className="w-10 h-10 text-[#0B0B0C]" />
               </div>
               <div className="space-y-1">
-                <h3 className="text-xl font-bold text-slate-900">Payment Verified & Order Confirmed!</h3>
-                <p className="text-xs text-slate-600">
-                  Your order has been routed to the fulfillment branch management queue.
+                <h3 className="font-serif text-xl font-bold text-slate-900">
+                  CBE Payment Submitted &amp; Stock Reserved!
+                </h3>
+                <p className="text-xs text-slate-600 max-w-md mx-auto">
+                  Your order is currently in <strong>Payment Pending</strong> state. AMG Holdings Finance is cross-referencing your CBE FT Reference with the bank statement to verify the ledger entry.
                 </p>
               </div>
 
-              <div className="bg-slate-50 border border-slate-200 p-4 rounded-sm inline-block max-w-md text-left text-xs space-y-1">
+              <div className="bg-slate-50 border border-slate-200 p-4 rounded-xl inline-block max-w-md text-left text-xs space-y-1.5 w-full">
                 <div className="flex justify-between">
                   <span className="text-slate-500">Order Number:</span>
-                  <span className="font-mono font-bold text-amg-navy">{confirmedOrderNumber}</span>
+                  <span className="font-mono font-bold text-slate-900">{confirmedOrderNumber}</span>
                 </div>
+                {cbeFtCode && (
+                  <div className="flex justify-between">
+                    <span className="text-slate-500">Submitted FT Code:</span>
+                    <span className="font-mono font-bold text-[#0B0B0C] bg-[#C6F432]/20 px-2 py-0.5 rounded">
+                      {cbeFtCode.toUpperCase()}
+                    </span>
+                  </div>
+                )}
                 <div className="flex justify-between">
                   <span className="text-slate-500">Customer:</span>
                   <span className="font-medium">{currentUser.fullName} ({currentUser.companyName || 'Retail'})</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-slate-500">Fulfillment:</span>
+                  <span className="text-slate-500">Depot Fulfillment:</span>
                   <span className="font-medium capitalize">{deliveryType.replace('_', ' ')}</span>
                 </div>
-                <div className="flex justify-between border-t border-slate-200 pt-1 mt-1 font-semibold">
-                  <span>Paid Total:</span>
-                  <span className="font-mono text-emerald-700">ETB {total.toLocaleString('en-US', { minimumFractionDigits: 2 })}</span>
+                <div className="flex justify-between border-t border-slate-200 pt-1.5 mt-1 font-semibold">
+                  <span>Payable Total:</span>
+                  <span className="font-mono text-[#0B0B0C]">
+                    ETB {total.toLocaleString('en-US', { minimumFractionDigits: 2 })}
+                  </span>
                 </div>
               </div>
 
-              <p className="text-[11px] text-slate-500">
-                An electronic tax invoice complying with Ethiopian ERCA VAT regulations has been registered.
+              <div className="pt-2 flex justify-center space-x-3">
+                <Link
+                  href="/portal?tab=orders"
+                  onClick={handleClose}
+                  className="px-5 py-2.5 bg-[#0B0B0C] text-[#C6F432] font-semibold text-xs rounded-full hover:bg-[#1A1A1D] transition-colors"
+                >
+                  Track Order in Portal
+                </Link>
+                <Link
+                  href="/finance"
+                  onClick={handleClose}
+                  className="px-5 py-2.5 bg-white border border-[#E4E4E7] text-[#0B0B0C] font-semibold text-xs rounded-full hover:bg-slate-100 transition-colors"
+                >
+                  View in Finance Verification Queue
+                </Link>
+              </div>
+
+              <p className="text-[11px] text-slate-500 pt-2">
+                An electronic tax invoice complying with Ethiopian ERCA VAT regulations will be issued upon Finance verification.
               </p>
             </div>
           )}
@@ -492,14 +480,14 @@ export function CheckoutModal() {
                 type="button"
                 disabled={isProcessing}
                 onClick={handlePlaceOrder}
-                className="px-6 py-2 bg-amg-red text-white text-xs font-bold rounded-sm hover:bg-red-800 transition-colors flex items-center space-x-2 disabled:opacity-75"
+                className="px-6 py-2 bg-[#0B0B0C] hover:bg-[#1A1A1D] text-[#C6F432] text-xs font-bold rounded-full transition-all flex items-center space-x-2 disabled:opacity-75 shadow-sm"
               >
                 {isProcessing ? (
-                  <span>Processing Payment Switch...</span>
+                  <span>Reserving Stock & Placing Order...</span>
                 ) : (
                   <>
-                    <ShieldCheck className="w-4 h-4" />
-                    <span>Authorize & Confirm Order</span>
+                    <ShieldCheck className="w-4 h-4 text-[#C6F432]" />
+                    <span>Submit CBE FT Reference & Confirm</span>
                   </>
                 )}
               </button>

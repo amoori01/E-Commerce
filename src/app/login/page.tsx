@@ -545,6 +545,7 @@ function LoginContent() {
                   {SEEDED_USERS.map((u) => {
                     const badgeStyles: Record<UserRole, { bg: string; text: string; label: string; portal: string }> = {
                       super_admin: { bg: 'bg-purple-900/60 border-purple-700', text: 'text-purple-300', label: 'Super Admin', portal: '/admin' },
+                      finance: { bg: 'bg-[#1A1A1D] border-[#C6F432]/60', text: 'text-[#C6F432]', label: 'Finance Lead', portal: '/finance' },
                       branch_admin: { bg: 'bg-emerald-900/60 border-emerald-700', text: 'text-emerald-300', label: 'Branch Admin', portal: '/branch-admin' },
                       sales_agent: { bg: 'bg-blue-900/60 border-blue-700', text: 'text-blue-300', label: 'Sales Agent', portal: '/agent' },
                       customer: { bg: 'bg-amber-900/60 border-amber-700', text: 'text-amber-300', label: 'Customer', portal: '/portal' },

@@ -41,6 +41,7 @@ export function Navbar() {
 
   const roleLabels: Record<UserRole, { label: string; badgeColor: string; route: string }> = {
     super_admin: { label: 'Corporate Super Admin', badgeColor: 'bg-purple-950 text-purple-200 border-purple-700/50', route: '/admin' },
+    finance: { label: 'Corporate Finance Lead', badgeColor: 'bg-[#1A1A1D] text-[#C6F432] border-[#C6F432]/50', route: '/finance' },
     branch_admin: { label: 'Adama Branch Admin', badgeColor: 'bg-emerald-950 text-emerald-200 border-emerald-700/50', route: '/branch-admin' },
     sales_agent: { label: 'Sales Engineer (Agent)', badgeColor: 'bg-blue-950 text-blue-200 border-blue-700/50', route: '/agent' },
     customer: { label: 'Corporate B2B Client', badgeColor: 'bg-[#1A1A1D] text-[#C6F432] border-[#C6F432]/30', route: '/portal' },
@@ -111,12 +112,13 @@ export function Navbar() {
     );
   }
 
-  // When inside staff/management workspaces (/admin, /branch-admin, /agent),
+  // When inside staff/management workspaces (/admin, /branch-admin, /agent, /finance),
   // hide all customer shopping navigation (cart, wishlist, RFQ, search, consumer subsidiary bar)
   const isManagementWorkspace =
     pathname?.startsWith('/admin') ||
     pathname?.startsWith('/branch-admin') ||
-    pathname?.startsWith('/agent');
+    pathname?.startsWith('/agent') ||
+    pathname?.startsWith('/finance');
 
   if (isManagementWorkspace) {
     const portalConfig = pathname?.startsWith('/admin')
@@ -126,6 +128,14 @@ export function Navbar() {
           title: 'Corporate HQ Governance Console',
           subtitle: 'Multi-subsidiary catalog, direct orders GMV ledger, tax rules & audit logs',
           workspaceLink: '/admin',
+        }
+      : pathname?.startsWith('/finance')
+      ? {
+          badge: 'FINANCE & TREASURY',
+          badgeColor: 'bg-[#1A1A1D] border-[#C6F432]/60 text-[#C6F432]',
+          title: 'CBE Bank Transfer & Ledger Reconciliation Queue',
+          subtitle: 'Verify customer CBE FT reference numbers, approve releases & audit tax invoices',
+          workspaceLink: '/finance',
         }
       : pathname?.startsWith('/branch-admin')
       ? {

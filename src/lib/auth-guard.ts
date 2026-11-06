@@ -108,6 +108,11 @@ export function enforceAbac(user: JwtPayload, resource: AbacResource, action: 'r
     return { allowed: true };
   }
 
+  // Finance Lead checks: can read and verify payments across subsidiaries
+  if (user.role === 'finance') {
+    return { allowed: true };
+  }
+
   // Customer checks
   if (user.role === 'customer') {
     if (resource.customerId && resource.customerId !== user.sub) {

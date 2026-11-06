@@ -10,6 +10,7 @@ export function Footer() {
   const pathname = usePathname();
   const isManagementWorkspace =
     pathname?.startsWith('/admin') ||
+    pathname?.startsWith('/finance') ||
     pathname?.startsWith('/branch-admin') ||
     pathname?.startsWith('/agent');
 

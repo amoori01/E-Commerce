@@ -35,7 +35,7 @@ mobile/.packages
 *.pem
 
 # Internal specifications and documentation
-/AMG Holdings ECommerce and App SRS.pdf
+*.pdf
 /BACKLOG.md
 /CHANGELOG.md
 /COMMIT_MESSAGES.md

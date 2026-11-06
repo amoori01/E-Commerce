@@ -37,13 +37,16 @@ export async function POST(req: NextRequest) {
       customerName: 'Verified Corporate Buyer',
       fulfillmentBranchId: body.fulfillmentBranchId,
       fulfillmentBranchName: 'Regional Plant Hub',
-      status: 'fulfillment_processing' as const,
+      status: 'payment_pending' as const,
       deliveryType: body.deliveryType,
       deliveryAddress: body.deliveryAddress,
       subtotalEtb: subtotal,
       taxEtb: tax,
       totalAmountEtb: totalAmount,
-      paymentMethod: body.paymentMethod,
+      paymentMethod: body.paymentMethod || 'cbe_transfer',
+      cbeFtReference: (body as any).cbeFtReference,
+      cbePayerAccount: (body as any).cbePayerAccount,
+      reservationExpiresAt: new Date(Date.now() + 4 * 60 * 60 * 1000).toISOString(), // 4 hours for CBE bank verification
       createdAt: new Date().toISOString(),
       items: body.items.map((i, idx) => ({
         id: `item-${idx + 1}`,
@@ -56,14 +59,12 @@ export async function POST(req: NextRequest) {
       })),
     };
 
-    // In production with live Supabase credentials:
-    // const supabase = createAdminClient();
-    // await supabase.from('orders').insert({ ... });
+    INITIAL_ORDERS.unshift(newOrder as any);
 
     return NextResponse.json({
       success: true,
       order: newOrder,
-      message: 'Direct order registered and routed to branch fulfillment queue.',
+      message: 'Direct order registered with CBE payment pending. Stock reserved awaiting Finance verification.',
     });
   } catch (err: any) {
     console.error('[ORDERS API ERROR]', err);
