@@ -23,8 +23,10 @@ describe('P0: Enterprise Security & AES-256 Encryption (OWASP ASVS v4.0)', () =>
     const encrypted = encryptToString(original);
     const [iv, tag, ciphertext] = encrypted.split(':');
 
-    // Tamper with the ciphertext
-    const tamperedCiphertext = ciphertext.substring(0, ciphertext.length - 2) + 'ff';
+    // Tamper with the ciphertext (guarantee at least 1 character is changed)
+    const lastChar = ciphertext.slice(-1);
+    const tamperedChar = lastChar === 'a' ? 'b' : 'a';
+    const tamperedCiphertext = ciphertext.slice(0, -1) + tamperedChar;
     const tampered = `${iv}:${tag}:${tamperedCiphertext}`;
 
     expect(() => decryptFromString(tampered)).toThrow();

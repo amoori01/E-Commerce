@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/lib/auth-context';
 import { INVENTORY_ITEMS, BRANCHES, INITIAL_ORDERS, SEEDED_USERS } from '@/lib/constants';
 import { InventoryItem, Order, UserProfile } from '@/types';
