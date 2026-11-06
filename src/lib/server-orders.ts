@@ -54,3 +54,9 @@ export function findServerOrder(
       o.orderNumber.toLowerCase() === target
   );
 }
+
+export function clearServerOrders(): void {
+  if (typeof globalThis !== 'undefined') {
+    globalThis.__amg_global_orders = [];
+  }
+}

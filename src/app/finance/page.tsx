@@ -20,7 +20,8 @@ import {
   ExternalLink,
   Receipt,
   User,
-  Filter
+  Filter,
+  Trash2,
 } from 'lucide-react';
 
 export default function FinanceDashboardPage() {
@@ -125,6 +126,28 @@ export default function FinanceDashboardPage() {
   const totalVerifiedAmount = orders
     .filter((o) => o.status !== 'cancelled' && o.status !== 'payment_pending')
     .reduce((sum, o) => sum + o.totalAmountEtb, 0);
+
+  const handleClearOrders = async () => {
+    if (!confirm('Are you sure you want to clean all test orders from the system?')) return;
+    try {
+      await fetch('/api/orders', { method: 'DELETE' });
+      if (typeof window !== 'undefined') {
+        localStorage.removeItem('amg_live_orders');
+        window.dispatchEvent(new CustomEvent('amg_orders_updated'));
+      }
+      setOrders([]);
+      setSelectedOrder(null);
+      setActionFeedback({
+        type: 'success',
+        message: 'All test orders cleared! System is now at clean slate for end-to-end testing.',
+      });
+    } catch (e: any) {
+      setActionFeedback({
+        type: 'error',
+        message: 'Failed to clear orders: ' + e.message,
+      });
+    }
+  };
 
   const handleVerifyPayment = async (order: Order) => {
     setIsProcessing(true);
@@ -438,6 +461,16 @@ export default function FinanceDashboardPage() {
           </div>
 
           <div className="flex items-center space-x-2.5">
+            <button
+              type="button"
+              onClick={handleClearOrders}
+              className="px-3.5 py-2 bg-rose-500/10 hover:bg-rose-500/20 text-rose-500 border border-rose-500/30 rounded-full text-xs font-semibold flex items-center space-x-1.5 transition-colors shrink-0"
+              title="Clean all test orders from database and localStorage"
+            >
+              <Trash2 className="w-3.5 h-3.5" />
+              <span className="hidden sm:inline">Clean All Orders</span>
+            </button>
+
             <button
               type="button"
               onClick={loadOrders}

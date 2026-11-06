@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { CreateOrderDto, validateCreateOrderDto } from '@/dtos';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { INITIAL_ORDERS, PRODUCTS, SEEDED_USERS, BRANCHES } from '@/lib/constants';
-import { getServerOrders, addServerOrder } from '@/lib/server-orders';
+import { getServerOrders, addServerOrder, clearServerOrders } from '@/lib/server-orders';
 
 // ====================================================================
 // STREAM A: DIRECT SELF-SERVICE ORDERS API ENDPOINT
@@ -108,5 +108,16 @@ export async function GET(req: NextRequest) {
     success: true,
     count: orders.length,
     orders,
+  });
+}
+
+export async function DELETE() {
+  INITIAL_ORDERS.length = 0;
+  clearServerOrders();
+
+  return NextResponse.json({
+    success: true,
+    message: 'All test orders cleared successfully',
+    orders: [],
   });
 }

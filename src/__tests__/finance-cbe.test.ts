@@ -1,12 +1,34 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, beforeEach } from 'vitest';
 import { NextRequest } from 'next/server';
 import { POST as verifyPost } from '@/app/api/payments/finance-verify/route';
 import { POST as submitPost } from '@/app/api/payments/cbe-submit/route';
-import { INITIAL_ORDERS } from '@/lib/constants';
+import { addServerOrder } from '@/lib/server-orders';
+import { Order } from '@/types';
 
 describe('CBE Bank Transfer & Finance Verification Architecture (SAD 5.2)', () => {
+  const sampleOrder: Order = {
+    id: 'ord-test-01',
+    orderNumber: 'AMG-ORD-2026-TEST',
+    customerId: 'e4444444-4444-4444-4444-444444444444',
+    customerName: 'Almaz Worku',
+    fulfillmentBranchId: 'a1111111-1111-1111-1111-111111111111',
+    fulfillmentBranchName: 'Addis Ababa Central Hub',
+    status: 'payment_pending',
+    deliveryType: 'branch_pickup',
+    subtotalEtb: 37000.0,
+    taxEtb: 5550.0,
+    totalAmountEtb: 42550.0,
+    paymentMethod: 'cbe_transfer',
+    createdAt: new Date().toISOString(),
+    items: [],
+  };
+
+  beforeEach(() => {
+    addServerOrder({ ...sampleOrder });
+  });
+
   it('allows a customer to submit a CBE FT reference code for an order', async () => {
-    const testOrder = INITIAL_ORDERS[0];
+    const testOrder = { ...sampleOrder };
     const ftCode = 'FT26110699281799';
 
     const req = new NextRequest('http://localhost:3000/api/payments/cbe-submit', {
@@ -29,9 +51,8 @@ describe('CBE Bank Transfer & Finance Verification Architecture (SAD 5.2)', () =
   });
 
   it('allows Finance role to verify and approve a submitted CBE payment', async () => {
-    const testOrder = INITIAL_ORDERS[0];
-    testOrder.status = 'payment_pending';
-    testOrder.cbeFtReference = 'FT26110699281799';
+    const testOrder = { ...sampleOrder, status: 'payment_pending' as const, cbeFtReference: 'FT26110699281799' };
+    addServerOrder(testOrder);
 
     const req = new NextRequest('http://localhost:3000/api/payments/finance-verify', {
       method: 'POST',
@@ -54,9 +75,8 @@ describe('CBE Bank Transfer & Finance Verification Architecture (SAD 5.2)', () =
   });
 
   it('allows Finance role to reject mismatched CBE FT references', async () => {
-    const testOrder = INITIAL_ORDERS[0];
-    testOrder.status = 'payment_pending';
-    testOrder.cbeFtReference = 'FT_WRONG_CODE_123';
+    const testOrder = { ...sampleOrder, status: 'payment_pending' as const, cbeFtReference: 'FT_WRONG_CODE_123' };
+    addServerOrder(testOrder);
 
     const req = new NextRequest('http://localhost:3000/api/payments/finance-verify', {
       method: 'POST',
