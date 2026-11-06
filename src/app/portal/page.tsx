@@ -78,7 +78,54 @@ export default function CustomerPortalPage() {
     }
   }, [isCustomer, activeRole, router]);
 
-  const myOrders = INITIAL_ORDERS.filter((o) => o.customerId === currentUser.id || currentUser.role === 'customer');
+  const [portalOrders, setPortalOrders] = useState<Order[]>(INITIAL_ORDERS);
+
+  useEffect(() => {
+    const fetchOrders = async () => {
+      try {
+        const res = await fetch('/api/orders');
+        let combined: Order[] = [];
+        if (res.ok) {
+          const data = await res.json();
+          if (data.orders && Array.isArray(data.orders)) {
+            combined = [...data.orders];
+          }
+        }
+        if (typeof window !== 'undefined') {
+          const local = localStorage.getItem('amg_live_orders');
+          if (local) {
+            try {
+              const parsed = JSON.parse(local);
+              if (Array.isArray(parsed)) {
+                for (const p of parsed) {
+                  const idx = combined.findIndex((c) => c.id === p.id || c.orderNumber === p.orderNumber);
+                  if (idx >= 0) {
+                    combined[idx] = { ...combined[idx], ...p };
+                  } else {
+                    combined.unshift(p);
+                  }
+                }
+              }
+            } catch (e) {}
+          }
+        }
+        if (combined.length > 0) {
+          setPortalOrders(combined);
+        }
+      } catch (e) {}
+    };
+
+    fetchOrders();
+    const handleUpdate = () => fetchOrders();
+    window.addEventListener('amg_orders_updated', handleUpdate);
+    window.addEventListener('storage', handleUpdate);
+    return () => {
+      window.removeEventListener('amg_orders_updated', handleUpdate);
+      window.removeEventListener('storage', handleUpdate);
+    };
+  }, []);
+
+  const myOrders = portalOrders.filter((o) => o.customerId === currentUser.id || currentUser.role === 'customer');
   const myQuotes = quotesList.filter((q) => q.customerId === currentUser.id || currentUser.role === 'customer');
 
   const handleAddAddress = (e: React.FormEvent) => {

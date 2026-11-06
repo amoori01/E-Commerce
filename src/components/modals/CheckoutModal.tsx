@@ -76,7 +76,22 @@ export function CheckoutModal() {
       }
 
       const orderData = await res.json();
-      setConfirmedOrderNumber(orderData.orderNumber || 'AMG-ORD-' + Math.floor(100000 + Math.random() * 900000));
+      const placedOrder = orderData.order;
+      setConfirmedOrderNumber(placedOrder?.orderNumber || orderData.orderNumber || 'AMG-ORD-' + Math.floor(100000 + Math.random() * 900000));
+
+      // Persist in localStorage and broadcast so Finance and Portal see the order immediately
+      if (typeof window !== 'undefined' && placedOrder) {
+        try {
+          const stored = localStorage.getItem('amg_live_orders');
+          const existingList = stored ? JSON.parse(stored) : [];
+          const updatedList = [placedOrder, ...existingList.filter((o: any) => o.id !== placedOrder.id && o.orderNumber !== placedOrder.orderNumber)];
+          localStorage.setItem('amg_live_orders', JSON.stringify(updatedList));
+          window.dispatchEvent(new CustomEvent('amg_orders_updated', { detail: placedOrder }));
+        } catch (e) {
+          console.warn('Could not cache placed order to localStorage:', e);
+        }
+      }
+
       clearCart();
       setStep('confirmation');
     } catch (err: unknown) {

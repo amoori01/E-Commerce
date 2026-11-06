@@ -35,6 +35,51 @@ export default function BranchAdminPage() {
   );
   const [inventoryList, setInventoryList] = useState<InventoryItem[]>(INVENTORY_ITEMS);
   const [ordersList, setOrdersList] = useState<Order[]>(INITIAL_ORDERS);
+
+  useEffect(() => {
+    const fetchBranchOrders = async () => {
+      try {
+        const res = await fetch('/api/orders');
+        let combined: Order[] = [];
+        if (res.ok) {
+          const data = await res.json();
+          if (data.orders && Array.isArray(data.orders)) {
+            combined = [...data.orders];
+          }
+        }
+        if (typeof window !== 'undefined') {
+          const local = localStorage.getItem('amg_live_orders');
+          if (local) {
+            try {
+              const parsed = JSON.parse(local);
+              if (Array.isArray(parsed)) {
+                for (const p of parsed) {
+                  const idx = combined.findIndex((c) => c.id === p.id || c.orderNumber === p.orderNumber);
+                  if (idx >= 0) {
+                    combined[idx] = { ...combined[idx], ...p };
+                  } else {
+                    combined.unshift(p);
+                  }
+                }
+              }
+            } catch (e) {}
+          }
+        }
+        if (combined.length > 0) {
+          setOrdersList(combined);
+        }
+      } catch (e) {}
+    };
+
+    fetchBranchOrders();
+    const handleUpdate = () => fetchBranchOrders();
+    window.addEventListener('amg_orders_updated', handleUpdate);
+    window.addEventListener('storage', handleUpdate);
+    return () => {
+      window.removeEventListener('amg_orders_updated', handleUpdate);
+      window.removeEventListener('storage', handleUpdate);
+    };
+  }, []);
   const [selectedItemForAdjustment, setSelectedItemForAdjustment] = useState<InventoryItem | null>(null);
   const [adjustQty, setAdjustQty] = useState<number>(50);
   const [adjustReason, setAdjustReason] = useState<string>('stock_intake');

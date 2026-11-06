@@ -30,9 +30,73 @@ export default function FinanceDashboardPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const [rejectReasonInput, setRejectReasonInput] = useState('');
   const [showRejectModal, setShowRejectModal] = useState(false);
   const [actionFeedback, setActionFeedback] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
+
+  // Fetch orders from API and sync with local client submissions
+  const loadOrders = async () => {
+    setIsLoading(true);
+    try {
+      const res = await fetch('/api/orders');
+      let combined: Order[] = [];
+      if (res.ok) {
+        const data = await res.json();
+        if (data.orders && Array.isArray(data.orders)) {
+          combined = [...data.orders];
+        }
+      }
+
+      // Check localStorage for any newly placed customer orders
+      if (typeof window !== 'undefined') {
+        const local = localStorage.getItem('amg_live_orders');
+        if (local) {
+          try {
+            const parsed = JSON.parse(local);
+            if (Array.isArray(parsed)) {
+              for (const p of parsed) {
+                const existingIdx = combined.findIndex((c) => c.id === p.id || c.orderNumber === p.orderNumber);
+                if (existingIdx >= 0) {
+                  combined[existingIdx] = { ...combined[existingIdx], ...p };
+                } else {
+                  combined.unshift(p);
+                }
+              }
+            }
+          } catch (e) {}
+        }
+      }
+
+      if (combined.length > 0) {
+        setOrders(combined);
+        setSelectedOrder((curr) => {
+          if (!curr) {
+            return combined.find((o) => o.status === 'payment_pending' && o.cbeFtReference) || combined[0];
+          }
+          const updated = combined.find((o) => o.id === curr.id || o.orderNumber === curr.orderNumber);
+          return updated || curr;
+        });
+      }
+    } catch (err) {
+      console.warn('Finance failed to fetch orders:', err);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    loadOrders();
+    const interval = setInterval(loadOrders, 4000);
+    const handleUpdate = () => loadOrders();
+    window.addEventListener('amg_orders_updated', handleUpdate);
+    window.addEventListener('storage', handleUpdate);
+    return () => {
+      clearInterval(interval);
+      window.removeEventListener('amg_orders_updated', handleUpdate);
+      window.removeEventListener('storage', handleUpdate);
+    };
+  }, []);
 
   // Filter orders
   const filteredOrders = orders.filter((o) => {
@@ -80,6 +144,9 @@ export default function FinanceDashboardPage() {
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Failed to verify payment');
 
+      const verifiedTimestamp = new Date().toISOString();
+      const verifiedBy = currentUser?.fullName || 'Helen Girmachew';
+
       // Update local state
       setOrders((prev) =>
         prev.map((o) =>
@@ -87,8 +154,8 @@ export default function FinanceDashboardPage() {
             ? {
                 ...o,
                 status: 'fulfillment_processing',
-                paymentVerifiedAt: new Date().toISOString(),
-                paymentVerifiedBy: currentUser?.fullName || 'Helen Girmachew',
+                paymentVerifiedAt: verifiedTimestamp,
+                paymentVerifiedBy: verifiedBy,
                 paymentRejectionReason: undefined,
               }
             : o
@@ -101,12 +168,33 @@ export default function FinanceDashboardPage() {
             ? {
                 ...prev,
                 status: 'fulfillment_processing',
-                paymentVerifiedAt: new Date().toISOString(),
-                paymentVerifiedBy: currentUser?.fullName || 'Helen Girmachew',
+                paymentVerifiedAt: verifiedTimestamp,
+                paymentVerifiedBy: verifiedBy,
                 paymentRejectionReason: undefined,
               }
             : null
         );
+      }
+
+      // Sync with localStorage
+      if (typeof window !== 'undefined') {
+        try {
+          const local = localStorage.getItem('amg_live_orders');
+          const list = local ? JSON.parse(local) : [];
+          const updatedList = list.map((o: any) =>
+            o.id === order.id || o.orderNumber === order.orderNumber
+              ? {
+                  ...o,
+                  status: 'fulfillment_processing',
+                  paymentVerifiedAt: verifiedTimestamp,
+                  paymentVerifiedBy: verifiedBy,
+                  paymentRejectionReason: undefined,
+                }
+              : o
+          );
+          localStorage.setItem('amg_live_orders', JSON.stringify(updatedList));
+          window.dispatchEvent(new CustomEvent('amg_orders_updated'));
+        } catch (e) {}
       }
 
       setActionFeedback({
@@ -141,13 +229,15 @@ export default function FinanceDashboardPage() {
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Failed to reject payment');
 
+      const reason = rejectReasonInput.trim() || 'CBE FT reference not found in bank ledger records';
+
       setOrders((prev) =>
         prev.map((o) =>
           o.id === selectedOrder.id
             ? {
                 ...o,
                 status: 'payment_pending',
-                paymentRejectionReason: rejectReasonInput.trim() || 'CBE FT reference not found in bank ledger records',
+                paymentRejectionReason: reason,
               }
             : o
         )
@@ -158,10 +248,29 @@ export default function FinanceDashboardPage() {
           ? {
               ...prev,
               status: 'payment_pending',
-              paymentRejectionReason: rejectReasonInput.trim() || 'CBE FT reference not found in bank ledger records',
+              paymentRejectionReason: reason,
             }
           : null
       );
+
+      // Sync with localStorage
+      if (typeof window !== 'undefined') {
+        try {
+          const local = localStorage.getItem('amg_live_orders');
+          const list = local ? JSON.parse(local) : [];
+          const updatedList = list.map((o: any) =>
+            o.id === selectedOrder.id || o.orderNumber === selectedOrder.orderNumber
+              ? {
+                  ...o,
+                  status: 'payment_pending',
+                  paymentRejectionReason: reason,
+                }
+              : o
+          );
+          localStorage.setItem('amg_live_orders', JSON.stringify(updatedList));
+          window.dispatchEvent(new CustomEvent('amg_orders_updated'));
+        } catch (e) {}
+      }
 
       setShowRejectModal(false);
       setRejectReasonInput('');
@@ -326,15 +435,28 @@ export default function FinanceDashboardPage() {
             </div>
           </div>
 
-          <div className="relative min-w-[240px] sm:w-72">
-            <Search className="w-4 h-4 text-[#71717A] dark:text-[#A1A1AA] absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
-            <input
-              type="text"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search by FT code, order #, client..."
-              className="w-full pl-9 pr-4 py-2 text-xs border border-[#E4E4E7] dark:border-[#222225] rounded-full bg-[#FAFAFA] dark:bg-[#1A1A1D] text-[#0B0B0C] dark:text-white focus:outline-none focus:border-[#0B0B0C] dark:focus:border-[#C6F432] focus:ring-1 focus:ring-[#C6F432]/40"
-            />
+          <div className="flex items-center space-x-2.5">
+            <button
+              type="button"
+              onClick={loadOrders}
+              disabled={isLoading}
+              className="px-3.5 py-2 bg-white dark:bg-[#1A1A1D] hover:bg-[#F4F4F5] dark:hover:bg-[#222225] border border-[#E4E4E7] dark:border-[#2A2A2E] text-[#0B0B0C] dark:text-[#C6F432] rounded-full text-xs font-semibold flex items-center space-x-1.5 shadow-2xs transition-colors shrink-0"
+              title="Refresh CBE reconciliation queue"
+            >
+              <RefreshCw className={`w-3.5 h-3.5 ${isLoading ? 'animate-spin text-[#C6F432]' : ''}`} />
+              <span className="hidden sm:inline">{isLoading ? 'Syncing...' : 'Refresh Ledger'}</span>
+            </button>
+
+            <div className="relative min-w-[200px] sm:w-64">
+              <Search className="w-4 h-4 text-[#71717A] dark:text-[#A1A1AA] absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Search FT code, order #..."
+                className="w-full pl-9 pr-4 py-2 text-xs border border-[#E4E4E7] dark:border-[#222225] rounded-full bg-[#FAFAFA] dark:bg-[#1A1A1D] text-[#0B0B0C] dark:text-white focus:outline-none focus:border-[#0B0B0C] dark:focus:border-[#C6F432] focus:ring-1 focus:ring-[#C6F432]/40"
+              />
+            </div>
           </div>
         </div>
 
