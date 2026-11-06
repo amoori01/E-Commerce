@@ -15,6 +15,7 @@ const PROVIDER_REGISTRY: Record<PaymentGateway, PaymentProvider> = {
   chapa: new ChapaProvider(),
   telebirr: new TelebirrProvider(),
   cbe_birr: new CbeBirrProvider(),
+  cbe_transfer: new BankTransferProvider(),
   bank_transfer: new BankTransferProvider(),
 };
 

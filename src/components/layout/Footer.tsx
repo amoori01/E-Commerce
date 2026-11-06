@@ -102,7 +102,7 @@ export function Footer() {
                 <div className="font-semibold text-white">{b.name}</div>
                 <div className="text-[#71717A] flex items-center space-x-1.5 mt-0.5">
                   <MapPin className="w-3 h-3 text-[#C6F432]" />
-                  <span>{b.region} • {b.address}</span>
+                  <span>{b.city} • {b.address}</span>
                 </div>
               </li>
             ))}

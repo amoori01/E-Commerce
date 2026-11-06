@@ -49,7 +49,7 @@ export function QuickViewModal({ product, isOpen, onClose }: QuickViewModalProps
   };
 
   const handleAddToCart = () => {
-    addToCart(product, effectiveQuantity, selectedBranch || undefined);
+    addToCart(product, effectiveQuantity);
     setAddedNotice(true);
     setTimeout(() => {
       setAddedNotice(false);
@@ -59,7 +59,7 @@ export function QuickViewModal({ product, isOpen, onClose }: QuickViewModalProps
 
   const handleRfq = () => {
     onClose();
-    openRfq(product.id);
+    openRfq(product);
   };
 
   return (
@@ -118,7 +118,7 @@ export function QuickViewModal({ product, isOpen, onClose }: QuickViewModalProps
 
               <button
                 type="button"
-                onClick={() => toggleWishlist(product.id)}
+                onClick={() => toggleWishlist(product)}
                 className="absolute top-3 right-3 p-2 rounded-full bg-white/90 dark:bg-[#0B0B0C]/90 backdrop-blur-sm border border-[#E4E4E7] dark:border-[#2A2A2E] text-[#0B0B0C] dark:text-white hover:text-rose-500 dark:hover:text-rose-400 transition-colors shadow-sm"
                 title={inWishlist ? 'Remove from wishlist' : 'Add to wishlist'}
               >
@@ -198,11 +198,11 @@ export function QuickViewModal({ product, isOpen, onClose }: QuickViewModalProps
                       <div
                         key={idx}
                         className={`p-2 rounded-lg border flex items-center justify-between ${
-                          selectedBranch === b.branchId
+                          selectedBranch === b.branchName
                             ? 'bg-[#C6F432]/10 border-[#C6F432] text-[#0B0B0C] dark:text-white'
                             : 'bg-white dark:bg-[#141416] border-[#E4E4E7] dark:border-[#222225] text-[#71717A] dark:text-[#A1A1AA]'
                         }`}
-                        onClick={() => setSelectedBranch(b.branchId)}
+                        onClick={() => setSelectedBranch(b.branchName)}
                         role="button"
                         tabIndex={0}
                       >

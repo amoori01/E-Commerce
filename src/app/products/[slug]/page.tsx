@@ -385,35 +385,11 @@ export default function ProductDetailPage({ params }: ProductPageProps) {
               </p>
               <button
                 type="button"
-                onClick={() => openRfq(product.id)}
+                onClick={() => openRfq(product)}
                 className="w-full py-3 bg-[#0B0B0C] dark:bg-[#C6F432] hover:bg-[#1A1A1D] dark:hover:bg-[#D7F860] text-white dark:text-[#0B0B0C] font-bold text-xs rounded-xl transition-colors flex items-center justify-center space-x-2 shadow-lg"
               >
                 <FileText className="w-4 h-4 text-[#C6F432] dark:text-[#0B0B0C]" />
                 <span>Configure Custom RFQ Specifications</span>
-              </button>
-            </div>
-          )}
-            <div className="bg-amg-red-50/60 border border-amg-red-200 p-5 rounded-sm space-y-3">
-              <div className="flex items-center space-x-2">
-                <span className="px-2 py-0.5 bg-amg-red text-white text-[10px] font-bold uppercase rounded-sm">
-                  Agent-Assisted Custom Escalation
-                </span>
-                <span className="font-mono text-xs text-slate-500">MOQ: {product.moq} {product.unitMeasurement}</span>
-              </div>
-              <h3 className="text-base font-extrabold text-slate-900">
-                Custom Engineering Quotation Required
-              </h3>
-              <p className="text-xs text-slate-600 leading-relaxed">
-                Heavy structural steel frameworks, Sinotruk prime movers, and bulk cryogenic gases require dedicated sales engineers to evaluate project drawings, factory mill slots, and custom volume pricing matrices.
-              </p>
-
-              <button
-                type="button"
-                onClick={() => openRfq(product)}
-                className="w-full py-3 bg-amg-red hover:bg-red-800 text-white font-bold text-xs rounded-sm transition-colors flex items-center justify-center space-x-2 shadow-panel"
-              >
-                <FileText className="w-4 h-4" />
-                <span>Submit Technical RFQ Specification Request</span>
               </button>
             </div>
           )}

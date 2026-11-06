@@ -61,6 +61,7 @@ function LoginContent() {
     super_admin: '/admin',
     branch_admin: '/branch-admin',
     sales_agent: '/agent',
+    finance: '/finance',
     customer: '/portal',
   };
 
