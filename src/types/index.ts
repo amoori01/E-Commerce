@@ -39,6 +39,7 @@ export interface Subsidiary {
   slug: string;
   description: string;
   isActive: boolean;
+  imageUrl?: string;
 }
 
 export interface Branch {
@@ -78,6 +79,7 @@ export interface Category {
   slug: string;
   description: string;
   displayOrder: number;
+  imageUrl?: string;
 }
 
 export interface TechnicalSpecs {

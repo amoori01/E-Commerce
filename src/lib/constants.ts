@@ -13,6 +13,7 @@ export const CATEGORIES: Category[] = [
     slug: 'heavy-structural-steel',
     description: 'Pre-engineered frames, columns, rafters, and hot-rolled structural sections.',
     displayOrder: 1,
+    imageUrl: 'https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=800&auto=format&fit=crop&q=80',
   },
   {
     id: 'c2222222-2222-2222-2222-222222222222',
@@ -21,6 +22,7 @@ export const CATEGORIES: Category[] = [
     slug: 'roofing-solutions',
     description: 'Tile profiles, corrugated zinc sheets, and continuous gutter accessories.',
     displayOrder: 2,
+    imageUrl: 'https://images.unsplash.com/photo-1632759145351-1d592919f522?w=800&auto=format&fit=crop&q=80',
   },
   {
     id: 'c3333333-3333-3333-3333-333333333333',
@@ -29,6 +31,7 @@ export const CATEGORIES: Category[] = [
     slug: 'commercial-transport',
     description: 'Heavy prime movers, cargo beds, lowbeds, and fuel tanker bodies.',
     displayOrder: 3,
+    imageUrl: 'https://images.unsplash.com/photo-1601584115197-04ecc0da31d7?w=800&auto=format&fit=crop&q=80',
   },
   {
     id: 'c4444444-4444-4444-4444-444444444444',
@@ -37,6 +40,7 @@ export const CATEGORIES: Category[] = [
     slug: 'gases-lubricants',
     description: 'Medical and industrial cylinders, cryogenic tanks, and heavy motor oils.',
     displayOrder: 4,
+    imageUrl: 'https://images.unsplash.com/photo-1581092160607-ee22621dd758?w=800&auto=format&fit=crop&q=80',
   },
   {
     id: 'c5555555-5555-5555-5555-555555555555',
@@ -45,6 +49,7 @@ export const CATEGORIES: Category[] = [
     slug: 'specialty-coffee',
     description: 'Roasted and ground export Arabica blends in degassing packaging.',
     displayOrder: 5,
+    imageUrl: 'https://images.unsplash.com/photo-1559056199-641a0ac8b55e?w=800&auto=format&fit=crop&q=80',
   },
 ];
 
@@ -56,6 +61,7 @@ export const SUBSIDIARIES: Subsidiary[] = [
     slug: 'amg-heavy-steel',
     description: 'Pre-engineered structural steel buildings, columns, rafters, H/I beams, and industrial smart poles.',
     isActive: true,
+    imageUrl: 'https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=800&auto=format&fit=crop&q=80',
   },
   {
     id: '22222222-2222-2222-2222-222222222222',
@@ -64,6 +70,7 @@ export const SUBSIDIARIES: Subsidiary[] = [
     slug: 'amg-roofing',
     description: 'Ethio, Adama, and Momina stone-coated, galvanized corrugated roofing sheets, gutters, and valleys.',
     isActive: true,
+    imageUrl: 'https://images.unsplash.com/photo-1632759145351-1d592919f522?w=800&auto=format&fit=crop&q=80',
   },
   {
     id: '33333333-3333-3333-3333-333333333333',
@@ -72,6 +79,7 @@ export const SUBSIDIARIES: Subsidiary[] = [
     slug: 'amg-transport',
     description: 'Sinotruk prime movers, BPW/York heavy transport trailers, fuel tankers, and custom dry cargo bodies.',
     isActive: true,
+    imageUrl: 'https://images.unsplash.com/photo-1601584115197-04ecc0da31d7?w=800&auto=format&fit=crop&q=80',
   },
   {
     id: '44444444-4444-4444-4444-444444444444',
@@ -80,6 +88,7 @@ export const SUBSIDIARIES: Subsidiary[] = [
     slug: 'amg-gas-lubricants',
     description: 'Medical and technical cryogenic gases (Oxygen, Argon, Nitrogen) and certified heavy motor lubricants.',
     isActive: true,
+    imageUrl: 'https://images.unsplash.com/photo-1581092160607-ee22621dd758?w=800&auto=format&fit=crop&q=80',
   },
   {
     id: '55555555-5555-5555-5555-555555555555',
@@ -88,6 +97,7 @@ export const SUBSIDIARIES: Subsidiary[] = [
     slug: 'amg-coffee',
     description: 'AMG roasted and ground export-grade Arabica coffee packaged in standard airtight degassing bags.',
     isActive: true,
+    imageUrl: 'https://images.unsplash.com/photo-1559056199-641a0ac8b55e?w=800&auto=format&fit=crop&q=80',
   },
 ];
 
@@ -281,9 +291,9 @@ export const PRODUCTS: Product[] = [
       'Manufacturing Standard': 'ES ISO 9364 / EN 10346 Continuous Galvanized',
       'Warranty': '20-Year Anti-Perforation Warranty',
     },
-    imageUrl: 'https://images.unsplash.com/photo-1513694203232-719a280e022f?w=800&auto=format&fit=crop&q=80',
+    imageUrl: 'https://images.unsplash.com/photo-1632759145351-1d592919f522?w=800&auto=format&fit=crop&q=80',
     galleryImages: [
-      'https://images.unsplash.com/photo-1513694203232-719a280e022f?w=800&auto=format&fit=crop&q=80',
+      'https://images.unsplash.com/photo-1632759145351-1d592919f522?w=800&auto=format&fit=crop&q=80',
       'https://images.unsplash.com/photo-1590381105924-c72589b9ef3f?w=800&auto=format&fit=crop&q=80',
     ],
     datasheetUrl: '/docs/spec-ethio-tile-040mm.pdf',
@@ -329,10 +339,10 @@ export const PRODUCTS: Product[] = [
       'Rib Geometry': 'Cross-Ribbed High-Bond Deformed Pattern',
       'Carbon Equivalent (CEV)': '≤ 0.52% (Weldable Metallurgy)',
     },
-    imageUrl: 'https://images.unsplash.com/photo-1504917599217-d4dc5ebe6122?w=800&auto=format&fit=crop&q=80',
+    imageUrl: 'https://images.unsplash.com/photo-1586864387967-d02ef85d93e8?w=800&auto=format&fit=crop&q=80',
     galleryImages: [
-      'https://images.unsplash.com/photo-1504917599217-d4dc5ebe6122?w=800&auto=format&fit=crop&q=80',
-      'https://images.unsplash.com/photo-1533090161767-e6ffed986c88?w=800&auto=format&fit=crop&q=80',
+      'https://images.unsplash.com/photo-1586864387967-d02ef85d93e8?w=800&auto=format&fit=crop&q=80',
+      'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=800&auto=format&fit=crop&q=80',
     ],
     datasheetUrl: '/docs/spec-rebar-16mm-gr60.pdf',
     isFeatured: true,
@@ -411,7 +421,7 @@ export const PRODUCTS: Product[] = [
       'Total Base Number (TBN)': '11.2 mg KOH/g',
       'Kinematic Viscosity @ 100°C': '14.8 cSt',
     },
-    imageUrl: 'https://images.unsplash.com/photo-1635350736475-c817290ec5f0?w=800&auto=format&fit=crop&q=80',
+    imageUrl: 'https://images.unsplash.com/photo-1579783900882-c0d3dad7b119?w=800&auto=format&fit=crop&q=80',
     isFeatured: false,
     stockSummary: {
       totalOnHand: 420,
@@ -477,7 +487,7 @@ export const PRODUCTS: Product[] = [
       'Welding Code': 'AWS D1.1 / ISO 3834 Certified Structural Welds',
       'Clear Span Capability': 'Up to 48 Meters Without Intermediate Columns',
     },
-    imageUrl: 'https://images.unsplash.com/photo-1541888946425-d0fbb186c5f7?w=800&auto=format&fit=crop&q=80',
+    imageUrl: 'https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=800&auto=format&fit=crop&q=80',
     datasheetUrl: '/docs/spec-structural-s355jr-peb.pdf',
     cadDownloadUrl: '/cad/amg-steel-column-rafter-assembly.dwg',
     isFeatured: true,
@@ -540,7 +550,7 @@ export const PRODUCTS: Product[] = [
       'Zinc Coating': 'Z90 (90 g/m² Double-Sided)',
       'Standard': 'ES ISO 9364',
     },
-    imageUrl: 'https://images.unsplash.com/photo-1513694203232-719a280e022f?w=800&auto=format&fit=crop&q=80',
+    imageUrl: 'https://images.unsplash.com/photo-1632759145351-1d592919f522?w=800&auto=format&fit=crop&q=80',
     isFeatured: false,
     stockSummary: {
       totalOnHand: 3100,
@@ -642,7 +652,7 @@ export const PRODUCTS: Product[] = [
       'Thickness': '0.50 mm Galvanized (Z180)',
       'Length': '3,000 mm',
     },
-    imageUrl: 'https://images.unsplash.com/photo-1513694203232-719a280e022f?w=800&auto=format&fit=crop&q=80',
+    imageUrl: 'https://images.unsplash.com/photo-1505705694340-019e1e335916?w=800&auto=format&fit=crop&q=80',
     isFeatured: false,
     stockSummary: {
       totalOnHand: 650,
@@ -675,7 +685,7 @@ export const PRODUCTS: Product[] = [
       'Coil Weight': '3.5 - 5.0 Metric Tons per Coil',
       'Standard': 'ASTM A792 / EN 10215',
     },
-    imageUrl: 'https://images.unsplash.com/photo-1504917599217-d4dc5ebe6122?w=800&auto=format&fit=crop&q=80',
+    imageUrl: 'https://images.unsplash.com/photo-1563986768609-322da13575f3?w=800&auto=format&fit=crop&q=80',
     isFeatured: true,
     stockSummary: {
       totalOnHand: 85,
@@ -709,7 +719,7 @@ export const PRODUCTS: Product[] = [
       'Coil Weight': 'Approx. 1.8 - 2.0 Tons per Coil',
       'Tensile Strength': '380 - 450 MPa',
     },
-    imageUrl: 'https://images.unsplash.com/photo-1504917599217-d4dc5ebe6122?w=800&auto=format&fit=crop&q=80',
+    imageUrl: 'https://images.unsplash.com/photo-1563986768609-322da13575f3?w=800&auto=format&fit=crop&q=80',
     isFeatured: false,
     stockSummary: {
       totalOnHand: 140,
@@ -741,7 +751,7 @@ export const PRODUCTS: Product[] = [
       'Roll Dimensions': '2.0 m Height x 25.0 m Length (50 m²)',
       'Zinc Coating': '≥ 60 g/m² Continuous Galvanized',
     },
-    imageUrl: 'https://images.unsplash.com/photo-1504917599217-d4dc5ebe6122?w=800&auto=format&fit=crop&q=80',
+    imageUrl: 'https://images.unsplash.com/photo-1563986768609-322da13575f3?w=800&auto=format&fit=crop&q=80',
     isFeatured: false,
     stockSummary: {
       totalOnHand: 340,
@@ -774,7 +784,7 @@ export const PRODUCTS: Product[] = [
       'Grade Standard': 'EN 10219 S235JRH',
       'Mass per Length': '9.01 kg/meter (54.06 kg/pipe)',
     },
-    imageUrl: 'https://images.unsplash.com/photo-1533090161767-e6ffed986c88?w=800&auto=format&fit=crop&q=80',
+    imageUrl: 'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=800&auto=format&fit=crop&q=80',
     isFeatured: true,
     stockSummary: {
       totalOnHand: 920,
@@ -807,7 +817,7 @@ export const PRODUCTS: Product[] = [
       'Standard Length': '6.0 meters (Pre-drilled bolt slots)',
       'Yield Strength': '≥ 345 MPa',
     },
-    imageUrl: 'https://images.unsplash.com/photo-1504917599217-d4dc5ebe6122?w=800&auto=format&fit=crop&q=80',
+    imageUrl: 'https://images.unsplash.com/photo-1533090161767-e6ffed986c88?w=800&auto=format&fit=crop&q=80',
     isFeatured: false,
     stockSummary: {
       totalOnHand: 1450,
@@ -839,7 +849,7 @@ export const PRODUCTS: Product[] = [
       'Mass per Meter': '6.85 kg/m (82.2 kg/piece)',
       'Steel Grade': 'ASTM A36 / S275JR',
     },
-    imageUrl: 'https://images.unsplash.com/photo-1504917599217-d4dc5ebe6122?w=800&auto=format&fit=crop&q=80',
+    imageUrl: 'https://images.unsplash.com/photo-1533090161767-e6ffed986c88?w=800&auto=format&fit=crop&q=80',
     isFeatured: false,
     stockSummary: {
       totalOnHand: 680,
@@ -871,7 +881,7 @@ export const PRODUCTS: Product[] = [
       'Pattern Type': 'Raised Diamond / Tear-Drop Non-Slip',
       'Total Weight': '166.5 kg per sheet',
     },
-    imageUrl: 'https://images.unsplash.com/photo-1533090161767-e6ffed986c88?w=800&auto=format&fit=crop&q=80',
+    imageUrl: 'https://images.unsplash.com/photo-1563986768609-322da13575f3?w=800&auto=format&fit=crop&q=80',
     isFeatured: false,
     stockSummary: {
       totalOnHand: 220,
@@ -905,7 +915,7 @@ export const PRODUCTS: Product[] = [
       'Packaging': 'Degassing valve foil bag',
       'Origin': 'Sidama Region, Ethiopia',
     },
-    imageUrl: 'https://images.unsplash.com/photo-1559056199-641a0ac8b55e?w=800&auto=format&fit=crop&q=80',
+    imageUrl: 'https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?w=800&auto=format&fit=crop&q=80',
     isFeatured: false,
     stockSummary: {
       totalOnHand: 2400,
@@ -968,7 +978,7 @@ export const PRODUCTS: Product[] = [
       'Net Weight': '50 grams (5x10g drip bags)',
       'Packaging': 'Nitrogen-flushed individual foil sachets',
     },
-    imageUrl: 'https://images.unsplash.com/photo-1559056199-641a0ac8b55e?w=800&auto=format&fit=crop&q=80',
+    imageUrl: 'https://images.unsplash.com/photo-1587734195503-904fca47e0e9?w=800&auto=format&fit=crop&q=80',
     isFeatured: false,
     stockSummary: {
       totalOnHand: 5000,
@@ -999,7 +1009,7 @@ export const PRODUCTS: Product[] = [
       'Net Weight': '5,000 grams (5.0 kg)',
       'Packaging': 'Heavy multi-ply kraft bag with aroma seal',
     },
-    imageUrl: 'https://images.unsplash.com/photo-1559056199-641a0ac8b55e?w=800&auto=format&fit=crop&q=80',
+    imageUrl: 'https://images.unsplash.com/photo-1447933601403-0c6688de566e?w=800&auto=format&fit=crop&q=80',
     isFeatured: true,
     stockSummary: {
       totalOnHand: 450,
@@ -1033,7 +1043,7 @@ export const PRODUCTS: Product[] = [
       'Washer': 'Pre-fitted Neoprene EPDM Weather Seal',
       'Package': '25 kg Heavy Gunny Bag (Approx. 2,500 pcs)',
     },
-    imageUrl: 'https://images.unsplash.com/photo-1513694203232-719a280e022f?w=800&auto=format&fit=crop&q=80',
+    imageUrl: 'https://images.unsplash.com/photo-1586864387967-d02ef85d93e8?w=800&auto=format&fit=crop&q=80',
     isFeatured: false,
     stockSummary: {
       totalOnHand: 890,
@@ -1065,7 +1075,7 @@ export const PRODUCTS: Product[] = [
       'Coating': '1,000-Hour Salt Spray Ruspert Ceramic Anti-Corrosion',
       'Pack Quantity': '1,000 Pieces per Heavy Carton',
     },
-    imageUrl: 'https://images.unsplash.com/photo-1504917599217-d4dc5ebe6122?w=800&auto=format&fit=crop&q=80',
+    imageUrl: 'https://images.unsplash.com/photo-1586864387967-d02ef85d93e8?w=800&auto=format&fit=crop&q=80',
     isFeatured: false,
     stockSummary: {
       totalOnHand: 1100,
@@ -1096,7 +1106,7 @@ export const PRODUCTS: Product[] = [
       'Performance': 'API SL / JASO MA2',
       'Volume': '1 Litre Sealed Bottle with Measuring Indicator',
     },
-    imageUrl: 'https://images.unsplash.com/photo-1635350736475-c817290ec5f0?w=800&auto=format&fit=crop&q=80',
+    imageUrl: 'https://images.unsplash.com/photo-1579783900882-c0d3dad7b119?w=800&auto=format&fit=crop&q=80',
     isFeatured: false,
     stockSummary: {
       totalOnHand: 3200,
@@ -1127,7 +1137,7 @@ export const PRODUCTS: Product[] = [
       'API Standard': 'API CI-4 / CH-4 / SL',
       'Packaging': '4 Litre Ergonomic HDPE Canister',
     },
-    imageUrl: 'https://images.unsplash.com/photo-1635350736475-c817290ec5f0?w=800&auto=format&fit=crop&q=80',
+    imageUrl: 'https://images.unsplash.com/photo-1579783900882-c0d3dad7b119?w=800&auto=format&fit=crop&q=80',
     isFeatured: false,
     stockSummary: {
       totalOnHand: 1540,
@@ -1161,7 +1171,7 @@ export const PRODUCTS: Product[] = [
       'Length Available': '12.0m to 18.0m standard (Milled cut to size)',
       'Section Depth': '300 mm to 400 mm',
     },
-    imageUrl: 'https://images.unsplash.com/photo-1541888946425-d0fbb186c5f7?w=800&auto=format&fit=crop&q=80',
+    imageUrl: 'https://images.unsplash.com/photo-1578328819058-b69f3a3b0f6b?w=800&auto=format&fit=crop&q=80',
     datasheetUrl: '/docs/spec-h-beam-heb300.pdf',
     isFeatured: true,
   },
@@ -1188,7 +1198,7 @@ export const PRODUCTS: Product[] = [
       'Wind Resistance': 'Rated up to 160 km/h gusts',
       'Integrated Features': 'IoT sensor mount, security camera arm, solar battery compartment',
     },
-    imageUrl: 'https://images.unsplash.com/photo-1541888946425-d0fbb186c5f7?w=800&auto=format&fit=crop&q=80',
+    imageUrl: 'https://images.unsplash.com/photo-1535813547-99c456a41d4a?w=800&auto=format&fit=crop&q=80',
     datasheetUrl: '/docs/spec-smart-pole-amg.pdf',
     isFeatured: false,
   },
@@ -1215,7 +1225,7 @@ export const PRODUCTS: Product[] = [
       'Antenna Load': 'Up to 12 Sector Antennas + 4 Microwave Dishes',
       'Corrosion Barrier': 'Heavy Hot-Dip Galvanizing with Aviation Red/White Enamel',
     },
-    imageUrl: 'https://images.unsplash.com/photo-1541888946425-d0fbb186c5f7?w=800&auto=format&fit=crop&q=80',
+    imageUrl: 'https://images.unsplash.com/photo-1508974239320-0a029497e820?w=800&auto=format&fit=crop&q=80',
     datasheetUrl: '/docs/spec-telecom-tower-45m.pdf',
     isFeatured: false,
   },
@@ -1242,7 +1252,7 @@ export const PRODUCTS: Product[] = [
       'Pressure Rating': 'Atmospheric / 1.5 Bar Hydrostatic Test',
       'Leak Detection': 'Interstitial vacuum monitoring port with polyurethane coating',
     },
-    imageUrl: 'https://images.unsplash.com/photo-1541888946425-d0fbb186c5f7?w=800&auto=format&fit=crop&q=80',
+    imageUrl: 'https://images.unsplash.com/photo-1587293852726-70cdb56c2866?w=800&auto=format&fit=crop&q=80',
     datasheetUrl: '/docs/spec-tank-50000l.pdf',
     isFeatured: false,
   },
@@ -1270,7 +1280,7 @@ export const PRODUCTS: Product[] = [
       'Main Beam': '500mm Welded Q345 High-Strength Manganese Steel',
       'Tire Equipment': '12R22.5 Tubeless Heavy Duty (12 Units + Spare)',
     },
-    imageUrl: 'https://images.unsplash.com/photo-1601584115197-04ecc0da31d7?w=800&auto=format&fit=crop&q=80',
+    imageUrl: 'https://images.unsplash.com/photo-1519003722824-194d4455a60c?w=800&auto=format&fit=crop&q=80',
     datasheetUrl: '/docs/spec-bpw-trailer-13m.pdf',
     isFeatured: true,
   },
@@ -1296,7 +1306,7 @@ export const PRODUCTS: Product[] = [
       'Floor Plate': '4.0 mm Checker Steel Plate Floor',
       'Surface Finishing': 'Anti-Rust Zinc Chromate Primer + Automotive Baked Enamel',
     },
-    imageUrl: 'https://images.unsplash.com/photo-1601584115197-04ecc0da31d7?w=800&auto=format&fit=crop&q=80',
+    imageUrl: 'https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?w=800&auto=format&fit=crop&q=80',
     datasheetUrl: '/docs/spec-cargo-body-steel.pdf',
     isFeatured: false,
   },
@@ -1323,7 +1333,7 @@ export const PRODUCTS: Product[] = [
       'Steel Standards': 'GOST 380-2005 3sp / 5sp or ASTM A615 Grade 60 Chemistry',
       'Chemical Composition': 'C: 0.28-0.34%, Mn: 0.60-0.90%, Si: 0.15-0.30%, P&S: ≤ 0.045%',
     },
-    imageUrl: 'https://images.unsplash.com/photo-1504917599217-d4dc5ebe6122?w=800&auto=format&fit=crop&q=80',
+    imageUrl: 'https://images.unsplash.com/photo-1578328819058-b69f3a3b0f6b?w=800&auto=format&fit=crop&q=80',
     datasheetUrl: '/docs/spec-steel-billets-150.pdf',
     isFeatured: true,
   },
@@ -1350,7 +1360,7 @@ export const PRODUCTS: Product[] = [
       'FZG Gear Scuffing Test': 'Stage 12 Failure Load',
       'Flash Point (COC)': '255 °C',
     },
-    imageUrl: 'https://images.unsplash.com/photo-1635350736475-c817290ec5f0?w=800&auto=format&fit=crop&q=80',
+    imageUrl: 'https://images.unsplash.com/photo-1616401784845-180882ba9ba8?w=800&auto=format&fit=crop&q=80',
     datasheetUrl: '/docs/spec-lube-drum-208l.pdf',
     isFeatured: false,
   },
@@ -1404,7 +1414,7 @@ export const PRODUCTS: Product[] = [
       'Bundle Array': '16-Cylinder Palletized Manifold Skid with Central Dual Regulator',
       'Valve Spec': 'BS 341 No. 3 / CGA 580',
     },
-    imageUrl: 'https://images.unsplash.com/photo-1581092160607-ee22621dd758?w=800&auto=format&fit=crop&q=80',
+    imageUrl: 'https://images.unsplash.com/photo-1580983218765-f663bec07b37?w=800&auto=format&fit=crop&q=80',
     datasheetUrl: '/docs/spec-argon-gas.pdf',
     isFeatured: false,
   },

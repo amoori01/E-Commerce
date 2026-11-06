@@ -128,6 +128,9 @@ export default function ProductDetailPage({ params }: ProductPageProps) {
             <img
               src={selectedImage}
               alt={product.name}
+              onError={(e) => {
+                (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=800&auto=format&fit=crop&q=80';
+              }}
               className="w-full h-full object-cover"
             />
             <div className="absolute top-2 left-2">
@@ -156,7 +159,14 @@ export default function ProductDetailPage({ params }: ProductPageProps) {
                   selectedImage === product.imageUrl ? 'border-amg-navy ring-1 ring-amg-navy' : 'border-slate-200'
                 }`}
               >
-                <img src={product.imageUrl} alt="Main" className="w-full h-full object-cover" />
+                <img
+                  src={product.imageUrl}
+                  alt="Main"
+                  onError={(e) => {
+                    (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=800&auto=format&fit=crop&q=80';
+                  }}
+                  className="w-full h-full object-cover"
+                />
               </button>
               {product.galleryImages.map((img, idx) => (
                 <button
@@ -167,7 +177,14 @@ export default function ProductDetailPage({ params }: ProductPageProps) {
                     selectedImage === img ? 'border-amg-navy ring-1 ring-amg-navy' : 'border-slate-200'
                   }`}
                 >
-                  <img src={img} alt={`Gallery ${idx}`} className="w-full h-full object-cover" />
+                  <img
+                    src={img}
+                    alt={`Gallery ${idx}`}
+                    onError={(e) => {
+                      (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=800&auto=format&fit=crop&q=80';
+                    }}
+                    className="w-full h-full object-cover"
+                  />
                 </button>
               ))}
             </div>
@@ -612,7 +629,14 @@ export default function ProductDetailPage({ params }: ProductPageProps) {
               >
                 <div className="space-y-2">
                   <div className="h-36 bg-slate-100 rounded-sm overflow-hidden border border-slate-200">
-                    <img src={rel.imageUrl} alt={rel.name} className="w-full h-full object-cover" />
+                    <img
+                      src={rel.imageUrl}
+                      alt={rel.name}
+                      onError={(e) => {
+                        (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=800&auto=format&fit=crop&q=80';
+                      }}
+                      className="w-full h-full object-cover"
+                    />
                   </div>
                   <div>
                     <span className="text-[10px] font-mono text-slate-500">SKU: {rel.sku}</span>

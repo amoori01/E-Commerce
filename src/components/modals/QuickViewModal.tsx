@@ -95,6 +95,9 @@ export function QuickViewModal({ product, isOpen, onClose }: QuickViewModalProps
                 <img
                   src={product.imageUrl}
                   alt={product.name}
+                  onError={(e) => {
+                    (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=800&auto=format&fit=crop&q=80';
+                  }}
                   className="w-full h-full object-cover"
                 />
               ) : (

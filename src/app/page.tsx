@@ -365,6 +365,73 @@ function HomePageContent() {
           </div>
         </div>
 
+        {/* Visual Category & Subsidiary Showcase with Category Pictures */}
+        <div className="space-y-3">
+          <div className="flex items-center justify-between">
+            <div>
+              <span className="text-[10px] font-mono uppercase tracking-widest text-[#71717A] dark:text-[#A1A1AA]">
+                Shop By Division
+              </span>
+              <h3 className="font-serif text-lg font-bold text-[#0B0B0C] dark:text-white">
+                Featured Industry Categories
+              </h3>
+            </div>
+            <span className="text-xs text-[#71717A] dark:text-[#A1A1AA] hidden sm:inline">
+              Select a category to filter the catalog
+            </span>
+          </div>
+
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3.5">
+            {SUBSIDIARIES.map((sub) => {
+              const isSelected = selectedSubsidiary === sub.id;
+              const productCount = PRODUCTS.filter((p) => p.subsidiaryId === sub.id).length;
+              return (
+                <button
+                  key={sub.id}
+                  type="button"
+                  onClick={() => {
+                    setSelectedSubsidiary(isSelected ? 'all' : sub.id);
+                  }}
+                  className={`group relative text-left rounded-2xl overflow-hidden border transition-all duration-300 h-36 flex flex-col justify-end p-3.5 ${
+                    isSelected
+                      ? 'border-[#C6F432] ring-2 ring-[#C6F432] shadow-[0_12px_30px_-8px_rgba(198,244,50,0.3)] -translate-y-1'
+                      : 'border-[#E4E4E7] dark:border-[#222225] hover:border-[#C6F432] hover:-translate-y-1 hover:shadow-lg'
+                  }`}
+                >
+                  {/* Category Background Image with gradient */}
+                  {sub.imageUrl && (
+                    <img
+                      src={sub.imageUrl}
+                      alt={sub.name}
+                      onError={(e) => {
+                        (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=800&auto=format&fit=crop&q=80';
+                      }}
+                      className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                    />
+                  )}
+                  <div
+                    className={`absolute inset-0 transition-opacity ${
+                      isSelected
+                        ? 'bg-gradient-to-t from-[#0B0B0C] via-[#0B0B0C]/80 to-[#0B0B0C]/40 opacity-95'
+                        : 'bg-gradient-to-t from-[#0B0B0C] via-[#0B0B0C]/75 to-transparent opacity-90 group-hover:opacity-85'
+                    }`}
+                  />
+
+                  {/* Content overlay */}
+                  <div className="relative z-10 space-y-1">
+                    <span className="inline-block px-2 py-0.5 rounded-full text-[9px] font-mono font-bold uppercase tracking-wider bg-[#0B0B0C]/80 text-[#C6F432] border border-[#C6F432]/40">
+                      {productCount} items
+                    </span>
+                    <h4 className="font-serif font-bold text-xs text-white line-clamp-2 leading-tight">
+                      {sub.name.replace('AMG ', '')}
+                    </h4>
+                  </div>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
         {/* Subsidiary Filter Chips */}
         <div className="flex flex-wrap gap-2">
           <button
@@ -488,6 +555,10 @@ function HomePageContent() {
                         <img
                           src={product.imageUrl}
                           alt={product.name}
+                          loading="lazy"
+                          onError={(e) => {
+                            (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=800&auto=format&fit=crop&q=80';
+                          }}
                           className="w-full h-full object-cover group-hover:scale-108 transition-transform duration-500 ease-out"
                         />
                       </Link>
