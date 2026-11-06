@@ -327,8 +327,10 @@ export default function BranchAdminPage() {
     );
 
     // Search orders by order number or gate pass
-    const orderMatch = branchOrders.find(
-      (o) => o.orderNumber.toLowerCase() === query.toLowerCase()
+    const orderMatch = ordersList.find(
+      (o) =>
+        o.orderNumber.toLowerCase() === query.toLowerCase() ||
+        (o.gatePassCode && o.gatePassCode.toLowerCase() === query.toLowerCase())
     );
 
     if (invMatch) {
@@ -339,13 +341,41 @@ export default function BranchAdminPage() {
     } else if (orderMatch) {
       setScanResult({
         order: orderMatch,
-        message: `MATCHED CONSIGNMENT: Order ${orderMatch.orderNumber} (${orderMatch.items.length} line items ready for gate verification)`,
+        message: `MATCHED CONSIGNMENT: Order ${orderMatch.orderNumber} (Gate Pass: ${orderMatch.gatePassCode || query}) - ${orderMatch.customerName} (${orderMatch.items.length} line items authorized for clearance).`,
       });
     } else {
       setScanResult({
-        message: `Barcode / QR code "${query}" verified in physical scan ledger. Item logged for yard audit.`,
+        message: `Barcode / Gate Pass "${query}" verified in physical scan ledger. Item logged for yard audit.`,
       });
     }
+  };
+
+  const handleCompleteOrderRelease = (orderToComplete: Order) => {
+    const updated: Order = {
+      ...orderToComplete,
+      status: 'completed',
+    };
+    setOrdersList((prev) =>
+      prev.map((o) => (o.id === orderToComplete.id ? updated : o))
+    );
+    addServerOrder(updated);
+    if (typeof window !== 'undefined') {
+      try {
+        const local = localStorage.getItem('amg_live_orders');
+        const list = local ? JSON.parse(local) : [];
+        const nextList = [
+          updated,
+          ...list.filter((o: any) => o.id !== updated.id && o.orderNumber !== updated.orderNumber),
+        ];
+        localStorage.setItem('amg_live_orders', JSON.stringify(nextList));
+        window.dispatchEvent(new CustomEvent('amg_orders_updated', { detail: updated }));
+      } catch (e) {}
+    }
+    setScanResult({
+      order: updated,
+      message: `GATE CLEARANCE APPROVED: Order ${updated.orderNumber} successfully released through Gate 04 weighbridge. Order marked COMPLETED!`,
+    });
+    setFeedbackMsg(`Order ${updated.orderNumber} released from loading dock. Physical collection completed.`);
   };
 
   const handleIssueRestockPo = async (e: React.FormEvent) => {
@@ -1026,7 +1056,7 @@ export default function BranchAdminPage() {
                     <input
                       type="text"
                       required
-                      placeholder="e.g. AMG-STEEL-RB-16MM or AMG-ORD-2026-1049"
+                      placeholder="e.g. GATE-PASS-904424, SKU, or Order #"
                       value={scannedBarcode}
                       onChange={(e) => setScannedBarcode(e.target.value)}
                       className="flex-1 border border-slate-300 px-2.5 py-1.5 text-xs font-mono rounded-sm focus:border-emerald-700 outline-none"
@@ -1042,12 +1072,22 @@ export default function BranchAdminPage() {
               </form>
 
               {scanResult && (
-                <div className="p-3 bg-emerald-50 border border-emerald-300 text-emerald-900 rounded-sm space-y-1">
+                <div className="p-3 bg-emerald-50 border border-emerald-300 text-emerald-900 rounded-sm space-y-2">
                   <div className="font-bold text-xs flex items-center space-x-1">
                     <CheckCircle2 className="w-4 h-4 text-emerald-600" />
                     <span>Scan Verification Logged</span>
                   </div>
                   <p className="text-[11px] leading-relaxed">{scanResult.message}</p>
+                  {scanResult.order && scanResult.order.status !== 'completed' && (
+                    <button
+                      type="button"
+                      onClick={() => handleCompleteOrderRelease(scanResult.order!)}
+                      className="w-full py-2 bg-emerald-700 hover:bg-emerald-800 text-white font-bold rounded-sm text-xs transition-colors flex items-center justify-center space-x-1.5 shadow-sm mt-1"
+                    >
+                      <CheckCircle2 className="w-4 h-4 text-emerald-200" />
+                      <span>Authorize Gate Exit & Complete Consignment</span>
+                    </button>
+                  )}
                 </div>
               )}
 
