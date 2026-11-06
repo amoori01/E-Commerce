@@ -178,7 +178,7 @@ export default function FinanceDashboardPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#FAFAFA] text-[#0B0B0C] pb-20">
+    <div className="min-h-screen bg-[#FAFAFA] dark:bg-[#0B0B0C] text-[#0B0B0C] dark:text-white pb-20 transition-colors">
       {/* 1. TOP HEADER & METRICS */}
       <section className="bg-[#0B0B0C] text-white border-b border-[#1A1A1D] py-8 px-4 sm:px-6">
         <div className="max-w-7xl mx-auto space-y-6">
@@ -273,19 +273,19 @@ export default function FinanceDashboardPage() {
         )}
 
         {/* Filter & Search Bar */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-4 rounded-2xl border border-[#E4E4E7] shadow-xs">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white dark:bg-[#141416] p-4 rounded-2xl border border-[#E4E4E7] dark:border-[#222225] shadow-xs">
           <div className="flex items-center space-x-2">
-            <span className="text-xs font-bold text-[#71717A] uppercase tracking-wider hidden sm:inline">
+            <span className="text-xs font-bold text-[#71717A] dark:text-[#A1A1AA] uppercase tracking-wider hidden sm:inline">
               Filter:
             </span>
-            <div className="inline-flex bg-[#F4F4F5] p-1 rounded-full border border-[#E4E4E7] text-xs">
+            <div className="inline-flex bg-[#F4F4F5] dark:bg-[#1A1A1D] p-1 rounded-full border border-[#E4E4E7] dark:border-[#2A2A2E] text-xs">
               <button
                 type="button"
                 onClick={() => setFilterStatus('all')}
                 className={`px-3.5 py-1 font-semibold rounded-full transition-all ${
                   filterStatus === 'all'
-                    ? 'bg-white text-[#0B0B0C] shadow-xs'
-                    : 'text-[#71717A] hover:text-[#0B0B0C]'
+                    ? 'bg-white dark:bg-[#222225] text-[#0B0B0C] dark:text-white shadow-xs'
+                    : 'text-[#71717A] dark:text-[#A1A1AA] hover:text-[#0B0B0C] dark:hover:text-white'
                 }`}
               >
                 All Orders
@@ -295,8 +295,8 @@ export default function FinanceDashboardPage() {
                 onClick={() => setFilterStatus('payment_pending')}
                 className={`px-3.5 py-1 font-semibold rounded-full transition-all ${
                   filterStatus === 'payment_pending'
-                    ? 'bg-[#0B0B0C] text-[#C6F432] shadow-xs'
-                    : 'text-[#71717A] hover:text-[#0B0B0C]'
+                    ? 'bg-[#0B0B0C] dark:bg-[#C6F432] text-[#C6F432] dark:text-[#0B0B0C] shadow-xs'
+                    : 'text-[#71717A] dark:text-[#A1A1AA] hover:text-[#0B0B0C] dark:hover:text-white'
                 }`}
               >
                 Pending Verification ({pendingVerificationCount})
@@ -306,8 +306,8 @@ export default function FinanceDashboardPage() {
                 onClick={() => setFilterStatus('fulfillment_processing')}
                 className={`px-3.5 py-1 font-semibold rounded-full transition-all ${
                   filterStatus === 'fulfillment_processing'
-                    ? 'bg-[#0B0B0C] text-white shadow-xs'
-                    : 'text-[#71717A] hover:text-[#0B0B0C]'
+                    ? 'bg-[#0B0B0C] dark:bg-[#1F1F24] text-white shadow-xs'
+                    : 'text-[#71717A] dark:text-[#A1A1AA] hover:text-[#0B0B0C] dark:hover:text-white'
                 }`}
               >
                 Verified &amp; Released
@@ -318,7 +318,7 @@ export default function FinanceDashboardPage() {
                 className={`px-3.5 py-1 font-semibold rounded-full transition-all ${
                   filterStatus === 'rejected'
                     ? 'bg-rose-900 text-white shadow-xs'
-                    : 'text-[#71717A] hover:text-[#0B0B0C]'
+                    : 'text-[#71717A] dark:text-[#A1A1AA] hover:text-[#0B0B0C] dark:hover:text-white'
                 }`}
               >
                 Rejected References
@@ -327,13 +327,13 @@ export default function FinanceDashboardPage() {
           </div>
 
           <div className="relative min-w-[240px] sm:w-72">
-            <Search className="w-4 h-4 text-[#71717A] absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+            <Search className="w-4 h-4 text-[#71717A] dark:text-[#A1A1AA] absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
             <input
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search by FT code, order #, client..."
-              className="w-full pl-9 pr-4 py-2 text-xs border border-[#E4E4E7] rounded-full bg-[#FAFAFA] focus:outline-none focus:border-[#0B0B0C] focus:ring-1 focus:ring-[#C6F432]/40"
+              className="w-full pl-9 pr-4 py-2 text-xs border border-[#E4E4E7] dark:border-[#222225] rounded-full bg-[#FAFAFA] dark:bg-[#1A1A1D] text-[#0B0B0C] dark:text-white focus:outline-none focus:border-[#0B0B0C] dark:focus:border-[#C6F432] focus:ring-1 focus:ring-[#C6F432]/40"
             />
           </div>
         </div>
@@ -341,24 +341,24 @@ export default function FinanceDashboardPage() {
         {/* Master-Detail Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
           {/* Orders Table List (8 cols) */}
-          <div className="lg:col-span-8 bg-white border border-[#E4E4E7] rounded-3xl shadow-xs overflow-hidden">
-            <div className="p-5 border-b border-[#F4F4F5] flex items-center justify-between">
+          <div className="lg:col-span-8 bg-white dark:bg-[#141416] border border-[#E4E4E7] dark:border-[#222225] rounded-3xl shadow-xs overflow-hidden">
+            <div className="p-5 border-b border-[#F4F4F5] dark:border-[#222225] flex items-center justify-between">
               <div>
-                <h3 className="font-serif font-bold text-base text-[#0B0B0C]">
+                <h3 className="font-serif font-bold text-base text-[#0B0B0C] dark:text-white">
                   CBE Bank Transfer Verification Queue
                 </h3>
-                <p className="text-xs text-[#71717A]">
+                <p className="text-xs text-[#71717A] dark:text-[#A1A1AA]">
                   Select an order to inspect bank statement reference details and approve or reject.
                 </p>
               </div>
-              <span className="text-xs font-mono text-[#71717A]">
+              <span className="text-xs font-mono text-[#71717A] dark:text-[#A1A1AA]">
                 {filteredOrders.length} records found
               </span>
             </div>
 
             <div className="overflow-x-auto">
               <table className="w-full text-left text-xs">
-                <thead className="bg-[#FAFAFA] text-[#71717A] uppercase tracking-wider text-[10px] font-bold border-b border-[#E4E4E7]">
+                <thead className="bg-[#FAFAFA] dark:bg-[#1A1A1D] text-[#71717A] dark:text-[#A1A1AA] uppercase tracking-wider text-[10px] font-bold border-b border-[#E4E4E7] dark:border-[#222225]">
                   <tr>
                     <th className="py-3 px-4">Order &amp; Date</th>
                     <th className="py-3 px-4">Customer</th>
@@ -368,7 +368,7 @@ export default function FinanceDashboardPage() {
                     <th className="py-3 px-4 text-right">Action</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-[#F4F4F5]">
+                <tbody className="divide-y divide-[#F4F4F5] dark:divide-[#222225]">
                   {filteredOrders.map((ord) => {
                     const isSelected = selectedOrder?.id === ord.id;
                     const isPending = ord.status === 'payment_pending';
@@ -377,45 +377,45 @@ export default function FinanceDashboardPage() {
                       <tr
                         key={ord.id}
                         onClick={() => setSelectedOrder(ord)}
-                        className={`hover:bg-[#FAFAFA] cursor-pointer transition-colors ${
-                          isSelected ? 'bg-[#F4F4F5] font-medium' : ''
+                        className={`hover:bg-[#FAFAFA] dark:hover:bg-[#1A1A1D] cursor-pointer transition-colors ${
+                          isSelected ? 'bg-[#F4F4F5] dark:bg-[#1F1F24] font-medium' : ''
                         }`}
                       >
                         <td className="py-3 px-4 font-mono">
-                          <div className="font-bold text-[#0B0B0C]">{ord.orderNumber}</div>
-                          <div className="text-[10px] text-[#71717A]">
+                          <div className="font-bold text-[#0B0B0C] dark:text-white">{ord.orderNumber}</div>
+                          <div className="text-[10px] text-[#71717A] dark:text-[#A1A1AA]">
                             {new Date(ord.createdAt).toLocaleDateString()}
                           </div>
                         </td>
                         <td className="py-3 px-4">
-                          <div className="text-[#0B0B0C] font-semibold">{ord.customerName}</div>
-                          <div className="text-[10px] text-[#71717A]">{ord.customerCompany || 'Direct Client'}</div>
+                          <div className="text-[#0B0B0C] dark:text-white font-semibold">{ord.customerName}</div>
+                          <div className="text-[10px] text-[#71717A] dark:text-[#A1A1AA]">{ord.customerCompany || 'Direct Client'}</div>
                         </td>
-                        <td className="py-3 px-4 font-mono font-bold text-[#0B0B0C]">
+                        <td className="py-3 px-4 font-mono font-bold text-[#0B0B0C] dark:text-[#C6F432]">
                           ETB {ord.totalAmountEtb.toLocaleString('en-US', { minimumFractionDigits: 2 })}
                         </td>
                         <td className="py-3 px-4 font-mono">
                           {ord.cbeFtReference ? (
-                            <span className="px-2 py-0.5 bg-[#FAFAFA] border border-[#E4E4E7] rounded font-bold text-[#0B0B0C]">
+                            <span className="px-2 py-0.5 bg-[#FAFAFA] dark:bg-[#1A1A1D] border border-[#E4E4E7] dark:border-[#2A2A2E] rounded font-bold text-[#0B0B0C] dark:text-white">
                               {ord.cbeFtReference}
                             </span>
                           ) : (
-                            <span className="text-[10px] text-amber-700 bg-amber-50 px-2 py-0.5 rounded">
+                            <span className="text-[10px] text-amber-500 bg-amber-500/10 px-2 py-0.5 rounded">
                               Not submitted
                             </span>
                           )}
                         </td>
                         <td className="py-3 px-4">
                           {ord.paymentRejectionReason ? (
-                            <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-rose-100 text-rose-800">
+                            <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-rose-500/20 text-rose-500">
                               Rejected
                             </span>
                           ) : isPending ? (
-                            <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-[#0B0B0C] text-[#C6F432]">
+                            <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-[#0B0B0C] dark:bg-[#C6F432] text-[#C6F432] dark:text-[#0B0B0C]">
                               Pending Review
                             </span>
                           ) : (
-                            <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800">
+                            <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/20 text-emerald-500">
                               Verified
                             </span>
                           )}
@@ -427,7 +427,7 @@ export default function FinanceDashboardPage() {
                               e.stopPropagation();
                               setSelectedOrder(ord);
                             }}
-                            className="px-3 py-1 bg-white hover:bg-[#0B0B0C] text-[#0B0B0C] hover:text-white border border-[#E4E4E7] rounded-full text-[11px] font-semibold transition-all shadow-2xs"
+                            className="px-3 py-1 bg-white dark:bg-[#1A1A1D] hover:bg-[#0B0B0C] dark:hover:bg-[#C6F432] text-[#0B0B0C] dark:text-white hover:text-white dark:hover:text-[#0B0B0C] border border-[#E4E4E7] dark:border-[#2A2A2E] rounded-full text-[11px] font-semibold transition-all shadow-2xs"
                           >
                             Inspect
                           </button>
@@ -437,7 +437,7 @@ export default function FinanceDashboardPage() {
                   })}
                   {filteredOrders.length === 0 && (
                     <tr>
-                      <td colSpan={6} className="py-12 text-center text-[#71717A] text-xs">
+                      <td colSpan={6} className="py-12 text-center text-[#71717A] dark:text-[#A1A1AA] text-xs">
                         No orders match the selected filter.
                       </td>
                     </tr>
@@ -448,7 +448,7 @@ export default function FinanceDashboardPage() {
           </div>
 
           {/* Verification Details Panel (4 cols) */}
-          <div className="lg:col-span-4 bg-white border border-[#E4E4E7] rounded-3xl p-6 shadow-xs space-y-5">
+          <div className="lg:col-span-4 bg-white dark:bg-[#141416] border border-[#E4E4E7] dark:border-[#222225] rounded-3xl p-6 shadow-xs space-y-5">
             {selectedOrder ? (
               <>
                 <div className="border-b border-[#F4F4F5] pb-4 space-y-1">
@@ -466,48 +466,48 @@ export default function FinanceDashboardPage() {
                 </div>
 
                 {/* Financial Overview */}
-                <div className="bg-[#FAFAFA] border border-[#E4E4E7] p-4 rounded-2xl space-y-2 text-xs">
-                  <div className="flex justify-between items-center text-[#71717A]">
+                <div className="bg-[#FAFAFA] dark:bg-[#1A1A1D] border border-[#E4E4E7] dark:border-[#2A2A2E] p-4 rounded-2xl space-y-2 text-xs">
+                  <div className="flex justify-between items-center text-[#71717A] dark:text-[#A1A1AA]">
                     <span>Payable Amount:</span>
-                    <span className="font-mono font-bold text-[#0B0B0C] text-sm">
+                    <span className="font-mono font-bold text-[#0B0B0C] dark:text-[#C6F432] text-sm">
                       ETB {selectedOrder.totalAmountEtb.toLocaleString('en-US', { minimumFractionDigits: 2 })}
                     </span>
                   </div>
-                  <div className="flex justify-between items-center text-[#71717A] text-[11px]">
+                  <div className="flex justify-between items-center text-[#71717A] dark:text-[#A1A1AA] text-[11px]">
                     <span>15% ERCA VAT Included:</span>
-                    <span className="font-mono">
+                    <span className="font-mono text-[#0B0B0C] dark:text-white">
                       ETB {selectedOrder.taxEtb.toLocaleString('en-US', { minimumFractionDigits: 2 })}
                     </span>
                   </div>
-                  <div className="flex justify-between items-center text-[#71717A] text-[11px]">
+                  <div className="flex justify-between items-center text-[#71717A] dark:text-[#A1A1AA] text-[11px]">
                     <span>Fulfillment Branch:</span>
-                    <span className="font-medium text-[#0B0B0C]">{selectedOrder.fulfillmentBranchName}</span>
+                    <span className="font-medium text-[#0B0B0C] dark:text-white">{selectedOrder.fulfillmentBranchName}</span>
                   </div>
                 </div>
 
                 {/* Submitted CBE Bank Details */}
                 <div className="space-y-3 text-xs">
-                  <div className="font-semibold text-[#0B0B0C] flex items-center space-x-1.5">
-                    <Landmark className="w-4 h-4 text-[#0B0B0C]" />
+                  <div className="font-semibold text-[#0B0B0C] dark:text-white flex items-center space-x-1.5">
+                    <Landmark className="w-4 h-4 text-[#C6F432]" />
                     <span>Customer Bank Slip Details</span>
                   </div>
 
-                  <div className="space-y-2 bg-[#F4F4F5] p-3.5 rounded-2xl border border-[#E4E4E7]">
+                  <div className="space-y-2 bg-[#F4F4F5] dark:bg-[#1A1A1D] p-3.5 rounded-2xl border border-[#E4E4E7] dark:border-[#2A2A2E]">
                     <div>
-                      <span className="text-[10px] text-[#71717A] uppercase block">
+                      <span className="text-[10px] text-[#71717A] dark:text-[#A1A1AA] uppercase block">
                         CBE FT Reference Code:
                       </span>
-                      <span className="font-mono font-black text-sm text-[#0B0B0C] tracking-wide">
+                      <span className="font-mono font-black text-sm text-[#0B0B0C] dark:text-[#C6F432] tracking-wide">
                         {selectedOrder.cbeFtReference || 'NOT YET SUBMITTED BY BUYER'}
                       </span>
                     </div>
 
                     {selectedOrder.cbePayerAccount && (
                       <div>
-                        <span className="text-[10px] text-[#71717A] uppercase block">
+                        <span className="text-[10px] text-[#71717A] dark:text-[#A1A1AA] uppercase block">
                           Payer Account (Sender):
                         </span>
-                        <span className="font-mono text-xs text-[#0B0B0C]">
+                        <span className="font-mono text-xs text-[#0B0B0C] dark:text-white">
                           {selectedOrder.cbePayerAccount}
                         </span>
                       </div>
@@ -515,17 +515,17 @@ export default function FinanceDashboardPage() {
 
                     {selectedOrder.paymentSubmittedAt && (
                       <div>
-                        <span className="text-[10px] text-[#71717A] uppercase block">
+                        <span className="text-[10px] text-[#71717A] dark:text-[#A1A1AA] uppercase block">
                           Submission Timestamp:
                         </span>
-                        <span className="font-mono text-[11px] text-[#71717A]">
+                        <span className="font-mono text-[11px] text-[#71717A] dark:text-[#A1A1AA]">
                           {new Date(selectedOrder.paymentSubmittedAt).toLocaleString()}
                         </span>
                       </div>
                     )}
 
                     {selectedOrder.paymentRejectionReason && (
-                      <div className="pt-2 border-t border-rose-200 text-rose-800 text-[11px]">
+                      <div className="pt-2 border-t border-rose-500/30 text-rose-500 text-[11px]">
                         <strong>Previous Rejection:</strong> {selectedOrder.paymentRejectionReason}
                       </div>
                     )}
@@ -539,11 +539,11 @@ export default function FinanceDashboardPage() {
                   </span>
                   <div className="space-y-1.5 max-h-36 overflow-y-auto">
                     {selectedOrder.items.map((i) => (
-                      <div key={i.id} className="p-2 bg-[#FAFAFA] rounded border border-[#E4E4E7] text-[11px]">
-                        <div className="font-semibold text-[#0B0B0C]">{i.productName}</div>
-                        <div className="flex justify-between font-mono text-[#71717A] text-[10px]">
+                      <div key={i.id} className="p-2 bg-[#FAFAFA] dark:bg-[#1A1A1D] rounded-xl border border-[#E4E4E7] dark:border-[#2A2A2E] text-[11px]">
+                        <div className="font-semibold text-[#0B0B0C] dark:text-white">{i.productName}</div>
+                        <div className="flex justify-between font-mono text-[#71717A] dark:text-[#A1A1AA] text-[10px]">
                           <span>Qty: {i.quantity}</span>
-                          <span>ETB {i.totalPriceEtb.toLocaleString()}</span>
+                          <span className="text-[#0B0B0C] dark:text-[#C6F432]">ETB {i.totalPriceEtb.toLocaleString()}</span>
                         </div>
                       </div>
                     ))}
@@ -551,14 +551,14 @@ export default function FinanceDashboardPage() {
                 </div>
 
                 {/* Actions */}
-                <div className="space-y-2 pt-2 border-t border-[#F4F4F5]">
+                <div className="space-y-2 pt-2 border-t border-[#F4F4F5] dark:border-[#222225]">
                   {selectedOrder.status === 'payment_pending' ? (
                     <>
                       <button
                         type="button"
                         disabled={isProcessing || !selectedOrder.cbeFtReference}
                         onClick={() => handleVerifyPayment(selectedOrder)}
-                        className="w-full py-3 bg-[#0B0B0C] hover:bg-[#1A1A1D] text-[#C6F432] font-bold text-xs rounded-full transition-all flex items-center justify-center space-x-2 shadow-sm disabled:opacity-50"
+                        className="w-full py-3 bg-[#0B0B0C] dark:bg-[#C6F432] hover:bg-[#1A1A1D] dark:hover:bg-[#D7F860] text-[#C6F432] dark:text-[#0B0B0C] font-bold text-xs rounded-full transition-all flex items-center justify-center space-x-2 shadow-sm disabled:opacity-50"
                       >
                         <ShieldCheck className="w-4 h-4" />
                         <span>{isProcessing ? 'Verifying...' : 'Confirm Bank Match & Approve'}</span>
@@ -568,16 +568,16 @@ export default function FinanceDashboardPage() {
                         type="button"
                         disabled={isProcessing}
                         onClick={() => setShowRejectModal(true)}
-                        className="w-full py-2.5 bg-white hover:bg-rose-50 text-rose-700 border border-rose-300 font-semibold text-xs rounded-full transition-all flex items-center justify-center space-x-1.5"
+                        className="w-full py-2.5 bg-white dark:bg-[#1A1A1D] hover:bg-rose-50 dark:hover:bg-rose-950/40 text-rose-600 border border-rose-300 dark:border-rose-900 font-semibold text-xs rounded-full transition-all flex items-center justify-center space-x-1.5"
                       >
-                        <XCircle className="w-4 h-4 text-rose-600" />
+                        <XCircle className="w-4 h-4 text-rose-500" />
                         <span>Reject Reference (Request Resubmission)</span>
                       </button>
                     </>
                   ) : (
-                    <div className="p-3 bg-emerald-50 border border-emerald-200 rounded-2xl text-center space-y-1">
-                      <div className="font-bold text-emerald-800 text-xs flex items-center justify-center space-x-1">
-                        <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+                    <div className="p-3 bg-emerald-500/10 border border-emerald-500/30 rounded-2xl text-center space-y-1">
+                      <div className="font-bold text-emerald-600 dark:text-emerald-400 text-xs flex items-center justify-center space-x-1">
+                        <CheckCircle2 className="w-4 h-4 text-emerald-500" />
                         <span>Payment Verified</span>
                       </div>
                       <div className="text-[10px] text-emerald-700">
@@ -599,14 +599,14 @@ export default function FinanceDashboardPage() {
 
       {/* REJECT MODAL */}
       {showRejectModal && selectedOrder && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs">
-          <div className="bg-white rounded-3xl p-6 border border-[#E4E4E7] shadow-xl max-w-md w-full space-y-4">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm animate-fadeIn">
+          <div className="bg-white dark:bg-[#0B0B0C] rounded-3xl p-6 border border-[#E4E4E7] dark:border-[#222225] shadow-2xl max-w-md w-full space-y-4 text-[#0B0B0C] dark:text-white">
             <div className="space-y-1">
-              <h3 className="font-serif font-bold text-lg text-[#0B0B0C]">
+              <h3 className="font-serif font-bold text-lg text-[#0B0B0C] dark:text-white">
                 Reject CBE FT Reference
               </h3>
-              <p className="text-xs text-[#71717A]">
-                Provide a reason why reference <strong className="font-mono text-[#0B0B0C]">{selectedOrder.cbeFtReference}</strong> does not match the CBE core statement.
+              <p className="text-xs text-[#71717A] dark:text-[#A1A1AA]">
+                Provide a reason why reference <strong className="font-mono text-[#0B0B0C] dark:text-[#C6F432]">{selectedOrder.cbeFtReference}</strong> does not match the CBE core statement.
               </p>
             </div>
 
@@ -615,14 +615,14 @@ export default function FinanceDashboardPage() {
               onChange={(e) => setRejectReasonInput(e.target.value)}
               placeholder="e.g. Reference code not found on CBE statement, or transferred amount (ETB 50,000) does not match order total..."
               rows={3}
-              className="w-full text-xs p-3 border border-[#E4E4E7] rounded-2xl bg-[#FAFAFA] focus:outline-none focus:border-[#0B0B0C]"
+              className="w-full text-xs p-3.5 border border-[#E4E4E7] dark:border-[#222225] rounded-2xl bg-[#FAFAFA] dark:bg-[#141416] text-[#0B0B0C] dark:text-white focus:outline-none focus:border-[#0B0B0C] dark:focus:border-[#C6F432]"
             />
 
             <div className="flex justify-end space-x-2 pt-2">
               <button
                 type="button"
                 onClick={() => setShowRejectModal(false)}
-                className="px-4 py-2 border border-[#E4E4E7] rounded-full text-xs font-semibold hover:bg-[#FAFAFA]"
+                className="px-4 py-2 border border-[#E4E4E7] dark:border-[#222225] rounded-full text-xs font-semibold hover:bg-[#FAFAFA] dark:hover:bg-[#141416] text-[#0B0B0C] dark:text-white"
               >
                 Cancel
               </button>
@@ -630,7 +630,7 @@ export default function FinanceDashboardPage() {
                 type="button"
                 disabled={isProcessing}
                 onClick={handleRejectPayment}
-                className="px-5 py-2 bg-rose-700 hover:bg-rose-800 text-white font-bold text-xs rounded-full shadow-xs"
+                className="px-5 py-2 bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs rounded-full shadow-sm"
               >
                 {isProcessing ? 'Rejecting...' : 'Confirm Rejection'}
               </button>

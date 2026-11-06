@@ -262,9 +262,9 @@ export default function CustomerPortalPage() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-800">
+    <div className="min-h-screen bg-[#FAFAFA] dark:bg-[#0B0B0C] text-[#0B0B0C] dark:text-white transition-colors">
       {/* 1. CORPORATE PROCUREMENT THEME HEADER (AMG Heritage Navy & Crimson) */}
-      <div className="bg-gradient-to-r from-amg-navy to-amg-navy-950 text-white px-4 sm:px-6 py-6 border-b border-amg-navy-900 shadow-md">
+      <div className="bg-[#0B0B0C] text-white px-4 sm:px-6 py-6 border-b border-[#1A1A1D] shadow-md">
         <div className="max-w-7xl mx-auto space-y-4">
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div className="space-y-1">
@@ -329,23 +329,23 @@ export default function CustomerPortalPage() {
         )}
 
         {/* Tabs */}
-        <div className="flex border-b border-slate-300 space-x-2 overflow-x-auto">
+        <div className="flex border-b border-[#E4E4E7] dark:border-[#222225] space-x-2 overflow-x-auto">
           <button
             onClick={() => setActiveTab('quotes')}
-            className={`px-4 py-2.5 font-bold transition-all border-b-2 -mb-px text-xs shrink-0 ${
+            className={`px-4 py-2.5 font-bold transition-all border-b-2 -mb-px text-xs shrink-0 rounded-t-xl ${
               activeTab === 'quotes'
-                ? 'border-amg-red text-amg-red bg-white'
-                : 'border-transparent text-slate-500 hover:text-slate-800'
+                ? 'border-[#0B0B0C] dark:border-[#C6F432] text-[#0B0B0C] dark:text-[#C6F432] bg-white dark:bg-[#141416]'
+                : 'border-transparent text-[#71717A] dark:text-[#A1A1AA] hover:text-[#0B0B0C] dark:hover:text-white'
             }`}
           >
             My Engineering RFQ Inquiries ({myQuotes.length})
           </button>
           <button
             onClick={() => setActiveTab('orders')}
-            className={`px-4 py-2.5 font-bold transition-all border-b-2 -mb-px text-xs shrink-0 ${
+            className={`px-4 py-2.5 font-bold transition-all border-b-2 -mb-px text-xs shrink-0 rounded-t-xl ${
               activeTab === 'orders'
-                ? 'border-amg-red text-amg-red bg-white'
-                : 'border-transparent text-slate-500 hover:text-slate-800'
+                ? 'border-[#0B0B0C] dark:border-[#C6F432] text-[#0B0B0C] dark:text-[#C6F432] bg-white dark:bg-[#141416]'
+                : 'border-transparent text-[#71717A] dark:text-[#A1A1AA] hover:text-[#0B0B0C] dark:hover:text-white'
             }`}
           >
             Direct Purchase Orders ({myOrders.length})

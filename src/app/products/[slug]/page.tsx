@@ -97,31 +97,31 @@ export default function ProductDetailPage({ params }: ProductPageProps) {
   };
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6 space-y-8 text-xs text-slate-800">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6 space-y-8 text-xs text-slate-800 dark:text-white">
       {/* 1. BREADCRUMBS */}
-      <nav className="flex items-center space-x-2 text-[11px] text-slate-500 font-medium">
-        <Link href="/" className="hover:text-amg-navy transition-colors">
+      <nav className="flex items-center space-x-2 text-[11px] text-slate-500 dark:text-[#A1A1AA] font-medium">
+        <Link href="/" className="hover:text-amg-navy dark:hover:text-[#C6F432] transition-colors">
           AMG Enterprise Catalog
         </Link>
         <ChevronRight className="w-3.5 h-3.5 text-slate-400" />
-        <Link href={`/#${product.subsidiaryCode.toLowerCase()}`} className="hover:text-amg-navy transition-colors">
+        <Link href={`/#${product.subsidiaryCode.toLowerCase()}`} className="hover:text-amg-navy dark:hover:text-[#C6F432] transition-colors">
           {product.subsidiaryName}
         </Link>
         <ChevronRight className="w-3.5 h-3.5 text-slate-400" />
-        <span className="text-slate-900 font-bold truncate max-w-[280px]">
+        <span className="text-slate-900 dark:text-white font-bold truncate max-w-[280px]">
           {product.name}
         </span>
       </nav>
 
       {downloadNotice && (
-        <div className="bg-emerald-50 border border-emerald-300 text-emerald-800 p-3 rounded-sm flex items-center space-x-2 font-semibold text-xs shadow-sm">
-          <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+        <div className="bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-300 dark:border-emerald-800 text-emerald-800 dark:text-emerald-300 p-3 rounded-xl flex items-center space-x-2 font-semibold text-xs shadow-sm">
+          <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
           <span>{downloadNotice}</span>
         </div>
       )}
 
-      {/* 2. MAIN PRODUCT OVERVIEW (Grainger / Alibaba Industrial Style) */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 bg-white border border-slate-300 p-6 rounded-sm shadow-crisp">
+      {/* 2. MAIN PRODUCT OVERVIEW */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 bg-white dark:bg-[#141416] border border-slate-300 dark:border-[#222225] p-6 sm:p-8 rounded-3xl shadow-sm">
         {/* Left: Gallery & Technical Diagrams */}
         <div className="lg:col-span-5 space-y-4">
           <div className="relative h-80 bg-slate-100 border border-slate-200 rounded-sm overflow-hidden flex items-center justify-center">
@@ -205,13 +205,13 @@ export default function ProductDetailPage({ params }: ProductPageProps) {
         {/* Right: Technical Specifications, Volume Pricing & Action Trigger */}
         <div className="lg:col-span-7 space-y-5">
           <div className="space-y-1">
-            <div className="text-xs font-bold text-amg-navy uppercase tracking-wider">
+            <div className="text-xs font-bold text-amg-navy dark:text-[#C6F432] uppercase tracking-wider">
               {product.subsidiaryName} • {product.categoryName}
             </div>
-            <h1 className="text-xl sm:text-2xl font-extrabold text-slate-900 leading-snug">
+            <h1 className="text-xl sm:text-2xl font-serif font-extrabold text-slate-900 dark:text-white leading-snug">
               {product.name}
             </h1>
-            <p className="text-xs text-slate-600 leading-relaxed pt-1">
+            <p className="text-xs text-slate-600 dark:text-[#A1A1AA] leading-relaxed pt-1">
               {product.description}
             </p>
           </div>
@@ -221,20 +221,20 @@ export default function ProductDetailPage({ params }: ProductPageProps) {
             <div className="space-y-3">
               {/* Dynamic Volume Pricing Table */}
               {product.volumePricing && product.volumePricing.length > 0 && (
-                <div className="border border-slate-300 rounded-sm overflow-hidden">
-                  <div className="bg-slate-100 px-3 py-1.5 border-b border-slate-200 font-bold text-slate-700 uppercase tracking-wider text-[11px] flex justify-between items-center">
+                <div className="border border-slate-300 dark:border-[#222225] rounded-xl overflow-hidden">
+                  <div className="bg-slate-100 dark:bg-[#1A1A1D] px-3 py-1.5 border-b border-slate-200 dark:border-[#222225] font-bold text-slate-700 dark:text-white uppercase tracking-wider text-[11px] flex justify-between items-center">
                     <span>Tiered Volume Pricing Brackets</span>
-                    <span className="text-emerald-700 font-semibold">Bulk Contractor Discounts</span>
+                    <span className="text-emerald-600 dark:text-emerald-400 font-semibold">Bulk Contractor Discounts</span>
                   </div>
                   <table className="w-full text-left text-xs">
-                    <thead className="bg-slate-50 text-slate-500 font-semibold border-b border-slate-200 text-[10px] uppercase">
+                    <thead className="bg-slate-50 dark:bg-[#141416] text-slate-500 dark:text-[#A1A1AA] font-semibold border-b border-slate-200 dark:border-[#222225] text-[10px] uppercase">
                       <tr>
                         <th className="py-1.5 px-3">Order Quantity Range</th>
                         <th className="py-1.5 px-3">Unit Price (Excl. VAT)</th>
                         <th className="py-1.5 px-3 text-right">Discount</th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-slate-200">
+                    <tbody className="divide-y divide-slate-200 dark:divide-[#222225]">
                       {product.volumePricing.map((tier, idx) => {
                         const isCurrentActive =
                           quantity >= tier.minQuantity &&
@@ -244,20 +244,20 @@ export default function ProductDetailPage({ params }: ProductPageProps) {
                             key={idx}
                             className={`transition-colors ${
                               isCurrentActive
-                                ? 'bg-amg-navy-50 font-bold text-amg-navy'
-                                : 'text-slate-700 hover:bg-slate-50'
+                                ? 'bg-[#C6F432]/10 font-bold text-[#0B0B0C] dark:text-[#C6F432]'
+                                : 'text-slate-700 dark:text-[#D4D4D8] hover:bg-slate-50 dark:hover:bg-[#1F1F24]'
                             }`}
                           >
                             <td className="py-2 px-3 font-mono">
                               {tier.minQuantity}
                               {tier.maxQuantity ? ` – ${tier.maxQuantity}` : '+'} {product.unitMeasurement}s
                             </td>
-                            <td className="py-2 px-3 font-mono font-extrabold text-slate-900">
+                            <td className="py-2 px-3 font-mono font-extrabold text-slate-900 dark:text-white">
                               ETB {tier.unitPriceEtb.toLocaleString('en-US', { minimumFractionDigits: 2 })}
                             </td>
                             <td className="py-2 px-3 text-right font-mono">
                               {tier.discountPercentage > 0 ? (
-                                <span className="text-emerald-600 font-bold">
+                                <span className="text-emerald-600 dark:text-emerald-400 font-bold">
                                   Save {tier.discountPercentage}%
                                 </span>
                               ) : (
@@ -273,15 +273,15 @@ export default function ProductDetailPage({ params }: ProductPageProps) {
               )}
 
               {/* Quantity Selector & Real-Time Price Calculation Box */}
-              <div className="bg-slate-50 border border-slate-200 p-4 rounded-sm space-y-3">
+              <div className="bg-slate-50 dark:bg-[#1A1A1D] border border-slate-200 dark:border-[#2A2A2E] p-4 rounded-2xl space-y-3">
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                   <div>
-                    <span className="text-[10px] uppercase font-bold text-slate-500 block">
+                    <span className="text-[10px] uppercase font-bold text-slate-500 dark:text-[#A1A1AA] block">
                       Effective Unit Price
                     </span>
-                    <div className="text-xl font-extrabold font-mono text-amg-navy">
+                    <div className="text-xl font-extrabold font-mono text-amg-navy dark:text-[#C6F432]">
                       ETB {effectiveUnitPrice.toLocaleString('en-US', { minimumFractionDigits: 2 })}
-                      <span className="text-xs font-normal text-slate-500"> / {product.unitMeasurement}</span>
+                      <span className="text-xs font-normal text-slate-500 dark:text-[#A1A1AA]"> / {product.unitMeasurement}</span>
                     </div>
                   </div>
 
@@ -334,22 +334,22 @@ export default function ProductDetailPage({ params }: ProductPageProps) {
                   <button
                     type="button"
                     onClick={() => addToCart(product, quantity)}
-                    className="flex-1 py-3 bg-amg-navy hover:bg-amg-navy-900 text-white font-bold text-xs rounded-sm transition-colors flex items-center justify-center space-x-2 shadow-panel"
+                    className="flex-1 py-3 bg-[#0B0B0C] dark:bg-[#C6F432] hover:bg-[#1A1A1D] dark:hover:bg-[#D7F860] text-white dark:text-[#0B0B0C] font-bold text-xs rounded-xl transition-colors flex items-center justify-center space-x-2 shadow-lg"
                   >
-                    <ShoppingCart className="w-4 h-4" />
+                    <ShoppingCart className="w-4 h-4 text-[#C6F432] dark:text-[#0B0B0C]" />
                     <span>Add {quantity} {product.unitMeasurement}s to Cart</span>
                   </button>
                   <button
                     type="button"
                     onClick={() => toggleWishlist(product)}
-                    className={`px-3 py-3 border rounded-sm transition-colors flex items-center justify-center ${
+                    className={`px-3.5 py-3 border rounded-xl transition-colors flex items-center justify-center ${
                       isInWishlist(product.id)
-                        ? 'bg-red-50 border-red-300 text-amg-red'
-                        : 'bg-white border-slate-300 text-slate-700 hover:bg-slate-50'
+                        ? 'bg-rose-500/10 border-rose-500/30 text-rose-500'
+                        : 'bg-white dark:bg-[#141416] border-slate-300 dark:border-[#2A2A2E] text-slate-700 dark:text-white hover:bg-slate-50'
                     }`}
                     title={isInWishlist(product.id) ? 'Remove from Wishlist' : 'Save to Wishlist'}
                   >
-                    <Heart className={`w-4 h-4 ${isInWishlist(product.id) ? 'fill-amg-red' : ''}`} />
+                    <Heart className={`w-4 h-4 ${isInWishlist(product.id) ? 'fill-rose-500 text-rose-500' : ''}`} />
                   </button>
                 </div>
               </div>
@@ -358,6 +358,24 @@ export default function ProductDetailPage({ params }: ProductPageProps) {
 
           {/* STREAM B: RFQ PROCURING BOX */}
           {!isStreamA && (
+            <div className="bg-[#FAFAFA] dark:bg-[#1A1A1D] border border-slate-200 dark:border-[#2A2A2E] p-5 rounded-2xl space-y-4">
+              <div className="flex items-center space-x-2 text-amg-red">
+                <FileText className="w-5 h-5 text-[#C6F432]" />
+                <h3 className="font-serif font-bold text-base text-[#0B0B0C] dark:text-white">Custom Engineering RFQ</h3>
+              </div>
+              <p className="text-xs text-slate-600 dark:text-[#A1A1AA] leading-relaxed">
+                This industrial asset requires custom quotation formulation, payload/capacity engineering review, and official proforma approval.
+              </p>
+              <button
+                type="button"
+                onClick={() => openRfq(product.id)}
+                className="w-full py-3 bg-[#0B0B0C] dark:bg-[#C6F432] hover:bg-[#1A1A1D] dark:hover:bg-[#D7F860] text-white dark:text-[#0B0B0C] font-bold text-xs rounded-xl transition-colors flex items-center justify-center space-x-2 shadow-lg"
+              >
+                <FileText className="w-4 h-4 text-[#C6F432] dark:text-[#0B0B0C]" />
+                <span>Configure Custom RFQ Specifications</span>
+              </button>
+            </div>
+          )}
             <div className="bg-amg-red-50/60 border border-amg-red-200 p-5 rounded-sm space-y-3">
               <div className="flex items-center space-x-2">
                 <span className="px-2 py-0.5 bg-amg-red text-white text-[10px] font-bold uppercase rounded-sm">

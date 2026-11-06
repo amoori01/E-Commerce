@@ -9,6 +9,7 @@ import { useCart } from '@/lib/cart-context';
 import { useWishlist } from '@/lib/wishlist-context';
 import { SUBSIDIARIES, BRANCHES } from '@/lib/constants';
 import { UserRole } from '@/types';
+import { ThemeToggle } from '@/components/ui/ThemeToggle';
 import {
   Search,
   ShoppingCart,
@@ -93,7 +94,9 @@ export function Navbar() {
           </Link>
 
           {/* Right: Return to Storefront & Support */}
-          <div className="flex items-center space-x-4 text-xs">
+          <div className="flex items-center space-x-3 text-xs">
+            <ThemeToggle />
+
             <div className="hidden sm:flex items-center space-x-1.5 text-[#A1A1AA] text-[11px]">
               <PhoneCall className="w-3.5 h-3.5 text-[#C6F432]" />
               <span>Support: +251 11 662 4500</span>
@@ -178,6 +181,8 @@ export function Navbar() {
 
           {/* Right: Staff Controls & Storefront Switcher */}
           <div className="flex items-center space-x-3 text-xs">
+            <ThemeToggle />
+
             {/* View Public Storefront Link */}
             <Link
               href="/"
@@ -231,7 +236,7 @@ export function Navbar() {
   }
 
   return (
-    <header className="w-full bg-white border-b border-[#E4E4E7] sticky top-0 z-40 text-xs shadow-xs">
+    <header className="w-full bg-white dark:bg-[#0B0B0C] border-b border-[#E4E4E7] dark:border-[#222225] sticky top-0 z-40 text-xs shadow-xs transition-colors">
       {/* 1. TOP UTILITY & AUTH STATUS BAR */}
       <div className="bg-[#0B0B0C] text-[#D4D4D8] px-4 py-2 border-b border-[#1A1A1D] flex flex-wrap justify-between items-center text-[11px]">
         {/* Left: Hotline & Regional Network */}
@@ -318,13 +323,13 @@ export function Navbar() {
             />
           </div>
           <div>
-            <div className="text-lg font-serif font-black tracking-tight text-[#0B0B0C] flex items-center space-x-2">
+            <div className="text-lg font-serif font-black tracking-tight text-[#0B0B0C] dark:text-white flex items-center space-x-2">
               <span>AMG HOLDINGS</span>
               <span className="text-[9px] uppercase font-sans font-extrabold tracking-widest text-[#0B0B0C] bg-[#C6F432] px-2 py-0.5 rounded-full">
                 COMMERCE
               </span>
             </div>
-            <p className="text-[11px] text-[#71717A] font-sans font-normal">
+            <p className="text-[11px] text-[#71717A] dark:text-[#A1A1AA] font-sans font-normal">
               Industrial Materials, Commercial Fleet & Heavy Engineering
             </p>
           </div>
@@ -333,19 +338,19 @@ export function Navbar() {
         {/* Search Bar with SKU / Category selector */}
         <form
           onSubmit={handleSearch}
-          className="hidden lg:flex flex-1 max-w-2xl items-center border border-[#E4E4E7] hover:border-[#0B0B0C] focus-within:border-[#0B0B0C] focus-within:ring-2 focus-within:ring-[#C6F432]/40 rounded-full bg-[#FAFAFA] overflow-hidden transition-all shadow-inner"
+          className="hidden lg:flex flex-1 max-w-2xl items-center border border-[#E4E4E7] dark:border-[#222225] hover:border-[#0B0B0C] dark:hover:border-[#C6F432]/50 focus-within:border-[#0B0B0C] dark:focus-within:border-[#C6F432] focus-within:ring-2 focus-within:ring-[#C6F432]/40 rounded-full bg-[#FAFAFA] dark:bg-[#141416] overflow-hidden transition-all shadow-inner"
         >
-          <div className="bg-white border-r border-[#E4E4E7] px-3.5 py-2.5 text-[#0B0B0C] font-medium text-xs shrink-0 flex items-center space-x-1.5">
-            <Layers className="w-3.5 h-3.5 text-[#0B0B0C]" />
+          <div className="bg-white dark:bg-[#1A1A1D] border-r border-[#E4E4E7] dark:border-[#222225] px-3.5 py-2.5 text-[#0B0B0C] dark:text-white font-medium text-xs shrink-0 flex items-center space-x-1.5">
+            <Layers className="w-3.5 h-3.5 text-[#0B0B0C] dark:text-[#C6F432]" />
             <select
               value={searchSubsidiary}
               onChange={(e) => setSearchSubsidiary(e.target.value)}
-              className="bg-transparent text-[#0B0B0C] text-xs font-semibold focus:outline-none cursor-pointer pr-1"
+              className="bg-transparent text-[#0B0B0C] dark:text-white text-xs font-semibold focus:outline-none cursor-pointer pr-1"
               aria-label="Filter search by subsidiary"
             >
-              <option value="all">All Subsidiaries</option>
+              <option value="all" className="dark:bg-[#141416]">All Subsidiaries</option>
               {SUBSIDIARIES.map((sub) => (
-                <option key={sub.id} value={sub.slug}>
+                <option key={sub.id} value={sub.slug} className="dark:bg-[#141416]">
                   {sub.name.replace('AMG ', '')}
                 </option>
               ))}
@@ -356,13 +361,13 @@ export function Navbar() {
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Search by SKU, ASTM standard, steel grade, roofing gauge, vehicle chassis..."
-            className="w-full px-4 py-2.5 text-xs text-[#0B0B0C] placeholder-[#A1A1AA] bg-transparent outline-none"
+            className="w-full px-4 py-2.5 text-xs text-[#0B0B0C] dark:text-white placeholder-[#A1A1AA] bg-transparent outline-none"
           />
           {searchQuery && (
             <button
               type="button"
               onClick={() => setSearchQuery('')}
-              className="px-2 text-[#A1A1AA] hover:text-[#0B0B0C] transition-colors"
+              className="px-2 text-[#A1A1AA] hover:text-[#0B0B0C] dark:hover:text-white transition-colors"
               title="Clear search input"
             >
               <X className="w-3.5 h-3.5" />
@@ -377,25 +382,28 @@ export function Navbar() {
           </button>
         </form>
 
-        {/* Action Controls: RFQ Quote Trigger, Cart, & Account */}
-        <div className="flex items-center space-x-3 shrink-0">
+        {/* Action Controls: RFQ Quote Trigger, Cart, Theme Toggle & Account */}
+        <div className="flex items-center space-x-2.5 shrink-0">
+          {/* Theme Toggle Button */}
+          <ThemeToggle />
+
           {/* Stream B RFQ Button */}
           <button
             type="button"
             onClick={() => openRfq()}
-            className="px-4 py-2.5 bg-white hover:bg-[#0B0B0C] text-[#0B0B0C] hover:text-[#C6F432] border border-[#E4E4E7] hover:border-[#0B0B0C] font-semibold text-xs rounded-full shadow-xs transition-all flex items-center space-x-2"
+            className="px-4 py-2.5 bg-white dark:bg-[#141416] hover:bg-[#0B0B0C] dark:hover:bg-[#1F1F24] text-[#0B0B0C] dark:text-white hover:text-[#C6F432] border border-[#E4E4E7] dark:border-[#222225] hover:border-[#0B0B0C] font-semibold text-xs rounded-full shadow-xs transition-all flex items-center space-x-2"
           >
-            <FileText className="w-4 h-4 text-[#0B0B0C] group-hover:text-[#C6F432]" />
+            <FileText className="w-4 h-4 text-[#0B0B0C] dark:text-[#C6F432]" />
             <span className="hidden sm:inline">Request Quote (RFQ)</span>
           </button>
 
           {/* Customer Wishlist Button */}
           <Link
             href="/portal?tab=wishlist"
-            className="relative p-2.5 border border-[#E4E4E7] bg-white hover:border-[#0B0B0C] hover:bg-[#FAFAFA] text-[#0B0B0C] rounded-full transition-all flex items-center justify-center shadow-xs"
+            className="relative p-2.5 border border-[#E4E4E7] dark:border-[#222225] bg-white dark:bg-[#141416] hover:border-[#0B0B0C] dark:hover:border-[#C6F432]/50 hover:bg-[#FAFAFA] dark:hover:bg-[#1F1F24] text-[#0B0B0C] dark:text-white rounded-full transition-all flex items-center justify-center shadow-xs"
             title="View Wishlist"
           >
-            <Heart className="w-4 h-4 text-[#0B0B0C]" />
+            <Heart className="w-4 h-4 text-[#0B0B0C] dark:text-white" />
             {wishlistCount > 0 && (
               <span className="absolute -top-1 -right-1 bg-[#0B0B0C] text-[#C6F432] text-[10px] font-bold w-4 h-4 rounded-full flex items-center justify-center">
                 {wishlistCount}
@@ -407,7 +415,7 @@ export function Navbar() {
           <button
             type="button"
             onClick={() => setIsCartDrawerOpen(true)}
-            className="relative px-4 py-2.5 bg-[#0B0B0C] hover:bg-[#1A1A1D] text-white hover:text-[#C6F432] font-semibold text-xs rounded-full transition-all flex items-center space-x-2 shadow-sm"
+            className="relative px-4 py-2.5 bg-[#0B0B0C] dark:bg-[#1A1A1D] hover:bg-[#1A1A1D] dark:hover:bg-[#222225] text-white hover:text-[#C6F432] border border-transparent dark:border-[#2A2A2E] font-semibold text-xs rounded-full transition-all flex items-center space-x-2 shadow-sm"
           >
             <ShoppingCart className="w-4 h-4 text-[#C6F432]" />
             <span className="hidden sm:inline">Cart</span>
@@ -422,25 +430,25 @@ export function Navbar() {
           {isLoggedIn && currentUser ? (
             <Link
               href={roleLabels[activeRole]?.route || '/portal'}
-              className="flex items-center space-x-2 pl-2 border-l border-[#E4E4E7] hover:opacity-90"
+              className="flex items-center space-x-2 pl-2 border-l border-[#E4E4E7] dark:border-[#222225] hover:opacity-90"
             >
-              <div className="w-8 h-8 rounded-full bg-[#0B0B0C] text-[#C6F432] font-bold flex items-center justify-center text-xs shadow-xs">
+              <div className="w-8 h-8 rounded-full bg-[#0B0B0C] dark:bg-[#1A1A1D] text-[#C6F432] font-bold flex items-center justify-center text-xs shadow-xs border border-transparent dark:border-[#2A2A2E]">
                 {currentUser.fullName[0]}
               </div>
               <div className="hidden xl:block text-left">
-                <div className="text-xs font-bold text-[#0B0B0C] leading-tight">
+                <div className="text-xs font-bold text-[#0B0B0C] dark:text-white leading-tight">
                   {currentUser.fullName}
                 </div>
-                <div className="text-[10px] text-[#71717A] font-medium">
+                <div className="text-[10px] text-[#71717A] dark:text-[#A1A1AA] font-medium">
                   {roleLabels[activeRole]?.label}
                 </div>
               </div>
             </Link>
           ) : (
-            <div className="flex items-center space-x-2 pl-2 border-l border-[#E4E4E7]">
+            <div className="flex items-center space-x-2 pl-2 border-l border-[#E4E4E7] dark:border-[#222225]">
               <Link
                 href="/login"
-                className="text-[#0B0B0C] hover:text-[#0B0B0C] font-bold text-xs transition-colors px-2 py-1"
+                className="text-[#0B0B0C] dark:text-white hover:text-[#C6F432] font-bold text-xs transition-colors px-2 py-1"
               >
                 Sign In
               </Link>
@@ -456,23 +464,23 @@ export function Navbar() {
       </div>
 
       {/* 2b. MOBILE / TABLET SEARCH BAR */}
-      <div className="lg:hidden px-4 pb-3 pt-1 bg-[#FAFAFA] border-t border-[#E4E4E7]">
+      <div className="lg:hidden px-4 pb-3 pt-1 bg-[#FAFAFA] dark:bg-[#141416] border-t border-[#E4E4E7] dark:border-[#222225]">
         <form
           onSubmit={handleSearch}
-          className="flex items-center border border-[#E4E4E7] rounded-full bg-white overflow-hidden focus-within:border-[#0B0B0C] p-0.5"
+          className="flex items-center border border-[#E4E4E7] dark:border-[#222225] rounded-full bg-white dark:bg-[#0B0B0C] overflow-hidden focus-within:border-[#0B0B0C] dark:focus-within:border-[#C6F432] p-0.5"
         >
           <input
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Search SKU, ASTM, steel grade, chassis..."
-            className="w-full px-3.5 py-1.5 text-xs text-[#0B0B0C] placeholder-[#A1A1AA] outline-none bg-transparent"
+            className="w-full px-3.5 py-1.5 text-xs text-[#0B0B0C] dark:text-white placeholder-[#A1A1AA] outline-none bg-transparent"
           />
           {searchQuery && (
             <button
               type="button"
               onClick={() => setSearchQuery('')}
-              className="px-2 text-[#A1A1AA] hover:text-[#0B0B0C]"
+              className="px-2 text-[#A1A1AA] hover:text-[#0B0B0C] dark:hover:text-white"
               title="Clear search input"
             >
               <X className="w-3.5 h-3.5" />

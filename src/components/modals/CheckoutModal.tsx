@@ -6,7 +6,7 @@ import { useCart } from '@/lib/cart-context';
 import { useAuth } from '@/lib/auth-context';
 import { BRANCHES } from '@/lib/constants';
 import { PaymentGateway } from '@/types';
-import { CheckCircle2, Building2, Truck, ShieldCheck, X, ArrowRight, CreditCard, Phone, Landmark, Receipt } from 'lucide-react';
+import { CheckCircle2, Building2, Truck, ShieldCheck, X, ArrowRight, Landmark, Receipt } from 'lucide-react';
 
 export function CheckoutModal() {
   const { isCheckoutOpen, closeCheckout, items, subtotal, tax, total, clearCart } = useCart();
@@ -17,7 +17,6 @@ export function CheckoutModal() {
   const [selectedBranchId, setSelectedBranchId] = useState(BRANCHES[0].id);
   const [deliveryAddress, setDeliveryAddress] = useState('');
   const [destinationCity, setDestinationCity] = useState('Addis Ababa Metro');
-  const [paymentMethod, setPaymentMethod] = useState<PaymentGateway>('cbe_transfer');
   const [cbeFtCode, setCbeFtCode] = useState('');
   const [cbePayerAccount, setCbePayerAccount] = useState('');
   const [confirmedOrderNumber, setConfirmedOrderNumber] = useState('');
@@ -60,7 +59,7 @@ export function CheckoutModal() {
         items: items.map((i) => ({
           productId: i.product.id,
           quantity: i.quantity,
-          unitPriceEtb: i.product.unitPriceEtb,
+          unitPriceEtb: i.appliedUnitPriceEtb ?? i.product.unitPriceEtb,
         })),
       };
 
@@ -70,13 +69,13 @@ export function CheckoutModal() {
         body: JSON.stringify(payload),
       });
 
-      const data = await res.json();
       if (!res.ok) {
-        throw new Error(data.error || 'Failed to place order');
+        const errorData = await res.json();
+        throw new Error(errorData.error || 'Failed to place order');
       }
 
-      const orderNum = data.order?.orderNumber || data.data?.orderNumber || `AMG-ORD-${Date.now()}`;
-      setConfirmedOrderNumber(orderNum);
+      const orderData = await res.json();
+      setConfirmedOrderNumber(orderData.orderNumber || 'AMG-ORD-' + Math.floor(100000 + Math.random() * 900000));
       clearCart();
       setStep('confirmation');
     } catch (err: unknown) {
@@ -93,44 +92,44 @@ export function CheckoutModal() {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/70 backdrop-blur-sm animate-in fade-in">
-      <div className="relative w-full max-w-2xl bg-white border border-slate-300 shadow-modal rounded-sm overflow-hidden flex flex-col max-h-[90vh]">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm animate-fadeIn">
+      <div className="relative w-full max-w-2xl bg-white dark:bg-[#0B0B0C] border border-[#E4E4E7] dark:border-[#222225] shadow-2xl rounded-3xl overflow-hidden flex flex-col max-h-[90vh] text-[#0B0B0C] dark:text-white transition-colors">
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 bg-amg-navy text-white border-b border-amg-navy-900">
+        <div className="flex items-center justify-between px-6 py-4 bg-[#0B0B0C] text-white border-b border-[#222225]">
           <div className="flex items-center space-x-2">
-            <span className="px-2 py-0.5 text-xs font-semibold tracking-wider uppercase bg-amg-red text-white rounded-sm">
+            <span className="px-2.5 py-0.5 text-[10px] font-mono font-bold tracking-wider uppercase bg-[#1A1A1D] border border-[#C6F432]/40 text-[#C6F432] rounded-full">
               Stream A
             </span>
-            <h2 className="text-lg font-bold tracking-tight">Direct Self-Service Checkout</h2>
+            <h2 className="text-base font-serif font-bold tracking-tight">Direct Self-Service Checkout</h2>
           </div>
           <button
             onClick={handleClose}
-            className="p-1 text-slate-300 hover:text-white transition-colors"
+            className="p-1 text-[#A1A1AA] hover:text-white rounded-full hover:bg-[#1A1A1D] transition-colors"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
         {/* Modal Body */}
-        <div className="p-6 overflow-y-auto space-y-6 flex-1 text-slate-800 text-sm">
+        <div className="p-6 overflow-y-auto space-y-6 flex-1 text-xs">
           {/* Staff Mode Role Guard Banner */}
           {activeRole !== 'customer' && (
-            <div className="bg-amber-50 border border-amber-300 p-3.5 rounded-sm flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 text-xs text-amber-900 shadow-xs">
+            <div className="bg-amber-500/10 border border-amber-500/30 p-3.5 rounded-xl flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 text-xs text-amber-500 shadow-xs">
               <div className="flex items-start space-x-2">
-                <ShieldCheck className="w-4 h-4 text-amber-700 shrink-0 mt-0.5" />
+                <ShieldCheck className="w-4 h-4 text-amber-500 shrink-0 mt-0.5" />
                 <div className="space-y-0.5">
                   <div className="font-bold">Staff Account Detected ({activeRole.replace('_', ' ')})</div>
-                  <div className="text-[11px] text-amber-800">
-                    Commercial order checkout is reserved for Customer buyers. Click below to switch to a verified Customer account and test checkout.
+                  <div className="text-[11px] text-amber-400">
+                    Commercial order checkout is reserved for Customer buyers. Click below to switch to a verified Customer account.
                   </div>
                 </div>
               </div>
               <button
                 type="button"
                 onClick={() => switchRole('customer')}
-                className="px-3 py-1.5 bg-amber-700 hover:bg-amber-800 text-white font-bold rounded-xs text-[11px] shrink-0 transition-colors shadow-xs"
+                className="px-3 py-1.5 bg-amber-600 hover:bg-amber-700 text-white font-bold rounded-lg text-[11px] shrink-0 transition-colors shadow-xs"
               >
-                Switch to Customer (MIDROC)
+                Switch to Customer
               </button>
             </div>
           )}
@@ -138,15 +137,15 @@ export function CheckoutModal() {
           {step === 'details' && (
             <>
               {/* Order Summary Snapshot */}
-              <div className="bg-slate-50 border border-slate-200 p-4 rounded-sm space-y-2">
-                <div className="flex justify-between items-center font-semibold text-slate-900 border-b border-slate-200 pb-2">
+              <div className="bg-[#FAFAFA] dark:bg-[#141416] border border-[#E4E4E7] dark:border-[#222225] p-4 rounded-2xl space-y-2">
+                <div className="flex justify-between items-center font-semibold text-[#0B0B0C] dark:text-white border-b border-[#E4E4E7] dark:border-[#222225] pb-2">
                   <span>Selected Products ({items.length} line items)</span>
-                  <span className="font-mono text-amg-navy">ETB {subtotal.toLocaleString('en-US', { minimumFractionDigits: 2 })}</span>
+                  <span className="font-mono text-[#0B0B0C] dark:text-[#C6F432] font-bold">ETB {subtotal.toLocaleString('en-US', { minimumFractionDigits: 2 })}</span>
                 </div>
-                <div className="max-h-32 overflow-y-auto space-y-1 text-xs text-slate-600">
+                <div className="max-h-32 overflow-y-auto space-y-1 text-xs text-[#71717A] dark:text-[#A1A1AA]">
                   {items.map((i) => (
                     <div key={i.product.id} className="flex justify-between">
-                      <span className="truncate max-w-[340px] font-medium text-slate-700">
+                      <span className="truncate max-w-[340px] font-medium text-[#0B0B0C] dark:text-white">
                         {i.quantity}x {i.product.name}
                       </span>
                       <span className="font-mono">ETB {(i.product.unitPriceEtb * i.quantity).toLocaleString()}</span>
@@ -157,82 +156,82 @@ export function CheckoutModal() {
 
               {/* Delivery / Fulfillment Method */}
               <div className="space-y-3">
-                <label className="block text-xs font-bold uppercase tracking-wider text-slate-700">
+                <label className="block text-xs font-bold uppercase tracking-wider text-[#71717A] dark:text-[#A1A1AA]">
                   1. Fulfillment Method
                 </label>
                 <div className="grid grid-cols-2 gap-3">
                   <button
                     type="button"
                     onClick={() => setDeliveryType('branch_pickup')}
-                    className={`p-3.5 border text-left rounded-sm transition-all flex items-start space-x-3 ${
+                    className={`p-3.5 border text-left rounded-2xl transition-all flex items-start space-x-3 ${
                       deliveryType === 'branch_pickup'
-                        ? 'border-amg-navy bg-amg-navy-50 text-amg-navy'
-                        : 'border-slate-200 bg-white hover:border-slate-300 text-slate-700'
+                        ? 'border-[#0B0B0C] dark:border-[#C6F432] bg-[#FAFAFA] dark:bg-[#141416] text-[#0B0B0C] dark:text-white shadow-xs'
+                        : 'border-[#E4E4E7] dark:border-[#222225] bg-white dark:bg-[#141416] hover:border-[#0B0B0C] text-[#71717A] dark:text-[#A1A1AA]'
                     }`}
                   >
-                    <Building2 className="w-5 h-5 shrink-0 mt-0.5 text-amg-navy" />
+                    <Building2 className="w-5 h-5 shrink-0 mt-0.5 text-[#0B0B0C] dark:text-[#C6F432]" />
                     <div>
                       <div className="font-bold text-xs uppercase tracking-wide">Branch Pickup</div>
-                      <div className="text-xs text-slate-500 mt-0.5">Collect directly at regional plant depot</div>
+                      <div className="text-[11px] text-[#71717A] dark:text-[#A1A1AA] mt-0.5">Collect directly at regional plant depot</div>
                     </div>
                   </button>
 
                   <button
                     type="button"
                     onClick={() => setDeliveryType('freight_delivery')}
-                    className={`p-3.5 border text-left rounded-sm transition-all flex items-start space-x-3 ${
+                    className={`p-3.5 border text-left rounded-2xl transition-all flex items-start space-x-3 ${
                       deliveryType === 'freight_delivery'
-                        ? 'border-amg-navy bg-amg-navy-50 text-amg-navy'
-                        : 'border-slate-200 bg-white hover:border-slate-300 text-slate-700'
+                        ? 'border-[#0B0B0C] dark:border-[#C6F432] bg-[#FAFAFA] dark:bg-[#141416] text-[#0B0B0C] dark:text-white shadow-xs'
+                        : 'border-[#E4E4E7] dark:border-[#222225] bg-white dark:bg-[#141416] hover:border-[#0B0B0C] text-[#71717A] dark:text-[#A1A1AA]'
                     }`}
                   >
-                    <Truck className="w-5 h-5 shrink-0 mt-0.5 text-amg-red" />
+                    <Truck className="w-5 h-5 shrink-0 mt-0.5 text-[#0B0B0C] dark:text-[#C6F432]" />
                     <div>
                       <div className="font-bold text-xs uppercase tracking-wide">Freight Delivery</div>
-                      <div className="text-xs text-slate-500 mt-0.5">Dispatched via AMG Logistics fleet</div>
+                      <div className="text-[11px] text-[#71717A] dark:text-[#A1A1AA] mt-0.5">Dispatched via AMG Logistics fleet</div>
                     </div>
                   </button>
                 </div>
 
                 {deliveryType === 'branch_pickup' ? (
                   <div className="mt-3">
-                    <label className="block text-xs font-semibold text-slate-600 mb-1">
+                    <label className="block text-xs font-semibold text-[#71717A] dark:text-[#A1A1AA] mb-1">
                       Select Fulfillment Branch:
                     </label>
                     <select
                       value={selectedBranchId}
                       onChange={(e) => setSelectedBranchId(e.target.value)}
-                      className="w-full border border-slate-300 bg-white px-3 py-2 text-xs rounded-sm focus:border-amg-navy outline-none"
+                      className="w-full border border-[#E4E4E7] dark:border-[#222225] bg-white dark:bg-[#141416] text-[#0B0B0C] dark:text-white px-3.5 py-2 text-xs rounded-xl focus:border-[#0B0B0C] dark:focus:border-[#C6F432] outline-none"
                     >
                       {BRANCHES.map((b) => (
-                        <option key={b.id} value={b.id}>
+                        <option key={b.id} value={b.id} className="dark:bg-[#141416]">
                           {b.name} ({b.city} - {b.address})
                         </option>
                       ))}
                     </select>
                   </div>
                 ) : (
-                  <div className="mt-3 space-y-3 p-3 bg-slate-50 border border-slate-200 rounded-sm">
+                  <div className="mt-3 space-y-3 p-3.5 bg-[#FAFAFA] dark:bg-[#141416] border border-[#E4E4E7] dark:border-[#222225] rounded-2xl">
                     <div>
-                      <label className="block text-xs font-semibold text-slate-700 mb-1">
+                      <label className="block text-xs font-semibold text-[#71717A] dark:text-[#A1A1AA] mb-1">
                         Site Delivery Destination Hub / City:
                       </label>
                       <select
                         value={destinationCity}
                         onChange={(e) => setDestinationCity(e.target.value)}
-                        className="w-full border border-slate-300 bg-white px-3 py-2 text-xs rounded-sm focus:border-amg-navy outline-none"
+                        className="w-full border border-[#E4E4E7] dark:border-[#222225] bg-white dark:bg-[#1A1A1D] text-[#0B0B0C] dark:text-white px-3.5 py-2 text-xs rounded-xl focus:border-[#0B0B0C] outline-none"
                       >
-                        <option value="Addis Ababa Metro">Addis Ababa Metro (25 km)</option>
-                        <option value="Adama">Adama Industrial Park (98 km)</option>
-                        <option value="Hawassa">Hawassa Hub (275 km)</option>
-                        <option value="Dire Dawa">Dire Dawa Free Trade Zone (452 km)</option>
-                        <option value="Bahir Dar">Bahir Dar (565 km)</option>
-                        <option value="Mekelle">Mekelle Depot (780 km)</option>
+                        <option value="Addis Ababa Metro" className="dark:bg-[#141416]">Addis Ababa Metro (25 km)</option>
+                        <option value="Adama" className="dark:bg-[#141416]">Adama Industrial Park (98 km)</option>
+                        <option value="Hawassa" className="dark:bg-[#141416]">Hawassa Hub (275 km)</option>
+                        <option value="Dire Dawa" className="dark:bg-[#141416]">Dire Dawa Free Trade Zone (452 km)</option>
+                        <option value="Bahir Dar" className="dark:bg-[#141416]">Bahir Dar (565 km)</option>
+                        <option value="Mekelle" className="dark:bg-[#141416]">Mekelle Depot (780 km)</option>
                       </select>
                     </div>
 
                     <div>
-                      <label className="block text-xs font-semibold text-slate-700 mb-1">
+                      <label className="block text-xs font-semibold text-[#71717A] dark:text-[#A1A1AA] mb-1">
                         Site Address / Gate Coordinates:
                       </label>
                       <input
@@ -240,18 +239,18 @@ export function CheckoutModal() {
                         placeholder="e.g. Bishoftu Industrial Park Plot 12, Gate 4"
                         value={deliveryAddress}
                         onChange={(e) => setDeliveryAddress(e.target.value)}
-                        className="w-full border border-slate-300 bg-white px-3 py-2 text-xs rounded-sm focus:border-amg-navy outline-none"
+                        className="w-full border border-[#E4E4E7] dark:border-[#222225] bg-white dark:bg-[#1A1A1D] text-[#0B0B0C] dark:text-white px-3.5 py-2 text-xs rounded-xl focus:border-[#0B0B0C] outline-none"
                       />
                     </div>
 
-                    <div className="p-2.5 bg-white border border-slate-200 rounded-sm space-y-1 text-xs">
-                      <div className="flex justify-between items-center text-slate-700 font-semibold">
+                    <div className="p-3 bg-white dark:bg-[#0B0B0C] border border-[#E4E4E7] dark:border-[#222225] rounded-xl space-y-1 text-xs">
+                      <div className="flex justify-between items-center text-[#0B0B0C] dark:text-white font-semibold">
                         <span>AMG Fleet Haulage (Estimated):</span>
-                        <span className="font-mono text-amg-navy font-bold">
+                        <span className="font-mono text-[#0B0B0C] dark:text-[#C6F432] font-bold">
                           ETB {freightRate.toLocaleString()}
                         </span>
                       </div>
-                      <div className="text-[11px] text-slate-500 flex justify-between">
+                      <div className="text-[11px] text-[#71717A] dark:text-[#A1A1AA] flex justify-between">
                         <span>Carrier: Sinotruk Heavy Logistics</span>
                         <span>Est. Transit: 24-48 hrs</span>
                       </div>
@@ -261,18 +260,18 @@ export function CheckoutModal() {
               </div>
 
               {/* Tax & Financial Summary */}
-              <div className="border-t border-slate-200 pt-4 space-y-1.5 text-xs">
-                <div className="flex justify-between text-slate-600">
+              <div className="border-t border-[#E4E4E7] dark:border-[#222225] pt-4 space-y-1.5 text-xs">
+                <div className="flex justify-between text-[#71717A] dark:text-[#A1A1AA]">
                   <span>Subtotal:</span>
-                  <span className="font-mono">ETB {subtotal.toLocaleString('en-US', { minimumFractionDigits: 2 })}</span>
+                  <span className="font-mono text-[#0B0B0C] dark:text-white">ETB {subtotal.toLocaleString('en-US', { minimumFractionDigits: 2 })}</span>
                 </div>
-                <div className="flex justify-between text-slate-600">
+                <div className="flex justify-between text-[#71717A] dark:text-[#A1A1AA]">
                   <span>Ethiopian VAT (15%):</span>
-                  <span className="font-mono">ETB {tax.toLocaleString('en-US', { minimumFractionDigits: 2 })}</span>
+                  <span className="font-mono text-[#0B0B0C] dark:text-white">ETB {tax.toLocaleString('en-US', { minimumFractionDigits: 2 })}</span>
                 </div>
-                <div className="flex justify-between text-base font-bold text-slate-900 pt-2 border-t border-slate-200">
+                <div className="flex justify-between text-base font-bold text-[#0B0B0C] dark:text-white pt-2 border-t border-[#E4E4E7] dark:border-[#222225]">
                   <span>Total Payable:</span>
-                  <span className="font-mono text-amg-red">ETB {total.toLocaleString('en-US', { minimumFractionDigits: 2 })}</span>
+                  <span className="font-mono text-[#0B0B0C] dark:text-[#C6F432]">ETB {total.toLocaleString('en-US', { minimumFractionDigits: 2 })}</span>
                 </div>
               </div>
             </>
@@ -282,10 +281,10 @@ export function CheckoutModal() {
             <div className="space-y-5">
               <div>
                 <div className="flex items-center justify-between mb-2">
-                  <label className="block text-xs font-bold uppercase tracking-wider text-slate-700">
+                  <label className="block text-xs font-bold uppercase tracking-wider text-[#71717A] dark:text-[#A1A1AA]">
                     2. Official Settlement: CBE Bank Transfer
                   </label>
-                  <span className="text-[10px] bg-[#C6F432] text-[#0B0B0C] px-2 py-0.5 rounded-full font-bold">
+                  <span className="text-[10px] bg-[#C6F432] text-[#0B0B0C] px-2.5 py-0.5 rounded-full font-bold">
                     Architecture Spec: CBE Only
                   </span>
                 </div>
@@ -325,14 +324,14 @@ export function CheckoutModal() {
               </div>
 
               {/* FT Code Submission Input */}
-              <div className="bg-slate-50 border border-slate-200 p-4 rounded-xl space-y-3">
-                <div className="flex items-center space-x-2 text-xs font-bold text-slate-800">
-                  <Receipt className="w-4 h-4 text-[#0B0B0C]" />
+              <div className="bg-[#FAFAFA] dark:bg-[#141416] border border-[#E4E4E7] dark:border-[#222225] p-4 rounded-2xl space-y-3">
+                <div className="flex items-center space-x-2 text-xs font-bold text-[#0B0B0C] dark:text-white">
+                  <Receipt className="w-4 h-4 text-[#C6F432]" />
                   <span>Submit CBE Payment Reference (FT Number)</span>
                 </div>
 
                 <div className="space-y-1">
-                  <label className="text-[11px] font-semibold text-slate-600 block">
+                  <label className="text-[11px] font-semibold text-[#71717A] dark:text-[#A1A1AA] block">
                     CBE Bank FT Reference Number:
                   </label>
                   <input
@@ -341,15 +340,15 @@ export function CheckoutModal() {
                     value={cbeFtCode}
                     onChange={(e) => setCbeFtCode(e.target.value)}
                     placeholder="e.g. FT26110699281744 or CBE-10928374"
-                    className="w-full border border-slate-300 px-3.5 py-2 text-xs rounded-lg focus:border-[#0B0B0C] focus:ring-1 focus:ring-[#C6F432]/40 outline-none font-mono font-bold uppercase tracking-wider bg-white"
+                    className="w-full border border-[#E4E4E7] dark:border-[#222225] px-3.5 py-2 text-xs rounded-xl focus:border-[#0B0B0C] dark:focus:border-[#C6F432] focus:ring-1 focus:ring-[#C6F432]/40 outline-none font-mono font-bold uppercase tracking-wider bg-white dark:bg-[#0B0B0C] text-[#0B0B0C] dark:text-white"
                   />
-                  <p className="text-[10px] text-slate-500">
+                  <p className="text-[10px] text-[#71717A] dark:text-[#A1A1AA]">
                     Finance verifies this code against the CBE core banking ledger before releasing warehouse dispatch.
                   </p>
                 </div>
 
                 <div className="space-y-1">
-                  <label className="text-[11px] font-semibold text-slate-600 block">
+                  <label className="text-[11px] font-semibold text-[#71717A] dark:text-[#A1A1AA] block">
                     Payer Bank Account Number (Optional):
                   </label>
                   <input
@@ -357,13 +356,13 @@ export function CheckoutModal() {
                     value={cbePayerAccount}
                     onChange={(e) => setCbePayerAccount(e.target.value)}
                     placeholder="e.g. 1000918239401"
-                    className="w-full border border-slate-300 px-3.5 py-2 text-xs rounded-lg focus:border-[#0B0B0C] outline-none font-mono bg-white"
+                    className="w-full border border-[#E4E4E7] dark:border-[#222225] px-3.5 py-2 text-xs rounded-xl focus:border-[#0B0B0C] dark:focus:border-[#C6F432] outline-none font-mono bg-white dark:bg-[#0B0B0C] text-[#0B0B0C] dark:text-white"
                   />
                 </div>
               </div>
 
               {/* Total Summary */}
-              <div className="p-3.5 bg-[#0B0B0C] text-white rounded-xl flex justify-between items-center">
+              <div className="p-3.5 bg-[#0B0B0C] text-white rounded-xl flex justify-between items-center border border-[#1A1A1D]">
                 <span className="text-xs font-semibold text-[#A1A1AA]">Total Settlement Amount:</span>
                 <span className="font-mono font-black text-base text-[#C6F432]">
                   ETB {total.toLocaleString('en-US', { minimumFractionDigits: 2 })}
@@ -371,7 +370,7 @@ export function CheckoutModal() {
               </div>
 
               {errorMessage && (
-                <div className="p-3 bg-red-50 border border-red-200 text-red-700 text-xs rounded-sm">
+                <div className="p-3 bg-rose-500/10 border border-rose-500/30 text-rose-500 text-xs rounded-xl">
                   <span className="font-bold">Order Error:</span> {errorMessage}
                 </div>
               )}
@@ -380,42 +379,42 @@ export function CheckoutModal() {
 
           {step === 'confirmation' && (
             <div className="py-8 text-center space-y-4">
-              <div className="w-16 h-16 bg-[#F4FDE6] text-[#0B0B0C] border border-[#C6F432] rounded-full flex items-center justify-center mx-auto shadow-sm">
-                <CheckCircle2 className="w-10 h-10 text-[#0B0B0C]" />
+              <div className="w-16 h-16 bg-[#C6F432]/20 text-[#C6F432] border border-[#C6F432] rounded-full flex items-center justify-center mx-auto shadow-sm">
+                <CheckCircle2 className="w-10 h-10 text-[#C6F432]" />
               </div>
               <div className="space-y-1">
-                <h3 className="font-serif text-xl font-bold text-slate-900">
+                <h3 className="font-serif text-xl font-bold text-[#0B0B0C] dark:text-white">
                   CBE Payment Submitted &amp; Stock Reserved!
                 </h3>
-                <p className="text-xs text-slate-600 max-w-md mx-auto">
+                <p className="text-xs text-[#71717A] dark:text-[#A1A1AA] max-w-md mx-auto">
                   Your order is currently in <strong>Payment Pending</strong> state. AMG Holdings Finance is cross-referencing your CBE FT Reference with the bank statement to verify the ledger entry.
                 </p>
               </div>
 
-              <div className="bg-slate-50 border border-slate-200 p-4 rounded-xl inline-block max-w-md text-left text-xs space-y-1.5 w-full">
+              <div className="bg-[#FAFAFA] dark:bg-[#141416] border border-[#E4E4E7] dark:border-[#222225] p-4 rounded-2xl inline-block max-w-md text-left text-xs space-y-1.5 w-full">
                 <div className="flex justify-between">
-                  <span className="text-slate-500">Order Number:</span>
-                  <span className="font-mono font-bold text-slate-900">{confirmedOrderNumber}</span>
+                  <span className="text-[#71717A] dark:text-[#A1A1AA]">Order Number:</span>
+                  <span className="font-mono font-bold text-[#0B0B0C] dark:text-white">{confirmedOrderNumber}</span>
                 </div>
                 {cbeFtCode && (
                   <div className="flex justify-between">
-                    <span className="text-slate-500">Submitted FT Code:</span>
-                    <span className="font-mono font-bold text-[#0B0B0C] bg-[#C6F432]/20 px-2 py-0.5 rounded">
+                    <span className="text-[#71717A] dark:text-[#A1A1AA]">Submitted FT Code:</span>
+                    <span className="font-mono font-bold text-[#0B0B0C] bg-[#C6F432] px-2 py-0.5 rounded">
                       {cbeFtCode.toUpperCase()}
                     </span>
                   </div>
                 )}
                 <div className="flex justify-between">
-                  <span className="text-slate-500">Customer:</span>
-                  <span className="font-medium">{currentUser.fullName} ({currentUser.companyName || 'Retail'})</span>
+                  <span className="text-[#71717A] dark:text-[#A1A1AA]">Customer:</span>
+                  <span className="font-medium text-[#0B0B0C] dark:text-white">{currentUser.fullName} ({currentUser.companyName || 'Retail'})</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-slate-500">Depot Fulfillment:</span>
-                  <span className="font-medium capitalize">{deliveryType.replace('_', ' ')}</span>
+                  <span className="text-[#71717A] dark:text-[#A1A1AA]">Depot Fulfillment:</span>
+                  <span className="font-medium capitalize text-[#0B0B0C] dark:text-white">{deliveryType.replace('_', ' ')}</span>
                 </div>
-                <div className="flex justify-between border-t border-slate-200 pt-1.5 mt-1 font-semibold">
-                  <span>Payable Total:</span>
-                  <span className="font-mono text-[#0B0B0C]">
+                <div className="flex justify-between border-t border-[#E4E4E7] dark:border-[#222225] pt-1.5 mt-1 font-semibold">
+                  <span className="text-[#0B0B0C] dark:text-white">Payable Total:</span>
+                  <span className="font-mono text-[#0B0B0C] dark:text-[#C6F432]">
                     ETB {total.toLocaleString('en-US', { minimumFractionDigits: 2 })}
                   </span>
                 </div>
@@ -432,13 +431,13 @@ export function CheckoutModal() {
                 <Link
                   href="/finance"
                   onClick={handleClose}
-                  className="px-5 py-2.5 bg-white border border-[#E4E4E7] text-[#0B0B0C] font-semibold text-xs rounded-full hover:bg-slate-100 transition-colors"
+                  className="px-5 py-2.5 bg-white dark:bg-[#141416] border border-[#E4E4E7] dark:border-[#222225] text-[#0B0B0C] dark:text-white font-semibold text-xs rounded-full hover:bg-slate-100 dark:hover:bg-[#1F1F24] transition-colors"
                 >
                   View in Finance Verification Queue
                 </Link>
               </div>
 
-              <p className="text-[11px] text-slate-500 pt-2">
+              <p className="text-[11px] text-[#71717A] dark:text-[#A1A1AA] pt-2">
                 An electronic tax invoice complying with Ethiopian ERCA VAT regulations will be issued upon Finance verification.
               </p>
             </div>
@@ -446,20 +445,20 @@ export function CheckoutModal() {
         </div>
 
         {/* Modal Footer */}
-        <div className="px-6 py-3.5 bg-slate-100 border-t border-slate-200 flex justify-between items-center">
+        <div className="px-6 py-3.5 bg-[#FAFAFA] dark:bg-[#141416] border-t border-[#E4E4E7] dark:border-[#222225] flex justify-between items-center">
           {step === 'details' && (
             <>
               <button
                 type="button"
                 onClick={handleClose}
-                className="px-4 py-2 border border-slate-300 bg-white text-xs font-semibold text-slate-700 rounded-sm hover:bg-slate-50"
+                className="px-4 py-2 border border-[#E4E4E7] dark:border-[#222225] bg-white dark:bg-[#1A1A1D] text-xs font-semibold text-[#0B0B0C] dark:text-white rounded-xl hover:bg-slate-50 dark:hover:bg-[#222225] transition-colors"
               >
                 Cancel
               </button>
               <button
                 type="button"
                 onClick={() => setStep('payment')}
-                className="px-5 py-2 bg-amg-navy text-white text-xs font-bold rounded-sm hover:bg-amg-navy-900 transition-colors flex items-center space-x-1.5"
+                className="px-5 py-2 bg-[#0B0B0C] dark:bg-[#C6F432] text-white dark:text-[#0B0B0C] text-xs font-bold rounded-xl hover:bg-[#1A1A1D] dark:hover:bg-[#D7F860] transition-colors flex items-center space-x-1.5 shadow-sm"
               >
                 <span>Proceed to Payment</span>
                 <ArrowRight className="w-3.5 h-3.5" />
@@ -472,7 +471,7 @@ export function CheckoutModal() {
               <button
                 type="button"
                 onClick={() => setStep('details')}
-                className="px-4 py-2 border border-slate-300 bg-white text-xs font-semibold text-slate-700 rounded-sm hover:bg-slate-50"
+                className="px-4 py-2 border border-[#E4E4E7] dark:border-[#222225] bg-white dark:bg-[#1A1A1D] text-xs font-semibold text-[#0B0B0C] dark:text-white rounded-xl hover:bg-slate-50 dark:hover:bg-[#222225] transition-colors"
               >
                 Back to Details
               </button>
@@ -480,13 +479,13 @@ export function CheckoutModal() {
                 type="button"
                 disabled={isProcessing}
                 onClick={handlePlaceOrder}
-                className="px-6 py-2 bg-[#0B0B0C] hover:bg-[#1A1A1D] text-[#C6F432] text-xs font-bold rounded-full transition-all flex items-center space-x-2 disabled:opacity-75 shadow-sm"
+                className="px-6 py-2 bg-[#0B0B0C] dark:bg-[#C6F432] hover:bg-[#1A1A1D] dark:hover:bg-[#D7F860] text-[#C6F432] dark:text-[#0B0B0C] text-xs font-bold rounded-full transition-all flex items-center space-x-2 disabled:opacity-75 shadow-sm"
               >
                 {isProcessing ? (
                   <span>Reserving Stock & Placing Order...</span>
                 ) : (
                   <>
-                    <ShieldCheck className="w-4 h-4 text-[#C6F432]" />
+                    <ShieldCheck className="w-4 h-4 text-[#C6F432] dark:text-[#0B0B0C]" />
                     <span>Submit CBE FT Reference & Confirm</span>
                   </>
                 )}
@@ -498,7 +497,7 @@ export function CheckoutModal() {
             <button
               type="button"
               onClick={handleClose}
-              className="w-full py-2 bg-amg-navy text-white text-xs font-bold rounded-sm hover:bg-amg-navy-900 transition-colors"
+              className="w-full py-2 bg-[#0B0B0C] dark:bg-[#C6F432] text-white dark:text-[#0B0B0C] text-xs font-bold rounded-xl hover:bg-[#1A1A1D] dark:hover:bg-[#D7F860] transition-colors"
             >
               Close & View Order in Portal
             </button>

@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { Playfair_Display, Inter } from 'next/font/google';
 import './globals.css';
+import { ThemeProvider } from '@/lib/theme-context';
 import { AuthProvider } from '@/lib/auth-context';
 import { CartProvider } from '@/lib/cart-context';
 import { WishlistProvider } from '@/lib/wishlist-context';
@@ -9,6 +10,7 @@ import { Footer } from '@/components/layout/Footer';
 import { CartDrawer } from '@/components/modals/CartDrawer';
 import { CheckoutModal } from '@/components/modals/CheckoutModal';
 import { RfqModal } from '@/components/modals/RfqModal';
+import { MousePointerInspector } from '@/components/ui/MousePointerInspector';
 
 const playfair = Playfair_Display({
   subsets: ['latin'],
@@ -37,20 +39,24 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className={`h-full ${playfair.variable} ${inter.variable}`}>
-      <body className="flex flex-col min-h-screen bg-[#FAFAFA] text-[#0B0B0C] font-sans antialiased">
-        <AuthProvider>
-          <WishlistProvider>
-            <CartProvider>
-              <Navbar />
-              <main className="flex-1">{children}</main>
-              <Footer />
-              <CartDrawer />
-              <CheckoutModal />
-              <RfqModal />
-            </CartProvider>
-          </WishlistProvider>
-        </AuthProvider>
+    <html lang="en" suppressHydrationWarning className={`h-full ${playfair.variable} ${inter.variable}`}>
+      <body className="flex flex-col min-h-screen bg-[#FAFAFA] dark:bg-[#0B0B0C] text-[#0B0B0C] dark:text-white font-sans antialiased selection:bg-[#C6F432] selection:text-[#0B0B0C]">
+        <ThemeProvider>
+          <AuthProvider>
+            <WishlistProvider>
+              <CartProvider>
+                <Navbar />
+                <main className="flex-1">{children}</main>
+                <Footer />
+                <CartDrawer />
+                <CheckoutModal />
+                <RfqModal />
+                {/* Interactive cursor pointer inspector React component */}
+                <MousePointerInspector />
+              </CartProvider>
+            </WishlistProvider>
+          </AuthProvider>
+        </ThemeProvider>
       </body>
     </html>
   );
