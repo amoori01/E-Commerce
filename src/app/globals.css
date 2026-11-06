@@ -4,35 +4,43 @@
 
 @layer base {
   :root {
-    --brand-navy: #1E2B58;
-    --brand-red: #971E21;
+    --midnight: #0B0B0C;
+    --pure-white: #FFFFFF;
+    --lime-green: #C6F432;
+    --brand-navy: #0B0B0C;
+    --brand-red: #C6F432;
   }
 
   body {
-    @apply bg-slate-50 text-slate-900 font-sans antialiased;
-    color: #0F172A;
+    background-color: #FAFAFA;
+    color: #0B0B0C;
+    font-family: var(--font-inter), system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   }
 
-  /* Browser surface styling per Impeccable craft floor */
+  h1, h2, h3, .font-serif {
+    font-family: var(--font-playfair), Georgia, serif;
+  }
+
+  /* Browser surface styling */
   ::selection {
-    background-color: #1E2B58;
-    color: #FFFFFF;
+    background-color: #C6F432;
+    color: #0B0B0C;
   }
 
-  /* Custom crisp scrollbars */
+  /* Custom sleek scrollbars */
   ::-webkit-scrollbar {
     width: 6px;
     height: 6px;
   }
   ::-webkit-scrollbar-track {
-    background: #F1F5F9;
+    background: #FAFAFA;
   }
   ::-webkit-scrollbar-thumb {
-    background: #94A3B8;
-    border-radius: 2px;
+    background: #D4D4D8;
+    border-radius: 9999px;
   }
   ::-webkit-scrollbar-thumb:hover {
-    background: #64748B;
+    background: #0B0B0C;
   }
 }
 

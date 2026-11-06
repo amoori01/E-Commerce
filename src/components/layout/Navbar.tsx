@@ -40,10 +40,10 @@ export function Navbar() {
   const [searchSubsidiary, setSearchSubsidiary] = useState('all');
 
   const roleLabels: Record<UserRole, { label: string; badgeColor: string; route: string }> = {
-    super_admin: { label: 'Corporate Super Admin', badgeColor: 'bg-purple-700', route: '/admin' },
-    branch_admin: { label: 'Adama Branch Admin', badgeColor: 'bg-emerald-700', route: '/branch-admin' },
-    sales_agent: { label: 'Sales Engineer (Agent)', badgeColor: 'bg-blue-700', route: '/agent' },
-    customer: { label: 'Corporate B2B Client', badgeColor: 'bg-amber-700', route: '/portal' },
+    super_admin: { label: 'Corporate Super Admin', badgeColor: 'bg-purple-950 text-purple-200 border-purple-700/50', route: '/admin' },
+    branch_admin: { label: 'Adama Branch Admin', badgeColor: 'bg-emerald-950 text-emerald-200 border-emerald-700/50', route: '/branch-admin' },
+    sales_agent: { label: 'Sales Engineer (Agent)', badgeColor: 'bg-blue-950 text-blue-200 border-blue-700/50', route: '/agent' },
+    customer: { label: 'Corporate B2B Client', badgeColor: 'bg-[#1A1A1D] text-[#C6F432] border-[#C6F432]/30', route: '/portal' },
   };
 
   // Search submission handler
@@ -69,40 +69,40 @@ export function Navbar() {
 
   if (isAuthPage) {
     return (
-      <header className="w-full bg-slate-950 border-b border-slate-800 text-white sticky top-0 z-40 text-xs shadow-md">
-        <div className="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between gap-4">
+      <header className="w-full bg-[#0B0B0C] border-b border-[#222225] text-white sticky top-0 z-40 text-xs shadow-md">
+        <div className="max-w-7xl mx-auto px-4 py-3.5 flex items-center justify-between gap-4">
           {/* Left: Brand Logo & Title */}
-          <Link href="/" className="flex items-center space-x-3 group shrink-0">
-            <div className="w-9 h-9 bg-white flex items-center justify-center rounded-sm p-1 border border-slate-700 shadow-sm">
+          <Link href="/" className="flex items-center space-x-3.5 group shrink-0">
+            <div className="w-10 h-10 bg-white flex items-center justify-center rounded-lg p-1.5 border border-[#2A2A2E] shadow-sm">
               <img src="/logo.png" alt="AMG Holdings" className="max-h-full max-w-full object-contain" />
             </div>
             <div>
               <div className="flex items-center space-x-2">
-                <span className="font-extrabold text-sm tracking-tight text-white group-hover:text-slate-200">
+                <span className="font-serif font-black text-base tracking-tight text-white group-hover:text-[#C6F432] transition-colors">
                   AMG HOLDINGS
                 </span>
-                <span className="px-2 py-0.5 rounded-xs font-mono font-bold text-[9px] uppercase border bg-slate-900 border-amg-red text-amg-red-400">
+                <span className="px-2 py-0.5 rounded-full font-sans font-bold text-[9px] uppercase border bg-[#1A1A1D] border-[#C6F432]/40 text-[#C6F432]">
                   SECURE ACCESS
                 </span>
               </div>
-              <div className="text-[11px] text-slate-400 font-medium hidden md:block">
+              <div className="text-[11px] text-[#A1A1AA] font-normal hidden md:block">
                 Unified Enterprise Identity & Access Management
               </div>
             </div>
           </Link>
 
-          {/* Right: Return to Storefront & Hotline */}
+          {/* Right: Return to Storefront & Support */}
           <div className="flex items-center space-x-4 text-xs">
-            <div className="hidden sm:flex items-center space-x-1.5 font-mono text-slate-400 text-[11px]">
-              <PhoneCall className="w-3.5 h-3.5 text-amg-red" />
+            <div className="hidden sm:flex items-center space-x-1.5 text-[#A1A1AA] text-[11px]">
+              <PhoneCall className="w-3.5 h-3.5 text-[#C6F432]" />
               <span>Support: +251 11 662 4500</span>
             </div>
 
             <Link
               href="/"
-              className="px-3 py-1.5 bg-slate-900 hover:bg-slate-800 text-slate-200 hover:text-white border border-slate-700 rounded-sm font-semibold text-[11px] flex items-center space-x-1.5 transition-colors shadow-xs"
+              className="px-3.5 py-1.5 bg-[#141416] hover:bg-[#1A1A1D] text-white border border-[#2A2A2E] hover:border-[#C6F432]/40 rounded-full font-medium text-[11px] flex items-center space-x-2 transition-all shadow-sm"
             >
-              <ArrowLeft className="w-3.5 h-3.5 text-amg-red" />
+              <ArrowLeft className="w-3.5 h-3.5 text-[#C6F432]" />
               <span>Return to Public Catalog</span>
             </Link>
           </div>
@@ -144,23 +144,23 @@ export function Navbar() {
         };
 
     return (
-      <header className="w-full bg-slate-950 border-b border-slate-800 text-white sticky top-0 z-40 text-xs shadow-md">
+      <header className="w-full bg-[#0B0B0C] border-b border-[#222225] text-white sticky top-0 z-40 text-xs shadow-md">
         <div className="max-w-7xl mx-auto px-4 py-2.5 flex items-center justify-between gap-4">
           {/* Left: Brand Logo & Management Console Title */}
-          <Link href={portalConfig.workspaceLink} className="flex items-center space-x-3 group shrink-0">
-            <div className="w-9 h-9 bg-white flex items-center justify-center rounded-sm p-1 border border-slate-700 shadow-sm">
+          <Link href={portalConfig.workspaceLink} className="flex items-center space-x-3.5 group shrink-0">
+            <div className="w-9 h-9 bg-white flex items-center justify-center rounded-lg p-1.5 border border-[#2A2A2E] shadow-sm">
               <img src="/logo.png" alt="AMG Holdings" className="max-h-full max-w-full object-contain" />
             </div>
             <div>
               <div className="flex items-center space-x-2">
-                <span className="font-extrabold text-sm tracking-tight text-white group-hover:text-slate-200">
+                <span className="font-serif font-black text-sm tracking-tight text-white group-hover:text-[#C6F432] transition-colors">
                   AMG HOLDINGS
                 </span>
-                <span className={`px-2 py-0.5 rounded-xs font-mono font-bold text-[9px] uppercase border ${portalConfig.badgeColor}`}>
+                <span className={`px-2 py-0.5 rounded-full font-sans font-bold text-[9px] uppercase border ${portalConfig.badgeColor}`}>
                   {portalConfig.badge}
                 </span>
               </div>
-              <div className="text-[11px] text-slate-400 font-medium hidden md:block">
+              <div className="text-[11px] text-[#A1A1AA] font-normal hidden md:block">
                 {portalConfig.title}
               </div>
             </div>
@@ -171,25 +171,25 @@ export function Navbar() {
             {/* View Public Storefront Link */}
             <Link
               href="/"
-              className="px-2.5 py-1 bg-slate-900 hover:bg-slate-800 text-slate-300 hover:text-white border border-slate-700 rounded-sm font-semibold text-[11px] flex items-center space-x-1.5 transition-colors shadow-xs"
+              className="px-3 py-1 bg-[#141416] hover:bg-[#1A1A1D] text-[#E4E4E7] hover:text-[#C6F432] border border-[#2A2A2E] hover:border-[#C6F432]/30 rounded-full font-medium text-[11px] flex items-center space-x-1.5 transition-all shadow-xs"
               title="Open customer-facing public storefront catalog"
             >
-              <ExternalLink className="w-3.5 h-3.5 text-amg-red" />
+              <ExternalLink className="w-3.5 h-3.5 text-[#C6F432]" />
               <span className="hidden sm:inline">View Public Storefront</span>
               <span className="sm:hidden">Storefront</span>
             </Link>
 
             {/* Authenticated Staff User Pill */}
             {currentUser && (
-              <div className="flex items-center space-x-2 pl-2 border-l border-slate-800">
-                <div className="w-7 h-7 rounded-sm bg-slate-800 border border-slate-700 text-white font-bold flex items-center justify-center text-xs">
+              <div className="flex items-center space-x-2 pl-2 border-l border-[#222225]">
+                <div className="w-7 h-7 rounded-full bg-[#1A1A1D] border border-[#2A2A2E] text-[#C6F432] font-bold flex items-center justify-center text-xs">
                   {currentUser.fullName[0]}
                 </div>
                 <div className="hidden lg:block text-left">
                   <div className="text-[11px] font-bold text-white leading-tight">
                     {currentUser.fullName}
                   </div>
-                  <div className="text-[10px] text-slate-400 font-mono">
+                  <div className="text-[10px] text-[#A1A1AA] font-sans">
                     {currentUser.companyName || roleLabels[activeRole]?.label}
                   </div>
                 </div>
@@ -199,7 +199,7 @@ export function Navbar() {
             {/* Switch Account */}
             <Link
               href="/login"
-              className="px-2 py-1 text-slate-400 hover:text-sky-300 text-[11px] font-medium transition-colors"
+              className="px-2 py-1 text-[#A1A1AA] hover:text-[#C6F432] text-[11px] font-medium transition-colors"
             >
               Switch Role
             </Link>
@@ -208,7 +208,7 @@ export function Navbar() {
             <button
               type="button"
               onClick={() => logout()}
-              className="px-2 py-1 bg-slate-900 hover:bg-red-950 text-slate-400 hover:text-rose-400 border border-slate-800 rounded-sm text-[11px] transition-colors flex items-center space-x-1"
+              className="px-2.5 py-1 bg-[#141416] hover:bg-rose-950/40 text-[#A1A1AA] hover:text-rose-400 border border-[#222225] rounded-full text-[11px] transition-colors flex items-center space-x-1"
               title="Log out of session"
             >
               <LogOut className="w-3 h-3" />
@@ -221,46 +221,46 @@ export function Navbar() {
   }
 
   return (
-    <header className="w-full bg-white border-b border-slate-300 sticky top-0 z-40 text-xs">
+    <header className="w-full bg-white border-b border-[#E4E4E7] sticky top-0 z-40 text-xs shadow-xs">
       {/* 1. TOP UTILITY & AUTH STATUS BAR */}
-      <div className="bg-slate-900 text-slate-300 px-4 py-1.5 border-b border-slate-800 flex flex-wrap justify-between items-center text-[11px]">
+      <div className="bg-[#0B0B0C] text-[#D4D4D8] px-4 py-2 border-b border-[#1A1A1D] flex flex-wrap justify-between items-center text-[11px]">
         {/* Left: Hotline & Regional Network */}
         <div className="flex items-center space-x-4">
-          <span className="flex items-center space-x-1 font-mono text-slate-400">
-            <PhoneCall className="w-3 h-3 text-amg-red" />
-            <span>Hotline: +251 11 662 4500</span>
+          <span className="flex items-center space-x-1.5 font-sans text-[#E4E4E7]">
+            <PhoneCall className="w-3.5 h-3.5 text-[#C6F432]" />
+            <span className="font-semibold text-white">Hotline: +251 11 662 4500</span>
           </span>
-          <span className="hidden md:flex items-center space-x-1 text-slate-400">
-            <MapPin className="w-3 h-3 text-amg-navy-400" />
-            <span>Branches: Addis Ababa (HQ) | Adama Plant | Hawassa | Dire Dawa Hub</span>
+          <span className="hidden md:flex items-center space-x-1.5 text-[#A1A1AA]">
+            <MapPin className="w-3.5 h-3.5 text-[#C6F432]" />
+            <span>HQ Addis Ababa • Adama Plant • Hawassa • Dire Dawa Hub</span>
           </span>
         </div>
 
         {/* Right: Authenticated User Status & Portal Navigation */}
-        <div className="flex items-center space-x-2.5 my-0.5">
+        <div className="flex items-center space-x-3 my-0.5">
           {isLoggedIn && currentUser ? (
             <div className="flex items-center space-x-2">
-              <span className="text-slate-400 hidden sm:inline text-[10px]">Logged in as:</span>
+              <span className="text-[#A1A1AA] hidden sm:inline text-[10px]">Logged in as:</span>
               <span className="font-semibold text-white flex items-center space-x-1.5">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 inline-block" />
+                <span className="w-2 h-2 rounded-full bg-[#C6F432] inline-block shadow-[0_0_8px_#C6F432]" />
                 <span>{currentUser.fullName}</span>
               </span>
-              <span className={`px-1.5 py-0.2 rounded-sm text-[9px] font-bold uppercase text-white ${roleLabels[activeRole]?.badgeColor || 'bg-slate-700'}`}>
+              <span className={`px-2 py-0.5 rounded-full text-[9px] font-bold uppercase ${roleLabels[activeRole]?.badgeColor || 'bg-[#1A1A1D] text-white border border-[#2A2A2E]'}`}>
                 {activeRole.replace('_', ' ')}
               </span>
 
               {/* Quick link to current role's portal */}
               <Link
                 href={roleLabels[activeRole]?.route || '/portal'}
-                className="ml-1.5 px-2.5 py-0.5 bg-slate-800 hover:bg-slate-700 text-white border border-slate-600 rounded-sm font-semibold text-[10px] flex items-center space-x-1 transition-colors"
+                className="ml-1.5 px-3 py-0.5 bg-[#141416] hover:bg-[#1A1A1D] text-[#C6F432] border border-[#C6F432]/40 rounded-full font-bold text-[10px] flex items-center space-x-1 transition-all"
               >
-                <Shield className="w-3 h-3 text-amg-red" />
+                <Shield className="w-3 h-3 text-[#C6F432]" />
                 <span>Go to Portal</span>
               </Link>
 
               <Link
                 href="/login"
-                className="px-2 py-0.5 text-slate-400 hover:text-sky-300 font-medium text-[10px] transition-colors"
+                className="px-2 py-0.5 text-[#A1A1AA] hover:text-[#C6F432] font-medium text-[10px] transition-colors"
               >
                 Switch Account
               </Link>
@@ -268,7 +268,7 @@ export function Navbar() {
               <button
                 type="button"
                 onClick={() => logout()}
-                className="px-2 py-0.5 text-slate-400 hover:text-rose-400 text-[10px] font-medium transition-colors flex items-center space-x-1"
+                className="px-2 py-0.5 text-[#A1A1AA] hover:text-rose-400 text-[10px] font-medium transition-colors flex items-center space-x-1"
                 title="Log out of session"
               >
                 <LogOut className="w-3 h-3" />
@@ -276,19 +276,19 @@ export function Navbar() {
               </button>
             </div>
           ) : (
-            <div className="flex items-center space-x-2">
-              <span className="text-slate-400 text-[10px]">Commercial & Retail:</span>
+            <div className="flex items-center space-x-2.5">
+              <span className="text-[#A1A1AA] text-[10px]">Client Access:</span>
               <Link
                 href="/login?tab=register"
-                className="px-2.5 py-0.5 bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-[10px] rounded-sm transition-colors shadow-sm"
+                className="px-3 py-0.5 bg-[#141416] hover:bg-[#1A1A1D] text-white border border-[#2A2A2E] hover:border-[#C6F432]/40 font-semibold text-[10px] rounded-full transition-all"
               >
-                <span>Register Account</span>
+                <span>Register</span>
               </Link>
               <Link
                 href="/login"
-                className="px-2.5 py-0.5 bg-amg-red hover:bg-red-700 text-white font-bold text-[10px] rounded-sm transition-colors flex items-center space-x-1 shadow-sm"
+                className="px-3 py-0.5 bg-[#C6F432] hover:bg-[#D7F860] text-[#0B0B0C] font-bold text-[10px] rounded-full transition-all flex items-center space-x-1 shadow-xs"
               >
-                <LogIn className="w-3 h-3" />
+                <LogIn className="w-3 h-3 text-[#0B0B0C]" />
                 <span>Sign In</span>
               </Link>
             </div>
@@ -296,11 +296,11 @@ export function Navbar() {
         </div>
       </div>
 
-      {/* 2. MAIN BRAND & SEARCH HEADER (Grainger / Alibaba Industrial Style) */}
-      <div className="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between gap-4">
-        {/* Brand Logo & Name */}
-        <Link href="/" className="flex items-center space-x-3 shrink-0">
-          <div className="relative w-12 h-12 bg-white flex items-center justify-center border border-slate-200 rounded-sm p-1 shadow-sm">
+      {/* 2. MAIN BRAND & SEARCH HEADER */}
+      <div className="max-w-7xl mx-auto px-4 py-3.5 flex items-center justify-between gap-6">
+        {/* Brand Logo & Name with Playfair Display Elegance */}
+        <Link href="/" className="flex items-center space-x-3.5 shrink-0 group">
+          <div className="relative w-11 h-11 bg-white flex items-center justify-center border border-[#E4E4E7] rounded-xl p-1.5 shadow-xs group-hover:border-[#0B0B0C] transition-all">
             <img
               src="/logo.png"
               alt="AMG Holdings Logo"
@@ -308,14 +308,14 @@ export function Navbar() {
             />
           </div>
           <div>
-            <div className="text-base font-extrabold tracking-tight text-amg-navy flex items-center space-x-1.5">
+            <div className="text-lg font-serif font-black tracking-tight text-[#0B0B0C] flex items-center space-x-2">
               <span>AMG HOLDINGS</span>
-              <span className="text-[10px] uppercase font-bold tracking-widest text-amg-red bg-red-50 border border-red-200 px-1 rounded-sm">
-                ENTERPRISE
+              <span className="text-[9px] uppercase font-sans font-extrabold tracking-widest text-[#0B0B0C] bg-[#C6F432] px-2 py-0.5 rounded-full">
+                COMMERCE
               </span>
             </div>
-            <p className="text-[11px] text-slate-500 font-medium">
-              Multi-Subsidiary Heavy Industry & E-Commerce Platform
+            <p className="text-[11px] text-[#71717A] font-sans font-normal">
+              Industrial Materials, Commercial Fleet & Heavy Engineering
             </p>
           </div>
         </Link>
@@ -323,14 +323,14 @@ export function Navbar() {
         {/* Search Bar with SKU / Category selector */}
         <form
           onSubmit={handleSearch}
-          className="hidden lg:flex flex-1 max-w-2xl items-center border border-slate-300 rounded-sm bg-white overflow-hidden focus-within:border-amg-navy focus-within:ring-1 focus-within:ring-amg-navy shadow-inner"
+          className="hidden lg:flex flex-1 max-w-2xl items-center border border-[#E4E4E7] hover:border-[#0B0B0C] focus-within:border-[#0B0B0C] focus-within:ring-2 focus-within:ring-[#C6F432]/40 rounded-full bg-[#FAFAFA] overflow-hidden transition-all shadow-inner"
         >
-          <div className="bg-slate-100 border-r border-slate-300 px-2 py-2 text-slate-700 font-semibold text-xs shrink-0 flex items-center space-x-1">
-            <Layers className="w-3.5 h-3.5 text-amg-navy" />
+          <div className="bg-white border-r border-[#E4E4E7] px-3.5 py-2.5 text-[#0B0B0C] font-medium text-xs shrink-0 flex items-center space-x-1.5">
+            <Layers className="w-3.5 h-3.5 text-[#0B0B0C]" />
             <select
               value={searchSubsidiary}
               onChange={(e) => setSearchSubsidiary(e.target.value)}
-              className="bg-transparent text-slate-700 text-xs font-semibold focus:outline-none cursor-pointer pr-1"
+              className="bg-transparent text-[#0B0B0C] text-xs font-semibold focus:outline-none cursor-pointer pr-1"
               aria-label="Filter search by subsidiary"
             >
               <option value="all">All Subsidiaries</option>
@@ -346,13 +346,13 @@ export function Navbar() {
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Search by SKU, ASTM standard, steel grade, roofing gauge, vehicle chassis..."
-            className="w-full px-3 py-2 text-xs text-slate-800 placeholder-slate-400 outline-none"
+            className="w-full px-4 py-2.5 text-xs text-[#0B0B0C] placeholder-[#A1A1AA] bg-transparent outline-none"
           />
           {searchQuery && (
             <button
               type="button"
               onClick={() => setSearchQuery('')}
-              className="px-2 text-slate-400 hover:text-slate-600 transition-colors"
+              className="px-2 text-[#A1A1AA] hover:text-[#0B0B0C] transition-colors"
               title="Clear search input"
             >
               <X className="w-3.5 h-3.5" />
@@ -360,7 +360,7 @@ export function Navbar() {
           )}
           <button
             type="submit"
-            className="bg-amg-navy hover:bg-amg-navy-900 text-white px-4 py-2 font-bold flex items-center justify-center transition-colors shrink-0"
+            className="bg-[#0B0B0C] hover:bg-[#1A1A1D] text-[#C6F432] px-5 py-2.5 font-bold flex items-center justify-center transition-colors shrink-0 m-0.5 rounded-full"
             title="Search catalog"
           >
             <Search className="w-4 h-4" />
@@ -373,21 +373,21 @@ export function Navbar() {
           <button
             type="button"
             onClick={() => openRfq()}
-            className="px-3.5 py-2 bg-amg-red hover:bg-red-800 text-white font-bold text-xs rounded-sm shadow-sm transition-colors flex items-center space-x-1.5"
+            className="px-4 py-2.5 bg-white hover:bg-[#0B0B0C] text-[#0B0B0C] hover:text-[#C6F432] border border-[#E4E4E7] hover:border-[#0B0B0C] font-semibold text-xs rounded-full shadow-xs transition-all flex items-center space-x-2"
           >
-            <FileText className="w-4 h-4" />
+            <FileText className="w-4 h-4 text-[#0B0B0C] group-hover:text-[#C6F432]" />
             <span className="hidden sm:inline">Request Quote (RFQ)</span>
           </button>
 
           {/* Customer Wishlist Button */}
           <Link
             href="/portal?tab=wishlist"
-            className="relative px-3 py-2 border border-slate-300 bg-white hover:bg-slate-50 text-slate-700 font-bold text-xs rounded-sm transition-colors flex items-center space-x-1.5 shadow-sm"
+            className="relative p-2.5 border border-[#E4E4E7] bg-white hover:border-[#0B0B0C] hover:bg-[#FAFAFA] text-[#0B0B0C] rounded-full transition-all flex items-center justify-center shadow-xs"
+            title="View Wishlist"
           >
-            <Heart className="w-4 h-4 text-amg-red" />
-            <span className="hidden sm:inline">Wishlist</span>
+            <Heart className="w-4 h-4 text-[#0B0B0C]" />
             {wishlistCount > 0 && (
-              <span className="ml-0.5 bg-slate-800 text-white font-mono text-[10px] font-bold px-1.5 py-0.2 rounded-sm">
+              <span className="absolute -top-1 -right-1 bg-[#0B0B0C] text-[#C6F432] text-[10px] font-bold w-4 h-4 rounded-full flex items-center justify-center">
                 {wishlistCount}
               </span>
             )}
@@ -397,12 +397,12 @@ export function Navbar() {
           <button
             type="button"
             onClick={() => setIsCartDrawerOpen(true)}
-            className="relative px-3.5 py-2 border border-slate-300 bg-white hover:bg-slate-50 text-amg-navy font-bold text-xs rounded-sm transition-colors flex items-center space-x-1.5 shadow-sm"
+            className="relative px-4 py-2.5 bg-[#0B0B0C] hover:bg-[#1A1A1D] text-white hover:text-[#C6F432] font-semibold text-xs rounded-full transition-all flex items-center space-x-2 shadow-sm"
           >
-            <ShoppingCart className="w-4 h-4 text-amg-navy" />
+            <ShoppingCart className="w-4 h-4 text-[#C6F432]" />
             <span className="hidden sm:inline">Cart</span>
             {totalCount > 0 && (
-              <span className="ml-1 bg-amg-red text-white font-mono text-[10px] font-bold px-1.5 py-0.2 rounded-sm">
+              <span className="ml-1 bg-[#C6F432] text-[#0B0B0C] font-sans text-[10px] font-extrabold px-1.5 py-0.2 rounded-full">
                 {totalCount}
               </span>
             )}
@@ -412,32 +412,31 @@ export function Navbar() {
           {isLoggedIn && currentUser ? (
             <Link
               href={roleLabels[activeRole]?.route || '/portal'}
-              className="flex items-center space-x-2 pl-2 border-l border-slate-300 hover:opacity-90"
+              className="flex items-center space-x-2 pl-2 border-l border-[#E4E4E7] hover:opacity-90"
             >
-              <div className="w-8 h-8 rounded-sm bg-amg-navy-100 border border-amg-navy-300 text-amg-navy font-bold flex items-center justify-center text-xs">
+              <div className="w-8 h-8 rounded-full bg-[#0B0B0C] text-[#C6F432] font-bold flex items-center justify-center text-xs shadow-xs">
                 {currentUser.fullName[0]}
               </div>
               <div className="hidden xl:block text-left">
-                <div className="text-xs font-bold text-slate-900 leading-tight">
+                <div className="text-xs font-bold text-[#0B0B0C] leading-tight">
                   {currentUser.fullName}
                 </div>
-                <div className="text-[10px] text-slate-500 font-medium">
+                <div className="text-[10px] text-[#71717A] font-medium">
                   {roleLabels[activeRole]?.label}
                 </div>
               </div>
             </Link>
           ) : (
-            <div className="flex items-center space-x-2 pl-2 border-l border-slate-300">
+            <div className="flex items-center space-x-2 pl-2 border-l border-[#E4E4E7]">
               <Link
                 href="/login"
-                className="text-amg-navy hover:text-amg-red font-bold text-xs transition-colors"
+                className="text-[#0B0B0C] hover:text-[#0B0B0C] font-bold text-xs transition-colors px-2 py-1"
               >
                 Sign In
               </Link>
-              <span className="text-slate-300">|</span>
               <Link
                 href="/login?tab=register"
-                className="px-2.5 py-1 bg-amg-navy hover:bg-amg-navy-900 text-white font-bold text-xs rounded-sm transition-colors shadow-xs"
+                className="px-3.5 py-1.5 bg-[#C6F432] hover:bg-[#D7F860] text-[#0B0B0C] font-bold text-xs rounded-full transition-colors shadow-xs"
               >
                 Register
               </Link>
@@ -447,23 +446,23 @@ export function Navbar() {
       </div>
 
       {/* 2b. MOBILE / TABLET SEARCH BAR */}
-      <div className="lg:hidden px-4 pb-2.5 pt-1 bg-slate-50 border-t border-slate-200">
+      <div className="lg:hidden px-4 pb-3 pt-1 bg-[#FAFAFA] border-t border-[#E4E4E7]">
         <form
           onSubmit={handleSearch}
-          className="flex items-center border border-slate-300 rounded-sm bg-white overflow-hidden focus-within:border-amg-navy"
+          className="flex items-center border border-[#E4E4E7] rounded-full bg-white overflow-hidden focus-within:border-[#0B0B0C] p-0.5"
         >
           <input
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Search SKU, ASTM, steel grade, chassis..."
-            className="w-full px-3 py-1.5 text-xs text-slate-800 placeholder-slate-400 outline-none"
+            className="w-full px-3.5 py-1.5 text-xs text-[#0B0B0C] placeholder-[#A1A1AA] outline-none bg-transparent"
           />
           {searchQuery && (
             <button
               type="button"
               onClick={() => setSearchQuery('')}
-              className="px-2 text-slate-400 hover:text-slate-600"
+              className="px-2 text-[#A1A1AA] hover:text-[#0B0B0C]"
               title="Clear search input"
             >
               <X className="w-3.5 h-3.5" />
@@ -471,7 +470,7 @@ export function Navbar() {
           )}
           <button
             type="submit"
-            className="bg-amg-navy hover:bg-amg-navy-900 text-white px-3.5 py-1.5 font-bold flex items-center justify-center transition-colors"
+            className="bg-[#0B0B0C] text-[#C6F432] p-2 rounded-full font-bold flex items-center justify-center transition-colors"
             title="Search catalog"
           >
             <Search className="w-3.5 h-3.5" />
@@ -480,43 +479,43 @@ export function Navbar() {
       </div>
 
       {/* 3. SUBSIDIARY DIRECTORY NAVIGATION BAR */}
-      <nav className="bg-amg-navy text-white border-t border-amg-navy-900 shadow-inner">
-        <div className="max-w-7xl mx-auto px-4 flex items-center justify-between overflow-x-auto scrollbar-none py-1">
-          <div className="flex items-center space-x-1 shrink-0 font-medium text-xs">
+      <nav className="bg-[#0B0B0C] text-white border-t border-[#1A1A1D]">
+        <div className="max-w-7xl mx-auto px-4 flex items-center justify-between overflow-x-auto scrollbar-none py-1.5">
+          <div className="flex items-center space-x-1.5 shrink-0 font-medium text-xs">
             <Link
               href="/?subsidiary=all&stream=all#catalog-section"
-              className="px-3 py-1.5 hover:bg-amg-navy-800 rounded-sm font-bold text-white transition-colors"
+              className="px-3 py-1.5 bg-white text-[#0B0B0C] hover:bg-[#C6F432] rounded-full font-bold text-xs transition-colors flex items-center space-x-1"
             >
-              Enterprise Catalog
+              <span>Enterprise Catalog</span>
             </Link>
 
             {SUBSIDIARIES.map((sub) => (
               <Link
                 key={sub.id}
                 href={`/?subsidiary=${sub.slug}#catalog-section`}
-                className="px-3 py-1.5 text-slate-200 hover:text-white hover:bg-amg-navy-800 rounded-sm transition-colors whitespace-nowrap text-xs"
+                className="px-3 py-1.5 text-[#D4D4D8] hover:text-white hover:bg-[#1A1A1D] rounded-full transition-colors whitespace-nowrap text-xs"
               >
                 {sub.name.replace('AMG ', '')}
               </Link>
             ))}
           </div>
 
-          <div className="hidden lg:flex items-center space-x-2 text-[11px] shrink-0 font-mono">
+          <div className="hidden lg:flex items-center space-x-2 text-[11px] shrink-0">
             <Link
               href="/?stream=direct_checkout#catalog-section"
-              className="px-2.5 py-1 bg-amg-navy-800 hover:bg-amg-navy-700 text-slate-200 hover:text-white border border-amg-navy-700 hover:border-emerald-500 rounded-sm transition-all flex items-center space-x-1.5 shadow-xs"
-              title="Filter catalog to Stream A instant digital buy products"
+              className="px-3 py-1 bg-[#141416] hover:bg-[#1A1A1D] text-[#E4E4E7] hover:text-white border border-[#2A2A2E] hover:border-[#C6F432]/60 rounded-full transition-all flex items-center space-x-1.5"
+              title="Filter catalog to Stream A instant buy products"
             >
-              <ShoppingCart className="w-3 h-3 text-emerald-400" />
-              <span>Direct Orders: Stream A</span>
+              <span className="w-1.5 h-1.5 rounded-full bg-[#C6F432]" />
+              <span>Direct Buy: Stream A</span>
             </Link>
-            <span className="text-slate-500">•</span>
+            <span className="text-[#3F3F46]">•</span>
             <Link
               href="/?stream=assisted_quote#catalog-section"
-              className="px-2.5 py-1 bg-amg-navy-800 hover:bg-amg-navy-700 text-slate-200 hover:text-white border border-amg-navy-700 hover:border-amg-red rounded-sm transition-all flex items-center space-x-1.5 shadow-xs"
+              className="px-3 py-1 bg-[#141416] hover:bg-[#1A1A1D] text-[#E4E4E7] hover:text-white border border-[#2A2A2E] hover:border-white rounded-full transition-all flex items-center space-x-1.5"
               title="Filter catalog to Stream B custom engineering RFQ products"
             >
-              <FileText className="w-3 h-3 text-amg-red" />
+              <FileText className="w-3 h-3 text-[#A1A1AA]" />
               <span>Heavy Engineering: Stream B</span>
             </Link>
           </div>

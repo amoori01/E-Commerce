@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { Playfair_Display, Inter } from 'next/font/google';
 import './globals.css';
 import { AuthProvider } from '@/lib/auth-context';
 import { CartProvider } from '@/lib/cart-context';
@@ -8,6 +9,18 @@ import { Footer } from '@/components/layout/Footer';
 import { CartDrawer } from '@/components/modals/CartDrawer';
 import { CheckoutModal } from '@/components/modals/CheckoutModal';
 import { RfqModal } from '@/components/modals/RfqModal';
+
+const playfair = Playfair_Display({
+  subsets: ['latin'],
+  variable: '--font-playfair',
+  display: 'swap',
+});
+
+const inter = Inter({
+  subsets: ['latin'],
+  variable: '--font-inter',
+  display: 'swap',
+});
 
 export const metadata: Metadata = {
   title: 'AMG Holdings - Enterprise Multi-Subsidiary E-Commerce & RFQ Platform',
@@ -24,8 +37,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className="h-full">
-      <body className="flex flex-col min-h-screen bg-slate-50 font-sans">
+    <html lang="en" className={`h-full ${playfair.variable} ${inter.variable}`}>
+      <body className="flex flex-col min-h-screen bg-[#FAFAFA] text-[#0B0B0C] font-sans antialiased">
         <AuthProvider>
           <WishlistProvider>
             <CartProvider>

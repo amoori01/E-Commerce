@@ -107,28 +107,34 @@ function HomePageContent() {
   });
 
   return (
-    <div className="space-y-8 pb-16">
-      {/* 1. INDUSTRIAL ENTERPRISE HERO SECTION */}
-      <section className="bg-gradient-to-r from-amg-navy to-amg-navy-950 text-white border-b border-amg-navy-900 py-12 px-4 sm:px-6">
-        <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
-          <div className="lg:col-span-8 space-y-4">
-            <div className="inline-flex items-center space-x-2 bg-amg-navy-700/60 border border-amg-navy-400/30 px-3 py-1 rounded-sm text-xs font-semibold text-slate-200">
-              <span className="w-2 h-2 bg-amg-red rounded-none inline-block animate-pulse" />
-              <span>AMG Holdings Digital Transformation Baseline</span>
-              <span className="text-slate-400">|</span>
-              <span className="text-amg-red-300">Dual-Stream Architecture</span>
+    <div className="space-y-12 pb-20 bg-[#FAFAFA]">
+      {/* 1. BENTO SHOWCASE HERO SECTION */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 pt-6">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-5">
+          {/* Bento Cell 1: Main Dark Narrative Card (8 cols) */}
+          <div className="lg:col-span-8 bg-[#0B0B0C] text-white rounded-3xl p-8 sm:p-10 flex flex-col justify-between border border-[#1A1A1D] shadow-xl relative overflow-hidden group">
+            {/* Subtle Lime Ambient Glow */}
+            <div className="absolute -top-24 -right-24 w-96 h-96 bg-[#C6F432]/10 rounded-full blur-3xl pointer-events-none group-hover:bg-[#C6F432]/15 transition-all duration-700" />
+
+            <div className="space-y-5 relative z-10">
+              <div className="inline-flex items-center space-x-2 px-3 py-1 bg-[#1A1A1D] border border-[#2A2A2E] rounded-full text-xs font-medium text-[#E4E4E7]">
+                <span className="w-2 h-2 rounded-full bg-[#C6F432] inline-block shadow-[0_0_8px_#C6F432]" />
+                <span className="font-sans font-semibold tracking-wide">AMG Holdings Digital Procurement</span>
+                <span className="text-[#52525B]">|</span>
+                <span className="text-[#C6F432] font-semibold">Dual-Stream Baseline</span>
+              </div>
+
+              <h1 className="text-3xl sm:text-5xl font-serif font-black tracking-tight leading-[1.15] text-white max-w-2xl">
+                Heavy Engineering &amp; Commercial Materials, Delivered with Elegance.
+              </h1>
+
+              <p className="text-sm sm:text-base text-[#A1A1AA] max-w-xl font-sans leading-relaxed">
+                Procure certified ASTM steel, roofing systems, heavy fleet logistics, industrial gases, and specialty coffee. Instant digital ordering or direct sales engineer quotation under verified CBE bank settlement.
+              </p>
             </div>
 
-            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight text-white leading-tight">
-              Enterprise Procurement & Heavy Engineering Portal
-            </h1>
-
-            <p className="text-sm sm:text-base text-slate-300 max-w-2xl leading-relaxed">
-              Bringing the market directly to Ethiopian builders, fleet operators, and industrial enterprises. Procure standard construction products with instant digital settlement or submit custom engineering specifications for agent review.
-            </p>
-
-            {/* Dual Stream Action Buttons */}
-            <div className="flex flex-wrap gap-3 pt-2">
+            {/* Action Bar */}
+            <div className="pt-8 flex flex-wrap items-center gap-3 relative z-10">
               <button
                 type="button"
                 onClick={() => {
@@ -136,125 +142,141 @@ function HomePageContent() {
                   const el = document.getElementById('catalog-section');
                   el?.scrollIntoView({ behavior: 'smooth' });
                 }}
-                className="px-5 py-2.5 bg-amg-red hover:bg-red-800 text-white font-bold text-xs rounded-sm transition-all shadow-panel flex items-center space-x-2"
+                className="px-6 py-3 bg-[#C6F432] hover:bg-[#D7F860] text-[#0B0B0C] font-bold text-xs rounded-full transition-all flex items-center space-x-2 shadow-lg hover:shadow-[#C6F432]/20"
               >
-                <ShoppingCart className="w-4 h-4" />
-                <span>Stream A: Direct Digital Checkout</span>
+                <ShoppingCart className="w-4 h-4 text-[#0B0B0C]" />
+                <span>Shop Stream A (Direct Buy)</span>
               </button>
 
               <button
                 type="button"
                 onClick={() => openRfq()}
-                className="px-5 py-2.5 bg-white hover:bg-slate-100 text-amg-navy font-bold text-xs rounded-sm transition-all shadow-panel flex items-center space-x-2"
+                className="px-6 py-3 bg-[#141416] hover:bg-[#1A1A1D] text-white border border-[#2A2A2E] hover:border-[#C6F432]/40 font-semibold text-xs rounded-full transition-all flex items-center space-x-2"
               >
-                <FileText className="w-4 h-4 text-amg-red" />
-                <span>Stream B: Request Engineering RFQ</span>
+                <FileText className="w-4 h-4 text-[#C6F432]" />
+                <span>Request Custom Quote (RFQ)</span>
               </button>
             </div>
           </div>
 
-          {/* Right Metrics / Subsidiary Callout Card */}
-          <div className="lg:col-span-4 bg-amg-navy-900/90 border border-amg-navy-600/40 p-5 rounded-sm shadow-modal space-y-3.5 text-xs">
-            <div className="border-b border-amg-navy-700/80 pb-2">
-              <span className="text-[10px] uppercase font-mono tracking-wider text-slate-400 block">
-                Enterprise Operations
-              </span>
-              <h3 className="text-sm font-bold text-white">5 Specialized Sister Companies</h3>
+          {/* Bento Cell 2: Quick Metrics & Subsidiary Highlight (4 cols) */}
+          <div className="lg:col-span-4 bg-white rounded-3xl p-7 border border-[#E4E4E7] shadow-sm flex flex-col justify-between">
+            <div>
+              <div className="flex items-center justify-between pb-3 border-b border-[#F4F4F5]">
+                <span className="text-[11px] font-bold uppercase tracking-wider text-[#71717A]">
+                  Consortium Operations
+                </span>
+                <span className="px-2 py-0.5 bg-[#F4F4F5] text-[#0B0B0C] text-[10px] font-bold rounded-full">
+                  5 Sister Companies
+                </span>
+              </div>
+
+              <div className="divide-y divide-[#F4F4F5] text-xs pt-2">
+                <div className="py-2.5 flex items-center justify-between">
+                  <span className="font-medium text-[#27272A]">Structural Steel &amp; PEB</span>
+                  <span className="font-mono text-[11px] font-bold text-[#0B0B0C] bg-[#FAFAFA] px-2 py-0.5 rounded border border-[#E4E4E7]">Grade S355JR</span>
+                </div>
+                <div className="py-2.5 flex items-center justify-between">
+                  <span className="font-medium text-[#27272A]">Ethio &amp; Adama Roofing</span>
+                  <span className="font-mono text-[11px] font-bold text-[#0B0B0C] bg-[#FAFAFA] px-2 py-0.5 rounded border border-[#E4E4E7]">0.40mm - 20Yr</span>
+                </div>
+                <div className="py-2.5 flex items-center justify-between">
+                  <span className="font-medium text-[#27272A]">Sinotruk Prime Movers</span>
+                  <span className="font-mono text-[11px] font-bold text-[#0B0B0C] bg-[#FAFAFA] px-2 py-0.5 rounded border border-[#E4E4E7]">420HP Euro-III</span>
+                </div>
+                <div className="py-2.5 flex items-center justify-between">
+                  <span className="font-medium text-[#27272A]">Industrial Cryogenic LOX</span>
+                  <span className="font-mono text-[11px] font-bold text-[#0B0B0C] bg-[#FAFAFA] px-2 py-0.5 rounded border border-[#E4E4E7]">99.6% Purity</span>
+                </div>
+                <div className="py-2.5 flex items-center justify-between">
+                  <span className="font-medium text-[#27272A]">Specialty Arabica Coffee</span>
+                  <span className="font-mono text-[11px] font-bold text-[#0B0B0C] bg-[#FAFAFA] px-2 py-0.5 rounded border border-[#E4E4E7]">88.5 SCA Cup</span>
+                </div>
+              </div>
             </div>
 
-            <div className="space-y-2 text-slate-300 text-[11px]">
-              <div className="flex justify-between items-center py-1 border-b border-amg-navy-800/80">
-                <span className="font-medium">Heavy Steel & PEB Buildings</span>
-                <span className="font-mono text-emerald-400 font-bold">Grade S355JR</span>
-              </div>
-              <div className="flex justify-between items-center py-1 border-b border-amg-navy-800/80">
-                <span className="font-medium">Roofing Sheets & Valleys</span>
-                <span className="font-mono text-emerald-400 font-bold">20-Yr Warranty</span>
-              </div>
-              <div className="flex justify-between items-center py-1 border-b border-amg-navy-800/80">
-                <span className="font-medium">Sinotruk Heavy Commercial Fleets</span>
-                <span className="font-mono text-emerald-400 font-bold">420HP Euro-III</span>
-              </div>
-              <div className="flex justify-between items-center py-1 border-b border-amg-navy-800/80">
-                <span className="font-medium">Medical / Industrial Gases & Lubes</span>
-                <span className="font-mono text-emerald-400 font-bold">99.6% Cryo LOX</span>
-              </div>
-              <div className="flex justify-between items-center py-1">
-                <span className="font-medium">AMG Specialty Arabica Coffee</span>
-                <span className="font-mono text-emerald-400 font-bold">88.5 SCA Cup</span>
-              </div>
-            </div>
-
-            <div className="pt-2 border-t border-amg-navy-700/80 flex items-center justify-between text-[11px] text-slate-400">
-              <span className="flex items-center space-x-1">
-                <Shield className="w-3.5 h-3.5 text-amg-red" />
-                <span>OWASP & PCI-DSS Compliant</span>
+            <div className="mt-4 pt-3 border-t border-[#F4F4F5] flex items-center justify-between text-[11px] text-[#71717A]">
+              <span className="flex items-center space-x-1.5 text-[#0B0B0C] font-medium">
+                <Shield className="w-3.5 h-3.5 text-[#0B0B0C]" />
+                <span>CBE FT Verified Rail</span>
               </span>
-              <span className="font-mono text-white font-semibold">4 Regional Hubs</span>
+              <span className="font-semibold text-[#0B0B0C]">4 Regional Hubs</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Bento Row 2: Secondary Quick-Access Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-5 mt-5">
+          {/* Card 1: Direct Order Stream A */}
+          <div className="bg-white rounded-3xl p-6 border border-[#E4E4E7] shadow-xs hover:border-[#0B0B0C] transition-all flex flex-col justify-between">
+            <div className="space-y-2">
+              <div className="w-10 h-10 rounded-2xl bg-[#0B0B0C] flex items-center justify-center text-[#C6F432]">
+                <ShoppingCart className="w-5 h-5" />
+              </div>
+              <h3 className="font-serif font-bold text-base text-[#0B0B0C]">Stream A: Direct Digital Buy</h3>
+              <p className="text-xs text-[#71717A] leading-relaxed">
+                Standardized construction materials, roofing sheets, fasteners, lubricants, and packaged coffee with real-time depot reservations.
+              </p>
+            </div>
+            <div className="pt-4 flex items-center justify-between text-xs font-semibold text-[#0B0B0C]">
+              <span>Instant checkout</span>
+              <ArrowRight className="w-4 h-4 text-[#0B0B0C]" />
+            </div>
+          </div>
+
+          {/* Card 2: Custom Quotation Stream B */}
+          <div className="bg-white rounded-3xl p-6 border border-[#E4E4E7] shadow-xs hover:border-[#0B0B0C] transition-all flex flex-col justify-between">
+            <div className="space-y-2">
+              <div className="w-10 h-10 rounded-2xl bg-[#C6F432] flex items-center justify-center text-[#0B0B0C]">
+                <FileText className="w-5 h-5" />
+              </div>
+              <h3 className="font-serif font-bold text-base text-[#0B0B0C]">Stream B: Engineering RFQ</h3>
+              <p className="text-xs text-[#71717A] leading-relaxed">
+                Capital projects, custom PEB columns, Sinotruk tankers, and bulk gas cylinders priced by dedicated sales engineers with proforma invoices.
+              </p>
+            </div>
+            <div className="pt-4 flex items-center justify-between text-xs font-semibold text-[#0B0B0C]">
+              <span>Agent assisted</span>
+              <ArrowRight className="w-4 h-4 text-[#0B0B0C]" />
+            </div>
+          </div>
+
+          {/* Card 3: Regional Depots & Logistics */}
+          <div className="bg-[#0B0B0C] text-white rounded-3xl p-6 border border-[#1A1A1D] shadow-xs flex flex-col justify-between">
+            <div className="space-y-2">
+              <div className="w-10 h-10 rounded-2xl bg-[#1A1A1D] flex items-center justify-center text-[#C6F432]">
+                <Truck className="w-5 h-5" />
+              </div>
+              <h3 className="font-serif font-bold text-base text-white">Regional Depot Clearance</h3>
+              <p className="text-xs text-[#A1A1AA] leading-relaxed">
+                Physical branch pickup or enterprise delivery across Addis Ababa HQ, Adama manufacturing plant, Hawassa, and Dire Dawa.
+              </p>
+            </div>
+            <div className="pt-4 flex items-center justify-between text-xs font-semibold text-[#C6F432]">
+              <span>Check branch stock</span>
+              <ArrowRight className="w-4 h-4 text-[#C6F432]" />
             </div>
           </div>
         </div>
       </section>
 
-      {/* 2. DUAL ARCHITECTURE EXPLANATION CALLOUT */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {/* Stream A Card */}
-          <div className="border border-slate-300 bg-white p-5 rounded-sm shadow-crisp space-y-2">
-            <div className="flex items-center space-x-2">
-              <span className="px-2 py-0.5 bg-amg-navy text-white text-[10px] font-bold uppercase rounded-sm">
-                Stream A
-              </span>
-              <h3 className="text-sm font-bold text-slate-900">
-                Direct Self-Service Digital Commerce
-              </h3>
-            </div>
-            <p className="text-xs text-slate-600 leading-relaxed">
-              Standardized catalog-fixed inventory: Ethio roofing sheets, ASTM A615 Grade 60 steel rebars, fasteners, industrial lubricants, and packaged Arabica coffee. Instant order placement with Telebirr, CBE Birr, Chapa, or bank wire without sales agent intervention.
-            </p>
-            <div className="text-[11px] font-mono text-amg-navy font-semibold flex items-center space-x-1 pt-1">
-              <Check className="w-3.5 h-3.5 text-emerald-600" />
-              <span>Real-time branch inventory reservation • 30-min checkout hold</span>
-            </div>
-          </div>
-
-          {/* Stream B Card */}
-          <div className="border border-slate-300 bg-white p-5 rounded-sm shadow-crisp space-y-2">
-            <div className="flex items-center space-x-2">
-              <span className="px-2 py-0.5 bg-amg-red text-white text-[10px] font-bold uppercase rounded-sm">
-                Stream B
-              </span>
-              <h3 className="text-sm font-bold text-slate-900">
-                Agent-Assisted Custom Quotation (RFQ)
-              </h3>
-            </div>
-            <p className="text-xs text-slate-600 leading-relaxed">
-              Complex capital engineering products: Pre-engineered steel buildings (PEB), custom columns/rafters, Sinotruk commercial transport prime movers, 45,000L tankers, and bulk cryogenic liquid gases. Dedicated sales engineers apply volume discounts and project pricing matrices.
-            </p>
-            <div className="text-[11px] font-mono text-amg-red font-semibold flex items-center space-x-1 pt-1">
-              <Check className="w-3.5 h-3.5 text-amg-red" />
-              <span>Technical drawing review • Multi-tier volume discounts • Escalated SLA</span>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* 3. CATALOG FILTER CONTROLS (GRAINGER / ALIBABA STYLE) */}
-      <section id="catalog-section" className="max-w-7xl mx-auto px-4 sm:px-6 space-y-4">
-        <div className="flex flex-col lg:flex-row lg:items-center justify-between border-b border-slate-300 pb-3 gap-3">
+      {/* 2. CATALOG & BENTO FILTER CONTROLS */}
+      <section id="catalog-section" className="max-w-7xl mx-auto px-4 sm:px-6 space-y-6">
+        {/* Header & Controls Bar */}
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between border-b border-[#E4E4E7] pb-5 gap-4">
           <div>
-            <h2 className="text-xl font-extrabold text-slate-900 tracking-tight">
-              Enterprise Catalog & Technical Specifications
+            <h2 className="text-2xl sm:text-3xl font-serif font-bold text-[#0B0B0C] tracking-tight">
+              Enterprise Catalog &amp; Technical Products
             </h2>
-            <p className="text-xs text-slate-500">
+            <p className="text-xs text-[#71717A] mt-1 font-sans">
               Showing {filteredProducts.length} verified industrial product lines across AMG Holdings
             </p>
           </div>
 
           <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
             {/* Live In-Catalog Search Bar */}
-            <div className="relative min-w-[240px] sm:w-64">
-              <Search className="w-4 h-4 text-slate-400 absolute left-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+            <div className="relative min-w-[240px] sm:w-72">
+              <Search className="w-4 h-4 text-[#71717A] absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
               <input
                 type="text"
                 value={catalogSearch}
@@ -271,7 +293,7 @@ function HomePageContent() {
                   window.history.replaceState({}, '', qs ? `/?${qs}#catalog-section` : '/#catalog-section');
                 }}
                 placeholder="Filter by SKU, steel, gauge..."
-                className="w-full pl-8 pr-7 py-1.5 text-xs border border-slate-300 rounded-sm bg-white focus:outline-none focus:border-amg-navy focus:ring-1 focus:ring-amg-navy placeholder-slate-400"
+                className="w-full pl-9 pr-8 py-2 text-xs border border-[#E4E4E7] rounded-full bg-white focus:outline-none focus:border-[#0B0B0C] focus:ring-2 focus:ring-[#C6F432]/30 placeholder-[#A1A1AA] text-[#0B0B0C]"
               />
               {catalogSearch && (
                 <button
@@ -283,7 +305,7 @@ function HomePageContent() {
                     const qs = params.toString();
                     window.history.replaceState({}, '', qs ? `/?${qs}#catalog-section` : '/#catalog-section');
                   }}
-                  className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-[#71717A] hover:text-[#0B0B0C]"
                   title="Clear search"
                 >
                   <X className="w-3.5 h-3.5" />
@@ -292,58 +314,53 @@ function HomePageContent() {
             </div>
 
             {/* Stream Filter Pills */}
-            <div className="flex items-center space-x-2 shrink-0">
-              <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider hidden md:inline">
-                Stream:
-              </span>
-              <div className="inline-flex bg-slate-200 p-0.5 rounded-sm border border-slate-300 text-xs">
-                <button
-                  type="button"
-                  onClick={() => setSelectedStream('all')}
-                  className={`px-3 py-1 font-semibold rounded-sm transition-all ${
-                    selectedStream === 'all'
-                      ? 'bg-white text-slate-900 shadow-sm'
-                      : 'text-slate-600 hover:text-slate-900'
-                  }`}
-                >
-                  All
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setSelectedStream('direct_checkout')}
-                  className={`px-3 py-1 font-semibold rounded-sm transition-all ${
-                    selectedStream === 'direct_checkout'
-                      ? 'bg-amg-navy text-white shadow-sm'
-                      : 'text-slate-600 hover:text-slate-900'
-                  }`}
-                >
-                  Stream A (Instant)
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setSelectedStream('assisted_quote')}
-                  className={`px-3 py-1 font-semibold rounded-sm transition-all ${
-                    selectedStream === 'assisted_quote'
-                      ? 'bg-amg-red text-white shadow-sm'
-                      : 'text-slate-600 hover:text-slate-900'
-                  }`}
-                >
-                  Stream B (RFQ)
-                </button>
-              </div>
+            <div className="inline-flex bg-[#F4F4F5] p-1 rounded-full border border-[#E4E4E7] text-xs">
+              <button
+                type="button"
+                onClick={() => setSelectedStream('all')}
+                className={`px-3.5 py-1.5 font-semibold rounded-full transition-all ${
+                  selectedStream === 'all'
+                    ? 'bg-white text-[#0B0B0C] shadow-xs'
+                    : 'text-[#71717A] hover:text-[#0B0B0C]'
+                }`}
+              >
+                All
+              </button>
+              <button
+                type="button"
+                onClick={() => setSelectedStream('direct_checkout')}
+                className={`px-3.5 py-1.5 font-semibold rounded-full transition-all ${
+                  selectedStream === 'direct_checkout'
+                    ? 'bg-[#0B0B0C] text-[#C6F432] shadow-xs'
+                    : 'text-[#71717A] hover:text-[#0B0B0C]'
+                }`}
+              >
+                Stream A (Direct)
+              </button>
+              <button
+                type="button"
+                onClick={() => setSelectedStream('assisted_quote')}
+                className={`px-3.5 py-1.5 font-semibold rounded-full transition-all ${
+                  selectedStream === 'assisted_quote'
+                    ? 'bg-[#0B0B0C] text-white shadow-xs'
+                    : 'text-[#71717A] hover:text-[#0B0B0C]'
+                }`}
+              >
+                Stream B (RFQ)
+              </button>
             </div>
           </div>
         </div>
 
         {/* Subsidiary Filter Chips */}
-        <div className="flex flex-wrap gap-2 pt-1">
+        <div className="flex flex-wrap gap-2">
           <button
             type="button"
             onClick={() => setSelectedSubsidiary('all')}
-            className={`px-3 py-1.5 text-xs font-semibold rounded-sm border transition-all ${
+            className={`px-4 py-2 text-xs font-semibold rounded-full border transition-all ${
               selectedSubsidiary === 'all'
-                ? 'border-amg-navy bg-amg-navy text-white'
-                : 'border-slate-300 bg-white text-slate-700 hover:border-slate-400'
+                ? 'border-[#0B0B0C] bg-[#0B0B0C] text-white shadow-xs'
+                : 'border-[#E4E4E7] bg-white text-[#27272A] hover:border-[#0B0B0C]'
             }`}
           >
             All 5 Subsidiaries
@@ -353,10 +370,10 @@ function HomePageContent() {
               key={sub.id}
               type="button"
               onClick={() => setSelectedSubsidiary(sub.id)}
-              className={`px-3 py-1.5 text-xs font-semibold rounded-sm border transition-all ${
+              className={`px-4 py-2 text-xs font-semibold rounded-full border transition-all ${
                 selectedSubsidiary === sub.id
-                  ? 'border-amg-navy bg-amg-navy text-white'
-                  : 'border-slate-300 bg-white text-slate-700 hover:border-slate-400'
+                  ? 'border-[#0B0B0C] bg-[#0B0B0C] text-white shadow-xs'
+                  : 'border-[#E4E4E7] bg-white text-[#27272A] hover:border-[#0B0B0C]'
               }`}
             >
               {sub.name}
@@ -366,13 +383,13 @@ function HomePageContent() {
 
         {/* Active Filter Notice & Reset Banner */}
         {(selectedSubsidiary !== 'all' || selectedStream !== 'all' || catalogSearch.trim() !== '') && (
-          <div className="bg-amg-navy-50 border border-amg-navy-200 px-4 py-2.5 rounded-sm flex flex-col sm:flex-row sm:items-center justify-between text-xs gap-2">
+          <div className="bg-white border border-[#E4E4E7] px-5 py-3 rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between text-xs gap-3 shadow-xs">
             <div className="flex flex-wrap items-center gap-2">
-              <span className="font-bold uppercase tracking-wider text-[10px] bg-amg-navy text-white px-2 py-0.5 rounded-xs">
-                Active Filter:
+              <span className="font-bold uppercase tracking-wider text-[10px] bg-[#0B0B0C] text-[#C6F432] px-2.5 py-1 rounded-full">
+                Active Filter
               </span>
               {catalogSearch.trim() && (
-                <span className="inline-flex items-center space-x-1.5 px-2 py-0.5 bg-white border border-amg-navy-300 rounded-sm font-semibold text-amg-navy text-xs shadow-2xs">
+                <span className="inline-flex items-center space-x-1.5 px-3 py-1 bg-[#F4F4F5] border border-[#E4E4E7] rounded-full font-semibold text-[#0B0B0C] text-xs">
                   <span>Query: &ldquo;{catalogSearch}&rdquo;</span>
                   <button
                     type="button"
@@ -383,27 +400,27 @@ function HomePageContent() {
                       const qs = params.toString();
                       window.history.replaceState({}, '', qs ? `/?${qs}#catalog-section` : '/#catalog-section');
                     }}
-                    className="text-slate-400 hover:text-amg-red transition-colors"
+                    className="text-[#71717A] hover:text-[#0B0B0C] transition-colors"
                     title="Clear search query"
                   >
                     <X className="w-3 h-3" />
                   </button>
                 </span>
               )}
-              <span className="font-bold text-amg-navy">
+              <span className="font-bold text-[#0B0B0C]">
                 {selectedSubsidiary !== 'all'
                   ? SUBSIDIARIES.find((s) => s.id === selectedSubsidiary)?.name || 'Filtered Subsidiary'
                   : 'All 5 Subsidiaries'}
               </span>
-              <span className="text-slate-400">•</span>
-              <span className="font-semibold text-slate-700">
+              <span className="text-[#D4D4D8]">•</span>
+              <span className="font-medium text-[#71717A]">
                 {selectedStream === 'direct_checkout'
                   ? 'Stream A: Instant Buy'
                   : selectedStream === 'assisted_quote'
                   ? 'Stream B: RFQ Required'
                   : 'All Transaction Streams'}
               </span>
-              <span className="text-slate-500 font-mono text-[11px]">
+              <span className="text-[#71717A] font-mono text-[11px]">
                 ({filteredProducts.length} items found)
               </span>
             </div>
@@ -415,187 +432,194 @@ function HomePageContent() {
                 setCatalogSearch('');
                 window.history.pushState({}, '', '/#catalog-section');
               }}
-              className="font-bold text-amg-red hover:text-red-800 text-xs flex items-center space-x-1 shrink-0 self-start sm:self-auto"
+              className="font-bold text-[#0B0B0C] hover:text-[#71717A] text-xs flex items-center space-x-1 shrink-0"
             >
-              <X className="w-3.5 h-3.5" />
+              <X className="w-3.5 h-3.5 text-[#0B0B0C]" />
               <span>Reset All Filters</span>
             </button>
           </div>
         )}
 
-        {/* 4. PRODUCT GRID (HIGH INFORMATION DENSITY, GRAINGER-STYLE SPECIFICATION CARDS) */}
+        {/* 3. PRODUCT BENTO GRID (FRIENDLY E-COMMERCE CARDS) */}
         {filteredProducts.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 pt-2">
-          {filteredProducts.map((product) => {
-            const isStreamA = product.transactionStream === 'direct_checkout';
-            const isExpanded = expandedSpecsId === product.id;
+            {filteredProducts.map((product) => {
+              const isStreamA = product.transactionStream === 'direct_checkout';
+              const isExpanded = expandedSpecsId === product.id;
 
-            return (
-              <div
-                key={product.id}
-                className="bg-white border border-slate-300 rounded-sm shadow-crisp hover:shadow-panel transition-all flex flex-col justify-between overflow-hidden"
-              >
-                <div>
-                  {/* Image & Header Badge Bar */}
-                  <Link href={`/products/${product.slug}`} className="block relative h-48 bg-slate-100 border-b border-slate-200 overflow-hidden group">
-                    <img
-                      src={product.imageUrl}
-                      alt={product.name}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                    />
-                    <div className="absolute top-2 left-2 flex flex-col gap-1">
-                      <span
-                        className={`px-2 py-0.5 text-[10px] font-extrabold uppercase tracking-wider rounded-sm text-white ${
-                          isStreamA ? 'bg-amg-navy' : 'bg-amg-red'
-                        }`}
-                      >
-                        {isStreamA ? 'Stream A: Instant Buy' : 'Stream B: RFQ Required'}
-                      </span>
-                    </div>
-
-                    <div className="absolute top-2 right-2">
-                      <span className="bg-slate-900/80 backdrop-blur-sm text-white text-[10px] font-mono px-2 py-0.5 rounded-sm">
-                        SKU: {product.sku}
-                      </span>
-                    </div>
-                  </Link>
-
-                  {/* Body Content */}
-                  <div className="p-4 space-y-3">
-                    <div>
-                      <div className="text-[11px] font-semibold text-amg-navy uppercase tracking-wider">
-                        {product.subsidiaryName}
+              return (
+                <div
+                  key={product.id}
+                  className="bg-white border border-[#E4E4E7] rounded-3xl shadow-xs hover:shadow-xl hover:border-[#0B0B0C] transition-all duration-300 flex flex-col justify-between overflow-hidden group"
+                >
+                  <div>
+                    {/* Image & Header Badge Bar */}
+                    <Link
+                      href={`/products/${product.slug}`}
+                      className="block relative h-56 bg-[#F4F4F5] overflow-hidden"
+                    >
+                      <img
+                        src={product.imageUrl}
+                        alt={product.name}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                      />
+                      <div className="absolute top-3.5 left-3.5 flex flex-col gap-1.5">
+                        <span
+                          className={`px-3 py-1 text-[10px] font-bold uppercase tracking-wider rounded-full shadow-xs ${
+                            isStreamA
+                              ? 'bg-[#0B0B0C] text-[#C6F432]'
+                              : 'bg-white text-[#0B0B0C] border border-[#E4E4E7]'
+                          }`}
+                        >
+                          {isStreamA ? 'Stream A: Instant Buy' : 'Stream B: RFQ Required'}
+                        </span>
                       </div>
-                      <Link href={`/products/${product.slug}`}>
-                        <h3 className="text-sm font-bold text-slate-900 leading-snug line-clamp-2 mt-0.5 hover:text-amg-navy hover:underline transition-colors">
-                          {product.name}
-                        </h3>
-                      </Link>
-                    </div>
 
-                    <p className="text-xs text-slate-600 line-clamp-2 leading-relaxed">
-                      {product.description}
-                    </p>
+                      <div className="absolute top-3.5 right-3.5">
+                        <span className="bg-[#0B0B0C]/80 backdrop-blur-md text-white text-[10px] font-mono font-medium px-2.5 py-1 rounded-full">
+                          {product.sku}
+                        </span>
+                      </div>
+                    </Link>
 
-                    {/* Pricing / MOQ Display */}
-                    <div className="bg-slate-50 border border-slate-200 p-2.5 rounded-sm flex items-center justify-between">
-                      {isStreamA ? (
-                        <div>
-                          <div className="text-[10px] uppercase font-bold text-slate-500">
-                            Unit Price (Excl. VAT)
+                    {/* Body Content */}
+                    <div className="p-6 space-y-4">
+                      <div>
+                        <div className="text-[11px] font-bold text-[#71717A] uppercase tracking-wider">
+                          {product.subsidiaryName}
+                        </div>
+                        <Link href={`/products/${product.slug}`}>
+                          <h3 className="font-serif font-bold text-lg text-[#0B0B0C] leading-snug line-clamp-2 mt-1 hover:text-[#71717A] transition-colors">
+                            {product.name}
+                          </h3>
+                        </Link>
+                      </div>
+
+                      <p className="text-xs text-[#71717A] line-clamp-2 leading-relaxed">
+                        {product.description}
+                      </p>
+
+                      {/* Pricing / MOQ Display */}
+                      <div className="bg-[#FAFAFA] border border-[#E4E4E7] p-3.5 rounded-2xl flex items-center justify-between">
+                        {isStreamA ? (
+                          <div>
+                            <div className="text-[10px] uppercase font-bold text-[#71717A]">
+                              Unit Price (Excl. VAT)
+                            </div>
+                            <div className="text-base font-bold font-mono text-[#0B0B0C]">
+                              ETB {product.unitPriceEtb.toLocaleString('en-US', { minimumFractionDigits: 2 })}
+                              <span className="text-xs font-normal text-[#71717A]"> / {product.unitMeasurement}</span>
+                            </div>
                           </div>
-                          <div className="text-base font-extrabold font-mono text-amg-navy">
-                            ETB {product.unitPriceEtb.toLocaleString('en-US', { minimumFractionDigits: 2 })}
-                            <span className="text-xs font-normal text-slate-500"> / {product.unitMeasurement}</span>
+                        ) : (
+                          <div>
+                            <div className="text-[10px] uppercase font-bold text-[#71717A]">
+                              Pricing Matrix
+                            </div>
+                            <div className="text-xs font-bold text-[#0B0B0C]">
+                              Custom Agent Quotation
+                            </div>
+                          </div>
+                        )}
+
+                        <div className="text-right">
+                          <div className="text-[10px] uppercase font-bold text-[#71717A]">
+                            Min. Order
+                          </div>
+                          <div className="text-xs font-mono font-bold text-[#0B0B0C]">
+                            {product.moq} {product.unitMeasurement}
                           </div>
                         </div>
-                      ) : (
-                        <div>
-                          <div className="text-[10px] uppercase font-bold text-slate-500">
-                            Pricing Matrix
+                      </div>
+
+                      {/* Stock / Regional Branch Availability */}
+                      {product.stockSummary && (
+                        <div className="text-[11px] border-t border-[#F4F4F5] pt-3 space-y-1">
+                          <div className="font-semibold text-[#27272A] flex items-center justify-between">
+                            <span className="flex items-center space-x-1.5">
+                              <Building2 className="w-3.5 h-3.5 text-[#71717A]" />
+                              <span>Branch Stock:</span>
+                            </span>
+                            <span className="font-mono text-[#0B0B0C] font-bold bg-[#F4F4F5] px-2 py-0.5 rounded-full">
+                              {product.stockSummary.totalOnHand} {product.unitMeasurement} On-Hand
+                            </span>
                           </div>
-                          <div className="text-sm font-extrabold text-amg-red">
-                            Custom Quotation by Engineering Agent
+                          <div className="text-[10px] text-[#71717A] space-y-0.5 pt-1">
+                            {product.stockSummary.branches.map((b, idx) => (
+                              <div key={idx} className="flex justify-between font-mono">
+                                <span>{b.branchName}:</span>
+                                <span className="text-[#0B0B0C] font-semibold">{b.quantity} {product.unitMeasurement}</span>
+                              </div>
+                            ))}
                           </div>
                         </div>
                       )}
 
-                      <div className="text-right">
-                        <div className="text-[10px] uppercase font-bold text-slate-500">
-                          Min. Order (MOQ)
-                        </div>
-                        <div className="text-xs font-mono font-bold text-slate-800">
-                          {product.moq} {product.unitMeasurement}
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Stock / Regional Branch Availability */}
-                    {product.stockSummary && (
-                      <div className="text-[11px] border-t border-slate-200 pt-2 space-y-1">
-                        <div className="font-semibold text-slate-700 flex items-center justify-between">
-                          <span className="flex items-center space-x-1">
-                            <Building2 className="w-3.5 h-3.5 text-slate-500" />
-                            <span>Branch Stock:</span>
+                      {/* Technical Specifications Accordion */}
+                      <div className="border border-[#E4E4E7] rounded-2xl overflow-hidden text-xs">
+                        <button
+                          type="button"
+                          onClick={() => setExpandedSpecsId(isExpanded ? null : product.id)}
+                          className="w-full px-3.5 py-2 bg-[#FAFAFA] hover:bg-[#F4F4F5] text-[#27272A] font-semibold flex items-center justify-between transition-colors text-[11px]"
+                        >
+                          <span className="flex items-center space-x-1.5">
+                            <Info className="w-3.5 h-3.5 text-[#0B0B0C]" />
+                            <span>Technical Specifications</span>
                           </span>
-                          <span className="font-mono text-emerald-700 font-bold">
-                            {product.stockSummary.totalOnHand} {product.unitMeasurement} On-Hand
+                          <span className="text-[#71717A] font-mono text-[10px]">
+                            {isExpanded ? 'Hide ▲' : 'View ▼'}
                           </span>
-                        </div>
-                        <div className="text-[10px] text-slate-500 space-y-0.5">
-                          {product.stockSummary.branches.map((b, idx) => (
-                            <div key={idx} className="flex justify-between font-mono">
-                              <span>{b.branchName}:</span>
-                              <span className="text-slate-700 font-semibold">{b.quantity} {product.unitMeasurement}</span>
-                            </div>
-                          ))}
-                        </div>
+                        </button>
+
+                        {isExpanded && (
+                          <div className="p-3.5 bg-white divide-y divide-[#F4F4F5] text-[11px] font-mono">
+                            {Object.entries(product.technicalSpecs).map(([specKey, specVal]) => (
+                              <div key={specKey} className="py-1 flex justify-between gap-2">
+                                <span className="text-[#71717A]">{specKey}:</span>
+                                <span className="text-[#0B0B0C] font-semibold text-right">{specVal}</span>
+                              </div>
+                            ))}
+                          </div>
+                        )}
                       </div>
-                    )}
-
-                    {/* Grainger-style Technical Data Sheet Table Accordion */}
-                    <div className="border border-slate-200 rounded-sm overflow-hidden text-xs">
-                      <button
-                        type="button"
-                        onClick={() => setExpandedSpecsId(isExpanded ? null : product.id)}
-                        className="w-full px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold flex items-center justify-between transition-colors text-[11px]"
-                      >
-                        <span className="flex items-center space-x-1.5">
-                          <Info className="w-3.5 h-3.5 text-amg-navy" />
-                          <span>Technical Specifications Sheet</span>
-                        </span>
-                        <span className="text-slate-500 font-mono">
-                          {isExpanded ? 'Hide ▲' : 'View ▼'}
-                        </span>
-                      </button>
-
-                      {isExpanded && (
-                        <div className="p-3 bg-white divide-y divide-slate-100 text-[11px] font-mono">
-                          {Object.entries(product.technicalSpecs).map(([specKey, specVal]) => (
-                            <div key={specKey} className="py-1 flex justify-between gap-2">
-                              <span className="text-slate-500">{specKey}:</span>
-                              <span className="text-slate-900 font-semibold text-right">{specVal}</span>
-                            </div>
-                          ))}
-                        </div>
-                      )}
                     </div>
                   </div>
-                </div>
 
-                {/* Card Action Buttons */}
-                <div className="p-4 pt-0">
-                  {isStreamA ? (
-                    <button
-                      type="button"
-                      onClick={() => addToCart(product)}
-                      className="w-full py-2.5 bg-amg-navy hover:bg-amg-navy-900 text-white font-bold text-xs rounded-sm transition-colors flex items-center justify-center space-x-2 shadow-sm"
-                    >
-                      <ShoppingCart className="w-3.5 h-3.5" />
-                      <span>Add to Direct Cart (Instant Checkout)</span>
-                    </button>
-                  ) : (
-                    <button
-                      type="button"
-                      onClick={() => openRfq(product)}
-                      className="w-full py-2.5 bg-amg-red hover:bg-red-800 text-white font-bold text-xs rounded-sm transition-colors flex items-center justify-center space-x-2 shadow-sm"
-                    >
-                      <FileText className="w-3.5 h-3.5" />
-                      <span>Request Custom Engineering RFQ</span>
-                    </button>
-                  )}
+                  {/* Card Action Buttons */}
+                  <div className="p-6 pt-0">
+                    {isStreamA ? (
+                      <button
+                        type="button"
+                        onClick={() => addToCart(product)}
+                        className="w-full py-3 bg-[#0B0B0C] hover:bg-[#1A1A1D] text-white hover:text-[#C6F432] font-semibold text-xs rounded-full transition-all flex items-center justify-center space-x-2 shadow-sm"
+                      >
+                        <ShoppingCart className="w-4 h-4 text-[#C6F432]" />
+                        <span>Add to Direct Cart</span>
+                      </button>
+                    ) : (
+                      <button
+                        type="button"
+                        onClick={() => openRfq(product)}
+                        className="w-full py-3 bg-white hover:bg-[#0B0B0C] text-[#0B0B0C] hover:text-[#C6F432] border border-[#0B0B0C] font-semibold text-xs rounded-full transition-all flex items-center justify-center space-x-2 shadow-xs"
+                      >
+                        <FileText className="w-4 h-4" />
+                        <span>Request Custom Quotation</span>
+                      </button>
+                    )}
+                  </div>
                 </div>
-              </div>
-            );
-          })}
-        </div>
+              );
+            })}
+          </div>
         ) : (
-          <div className="bg-white border border-slate-300 rounded-sm p-12 text-center space-y-3">
-            <Layers className="w-8 h-8 text-slate-400 mx-auto" />
-            <h4 className="font-bold text-slate-900 text-sm">
+          <div className="bg-white border border-[#E4E4E7] rounded-3xl p-16 text-center space-y-4 shadow-xs">
+            <div className="w-12 h-12 bg-[#F4F4F5] rounded-full flex items-center justify-center mx-auto text-[#71717A]">
+              <Layers className="w-6 h-6" />
+            </div>
+            <h4 className="font-serif font-bold text-[#0B0B0C] text-lg">
               {catalogSearch ? `No products match "${catalogSearch}"` : 'No items found matching the selected filter'}
             </h4>
-            <p className="text-xs text-slate-500 max-w-md mx-auto">
+            <p className="text-xs text-[#71717A] max-w-md mx-auto">
               {catalogSearch
                 ? `Try searching with a different SKU (e.g. AMG-STL-001), standard (ASTM, S355JR), or reset your filters.`
                 : `There are currently no products under this specific subsidiary and transaction stream combination.`}
@@ -608,50 +632,50 @@ function HomePageContent() {
                 setCatalogSearch('');
                 window.history.pushState({}, '', '/#catalog-section');
               }}
-              className="px-4 py-2 bg-amg-navy hover:bg-amg-navy-900 text-white font-bold text-xs rounded-sm transition-colors"
+              className="px-6 py-2.5 bg-[#0B0B0C] hover:bg-[#1A1A1D] text-[#C6F432] font-bold text-xs rounded-full transition-colors"
             >
-              Reset Filters & Show All Products
+              Reset Filters &amp; Show All Products
             </button>
           </div>
         )}
       </section>
 
-      {/* 5. NATIONAL PAYMENT SWITCH & LOCAL SETTLEMENT BANNER */}
+      {/* 4. CBE BANK OF RECORD SETTLEMENT SECTION */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6">
-        <div className="bg-slate-900 text-white border border-slate-800 p-6 rounded-sm shadow-panel space-y-4">
-          <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-b border-slate-800 pb-4">
+        <div className="bg-[#0B0B0C] text-white rounded-3xl p-8 sm:p-10 border border-[#1A1A1D] shadow-xl space-y-6 relative overflow-hidden">
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-b border-[#1A1A1D] pb-6">
             <div>
-              <span className="text-[10px] font-bold uppercase tracking-wider text-amg-red font-mono">
-                Omnichannel Payment Infrastructure
+              <span className="text-[10px] font-bold uppercase tracking-wider text-[#C6F432] font-mono">
+                Official Settlement Architecture
               </span>
-              <h3 className="text-base font-extrabold text-white">
-                Integrated National Financial Switches & Mobile Money
+              <h3 className="text-xl sm:text-2xl font-serif font-bold text-white mt-1">
+                Commercial Bank of Ethiopia (CBE) Direct Verification
               </h3>
             </div>
-            <div className="text-xs text-slate-400">
-              Instant reconciliation via unique idempotency keys and asynchronous webhooks
+            <div className="text-xs text-[#A1A1AA] max-w-sm">
+              In accordance with AMG Holdings financial controls, orders and quotes settle via CBE bank transfer with Finance FT reference verification.
             </div>
           </div>
 
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-xs">
-            <div className="bg-slate-800/60 p-3 rounded-sm border border-slate-700/80 space-y-1">
-              <div className="font-bold text-white">Telebirr SuperApp</div>
-              <div className="text-[11px] text-slate-400">Direct mobile wallet STK push authorization & callback integration.</div>
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 text-xs">
+            <div className="bg-[#141416] p-5 rounded-2xl border border-[#222225] space-y-1.5">
+              <div className="font-serif font-bold text-white text-sm">1. Initiate Checkout</div>
+              <div className="text-[11px] text-[#A1A1AA]">Order is generated and stock is held in depot with unique reference.</div>
             </div>
 
-            <div className="bg-slate-800/60 p-3 rounded-sm border border-slate-700/80 space-y-1">
-              <div className="font-bold text-white">Commercial Bank CBE Birr</div>
-              <div className="text-[11px] text-slate-400">Direct clearing via CBE national digital core banking switch.</div>
+            <div className="bg-[#141416] p-5 rounded-2xl border border-[#222225] space-y-1.5">
+              <div className="font-serif font-bold text-white text-sm">2. CBE Transfer</div>
+              <div className="text-[11px] text-[#A1A1AA]">Transfer via CBE Mobile Banking, internet banking, or branch teller.</div>
             </div>
 
-            <div className="bg-slate-800/60 p-3 rounded-sm border border-slate-700/80 space-y-1">
-              <div className="font-bold text-white">Chapa Payment Switch</div>
-              <div className="text-[11px] text-slate-400">International Visa, Mastercard, and localized multi-bank gateways.</div>
+            <div className="bg-[#141416] p-5 rounded-2xl border border-[#222225] space-y-1.5">
+              <div className="font-serif font-bold text-white text-sm">3. Submit FT Code</div>
+              <div className="text-[11px] text-[#A1A1AA]">Paste bank FT transaction number in payment portal for verification.</div>
             </div>
 
-            <div className="bg-slate-800/60 p-3 rounded-sm border border-slate-700/80 space-y-1">
-              <div className="font-bold text-white">Direct Corporate Wire</div>
-              <div className="text-[11px] text-slate-400">RTGS bank transfer verified against ERCA electronic VAT ledgers.</div>
+            <div className="bg-[#141416] p-5 rounded-2xl border border-[#222225] space-y-1.5">
+              <div className="font-serif font-bold text-[#C6F432] text-sm">4. Finance Release</div>
+              <div className="text-[11px] text-[#A1A1AA]">Finance audits ledger, marks verified, and dispatches gate pass.</div>
             </div>
           </div>
         </div>
