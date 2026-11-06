@@ -35,6 +35,13 @@ function HomePageContent() {
   const [catalogSearch, setCatalogSearch] = useState<string>('');
   const [expandedSpecsId, setExpandedSpecsId] = useState<string | null>(null);
   const [quickViewProduct, setQuickViewProduct] = useState<Product | null>(null);
+  const [addedProductId, setAddedProductId] = useState<string | null>(null);
+
+  const handleAddToCartWithFeedback = (product: Product) => {
+    addToCart(product);
+    setAddedProductId(product.id);
+    setTimeout(() => setAddedProductId(null), 1800);
+  };
 
   // Sync state with URL search params and hash (e.g. from navbar or footer links)
   useEffect(() => {
@@ -704,11 +711,24 @@ function HomePageContent() {
                     {isStreamA ? (
                       <button
                         type="button"
-                        onClick={() => addToCart(product)}
-                        className="w-full py-3 bg-[#0B0B0C] dark:bg-[#C6F432] hover:bg-[#1A1A1D] dark:hover:bg-[#D7F860] text-white dark:text-[#0B0B0C] group-hover:bg-[#C6F432] group-hover:text-[#0B0B0C] font-semibold text-xs rounded-full transition-all duration-300 flex items-center justify-center space-x-2 shadow-sm group-hover:shadow-[0_10px_25px_-5px_rgba(198,244,50,0.35)]"
+                        onClick={() => handleAddToCartWithFeedback(product)}
+                        className={`w-full py-3 text-xs font-semibold rounded-full transition-all duration-300 flex items-center justify-center space-x-2 shadow-sm ${
+                          addedProductId === product.id
+                            ? 'bg-emerald-600 text-white shadow-emerald-500/20'
+                            : 'bg-[#0B0B0C] dark:bg-[#C6F432] hover:bg-[#1A1A1D] dark:hover:bg-[#D7F860] text-white dark:text-[#0B0B0C] group-hover:bg-[#C6F432] group-hover:text-[#0B0B0C] group-hover:shadow-[0_10px_25px_-5px_rgba(198,244,50,0.35)]'
+                        }`}
                       >
-                        <ShoppingCart className="w-4 h-4 text-[#C6F432] group-hover:text-[#0B0B0C] dark:text-[#0B0B0C] transition-colors" />
-                        <span>Add to Direct Cart</span>
+                        {addedProductId === product.id ? (
+                          <>
+                            <Check className="w-4 h-4 text-white" />
+                            <span className="font-bold">Added to Cart!</span>
+                          </>
+                        ) : (
+                          <>
+                            <ShoppingCart className="w-4 h-4 text-[#C6F432] group-hover:text-[#0B0B0C] dark:text-[#0B0B0C] transition-colors" />
+                            <span>Add to Direct Cart</span>
+                          </>
+                        )}
                       </button>
                     ) : (
                       <button

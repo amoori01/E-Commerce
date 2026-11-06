@@ -49,12 +49,8 @@ export function QuickViewModal({ product, isOpen, onClose }: QuickViewModalProps
   };
 
   const handleAddToCart = () => {
+    onClose();
     addToCart(product, effectiveQuantity);
-    setAddedNotice(true);
-    setTimeout(() => {
-      setAddedNotice(false);
-      onClose();
-    }, 1200);
   };
 
   const handleRfq = () => {

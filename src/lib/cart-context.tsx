@@ -103,10 +103,13 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     setItems((prev) =>
       prev.map((i) => {
         if (i.product.id === productId) {
-          const effectivePrice = getProductUnitPrice(i.product, quantity);
+          // Enforce MOQ minimums: wholesale items cannot be decremented below their packaging MOQ
+          const minAllowed = i.product.moq || 1;
+          const enforcedQuantity = Math.max(quantity, minAllowed);
+          const effectivePrice = getProductUnitPrice(i.product, enforcedQuantity);
           return {
             ...i,
-            quantity,
+            quantity: enforcedQuantity,
             appliedUnitPriceEtb: effectivePrice,
           };
         }

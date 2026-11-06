@@ -124,21 +124,42 @@ export function CartDrawer() {
 
                       <div className="flex items-center justify-between pt-2 border-t border-[#E4E4E7] dark:border-[#222225]">
                         <div className="flex items-center space-x-1.5">
-                          <button
-                            onClick={() => updateQuantity(product.id, quantity - 1)}
-                            className="w-7 h-7 border border-[#E4E4E7] dark:border-[#2A2A2E] bg-white dark:bg-[#1A1A1D] text-[#0B0B0C] dark:text-white font-bold rounded-lg flex items-center justify-center hover:bg-[#F4F4F5] dark:hover:bg-[#222225] text-xs transition-colors"
-                          >
-                            -
-                          </button>
-                          <span className="font-mono text-xs px-2 font-semibold">
-                            {quantity} {product.unitMeasurement}
-                          </span>
-                          <button
-                            onClick={() => updateQuantity(product.id, quantity + 1)}
-                            className="w-7 h-7 border border-[#E4E4E7] dark:border-[#2A2A2E] bg-white dark:bg-[#1A1A1D] text-[#0B0B0C] dark:text-white font-bold rounded-lg flex items-center justify-center hover:bg-[#F4F4F5] dark:hover:bg-[#222225] text-xs transition-colors"
-                          >
-                            +
-                          </button>
+                          {(() => {
+                            const isAtMoq = quantity <= (product.moq || 1);
+                            return (
+                              <>
+                                <button
+                                  type="button"
+                                  onClick={() => !isAtMoq && updateQuantity(product.id, quantity - 1)}
+                                  disabled={isAtMoq}
+                                  title={isAtMoq ? `Minimum order quantity is ${product.moq} ${product.unitMeasurement}s` : 'Decrease quantity'}
+                                  className={`w-7 h-7 border border-[#E4E4E7] dark:border-[#2A2A2E] text-[#0B0B0C] dark:text-white font-bold rounded-lg flex items-center justify-center text-xs transition-colors ${
+                                    isAtMoq
+                                      ? 'opacity-35 cursor-not-allowed bg-slate-100 dark:bg-[#141416]'
+                                      : 'bg-white dark:bg-[#1A1A1D] hover:bg-[#F4F4F5] dark:hover:bg-[#222225]'
+                                  }`}
+                                >
+                                  -
+                                </button>
+                                <span className="font-mono text-xs px-2 font-semibold">
+                                  {quantity} {product.unitMeasurement}
+                                </span>
+                                <button
+                                  type="button"
+                                  onClick={() => updateQuantity(product.id, quantity + 1)}
+                                  className="w-7 h-7 border border-[#E4E4E7] dark:border-[#2A2A2E] bg-white dark:bg-[#1A1A1D] text-[#0B0B0C] dark:text-white font-bold rounded-lg flex items-center justify-center hover:bg-[#F4F4F5] dark:hover:bg-[#222225] text-xs transition-colors"
+                                  title="Increase quantity"
+                                >
+                                  +
+                                </button>
+                                {product.moq > 1 && (
+                                  <span className="text-[10px] font-mono text-amber-500 font-semibold ml-1">
+                                    (MOQ: {product.moq})
+                                  </span>
+                                )}
+                              </>
+                            );
+                          })()}
                         </div>
 
                         <div className="text-right">

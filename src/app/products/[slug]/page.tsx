@@ -54,6 +54,7 @@ export default function ProductDetailPage({ params }: ProductPageProps) {
   const [selectedImage, setSelectedImage] = useState<string>(product.imageUrl);
   const [quantity, setQuantity] = useState<number>(product.moq || 1);
   const [downloadNotice, setDownloadNotice] = useState<string | null>(null);
+  const [isAdded, setIsAdded] = useState(false);
 
   const handleAddReview = (e: React.FormEvent) => {
     e.preventDefault();
@@ -350,11 +351,28 @@ export default function ProductDetailPage({ params }: ProductPageProps) {
                 <div className="flex gap-2">
                   <button
                     type="button"
-                    onClick={() => addToCart(product, quantity)}
-                    className="flex-1 py-3 bg-[#0B0B0C] dark:bg-[#C6F432] hover:bg-[#1A1A1D] dark:hover:bg-[#D7F860] text-white dark:text-[#0B0B0C] font-bold text-xs rounded-xl transition-colors flex items-center justify-center space-x-2 shadow-lg"
+                    onClick={() => {
+                      addToCart(product, quantity);
+                      setIsAdded(true);
+                      setTimeout(() => setIsAdded(false), 2000);
+                    }}
+                    className={`flex-1 py-3 font-bold text-xs rounded-xl transition-all flex items-center justify-center space-x-2 shadow-lg ${
+                      isAdded
+                        ? 'bg-emerald-600 text-white'
+                        : 'bg-[#0B0B0C] dark:bg-[#C6F432] hover:bg-[#1A1A1D] dark:hover:bg-[#D7F860] text-white dark:text-[#0B0B0C]'
+                    }`}
                   >
-                    <ShoppingCart className="w-4 h-4 text-[#C6F432] dark:text-[#0B0B0C]" />
-                    <span>Add {quantity} {product.unitMeasurement}s to Cart</span>
+                    {isAdded ? (
+                      <>
+                        <Check className="w-4 h-4 text-white" />
+                        <span>Added to Cart!</span>
+                      </>
+                    ) : (
+                      <>
+                        <ShoppingCart className="w-4 h-4 text-[#C6F432] dark:text-[#0B0B0C]" />
+                        <span>Add {quantity} {product.unitMeasurement}s to Cart</span>
+                      </>
+                    )}
                   </button>
                   <button
                     type="button"
