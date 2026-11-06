@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { INITIAL_ORDERS } from '@/lib/constants';
+import { getServerOrders, addServerOrder, findServerOrder } from '@/lib/server-orders';
+import { Order } from '@/types';
 
 // ====================================================================
 // CUSTOMER CBE FT REFERENCE SUBMISSION ENDPOINT
@@ -11,11 +13,12 @@ import { INITIAL_ORDERS } from '@/lib/constants';
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const { orderNumber, orderId, cbeFtReference, cbePayerAccount } = body as {
+    const { orderNumber, orderId, cbeFtReference, cbePayerAccount, order: clientOrder } = body as {
       orderNumber?: string;
       orderId?: string;
       cbeFtReference: string;
       cbePayerAccount?: string;
+      order?: Order;
     };
 
     if (!cbeFtReference || !cbeFtReference.trim()) {
@@ -25,9 +28,17 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const order = INITIAL_ORDERS.find(
-      (o) => (orderNumber && o.orderNumber === orderNumber) || (orderId && o.id === orderId)
-    );
+    let order =
+      findServerOrder(orderNumber) ||
+      findServerOrder(orderId) ||
+      INITIAL_ORDERS.find(
+        (o) => (orderNumber && o.orderNumber === orderNumber) || (orderId && o.id === orderId)
+      );
+
+    // If not found in server cache, restore from client order
+    if (!order && clientOrder) {
+      order = addServerOrder(clientOrder);
+    }
 
     if (!order) {
       return NextResponse.json({ error: 'Order not found' }, { status: 404 });
@@ -41,6 +52,9 @@ export async function POST(req: NextRequest) {
     order.status = 'payment_pending';
     order.paymentSubmittedAt = new Date().toISOString();
     order.paymentRejectionReason = undefined;
+
+    // Ensure it's saved in the shared repository
+    addServerOrder(order);
 
     return NextResponse.json({
       success: true,

@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { INITIAL_ORDERS } from '@/lib/constants';
+import { getServerOrders, addServerOrder, findServerOrder } from '@/lib/server-orders';
+import { Order } from '@/types';
 
 // ====================================================================
 // FINANCE VERIFICATION API ENDPOINT
@@ -17,15 +19,17 @@ export async function POST(req: NextRequest) {
       action, // 'approve' | 'reject'
       verifiedBy = 'Helen Girmachew (Finance Lead)',
       rejectionReason,
+      order: clientOrder,
     } = body as {
       orderId?: string;
       orderNumber?: string;
       action: 'approve' | 'reject';
       verifiedBy?: string;
       rejectionReason?: string;
+      order?: Order;
     };
 
-    if (!orderId && !orderNumber) {
+    if (!orderId && !orderNumber && !clientOrder) {
       return NextResponse.json(
         { error: 'Either orderId or orderNumber is required' },
         { status: 400 }
@@ -39,9 +43,18 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const order = INITIAL_ORDERS.find(
-      (o) => (orderId && o.id === orderId) || (orderNumber && o.orderNumber === orderNumber)
-    );
+    // Look up order in shared server repository
+    let order =
+      findServerOrder(orderId) ||
+      findServerOrder(orderNumber) ||
+      INITIAL_ORDERS.find(
+        (o) => (orderId && o.id === orderId) || (orderNumber && o.orderNumber === orderNumber)
+      );
+
+    // If order was passed from client localStorage or freshly created
+    if (!order && clientOrder) {
+      order = addServerOrder(clientOrder);
+    }
 
     if (!order) {
       return NextResponse.json({ error: 'Order not found' }, { status: 404 });

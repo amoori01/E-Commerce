@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { validateOrderTransition, recordOrderTransition } from '@/lib/state-machine';
 import { INITIAL_ORDERS } from '@/lib/constants';
-import { OrderStatus } from '@/types';
+import { getServerOrders, findServerOrder, addServerOrder } from '@/lib/server-orders';
+import { OrderStatus, Order } from '@/types';
 import { authenticateRequest, enforceAbac } from '@/lib/auth-guard';
 
 // ====================================================================
@@ -23,13 +24,17 @@ export async function PATCH(
     }
 
     const body = await req.json();
-    const { targetStatus, reason } = body as { targetStatus: OrderStatus; reason?: string };
+    const { targetStatus, reason, order: clientOrder } = body as { targetStatus: OrderStatus; reason?: string; order?: Order };
 
     if (!targetStatus) {
       return NextResponse.json({ error: 'targetStatus is required' }, { status: 400 });
     }
 
-    const order = INITIAL_ORDERS.find((o) => o.id === id || o.orderNumber === id);
+    let order = findServerOrder(id) || INITIAL_ORDERS.find((o) => o.id === id || o.orderNumber === id);
+    if (!order && clientOrder) {
+      order = addServerOrder(clientOrder);
+    }
+
     if (!order) {
       return NextResponse.json({ error: 'Order not found' }, { status: 404 });
     }

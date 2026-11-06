@@ -668,10 +668,21 @@ export default function CustomerPortalPage() {
                                 orderId: ord.id,
                                 orderNumber: ord.orderNumber,
                                 cbeFtReference: val,
+                                order: ord,
                               }),
                             });
                             const data = await res.json();
                             if (res.ok) {
+                              const updatedOrder = data.order || { ...ord, cbeFtReference: val.toUpperCase(), status: 'payment_pending' };
+                              if (typeof window !== 'undefined') {
+                                try {
+                                  const local = localStorage.getItem('amg_live_orders');
+                                  const list = local ? JSON.parse(local) : [];
+                                  const nextList = [updatedOrder, ...list.filter((o: any) => o.id !== updatedOrder.id && o.orderNumber !== updatedOrder.orderNumber)];
+                                  localStorage.setItem('amg_live_orders', JSON.stringify(nextList));
+                                  window.dispatchEvent(new CustomEvent('amg_orders_updated', { detail: updatedOrder }));
+                                } catch (e) {}
+                              }
                               alert(`CBE FT Reference ${val.toUpperCase()} submitted! Finance will verify against the bank ledger.`);
                               window.location.reload();
                             } else {

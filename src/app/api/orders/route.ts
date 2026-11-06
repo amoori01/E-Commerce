@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { CreateOrderDto, validateCreateOrderDto } from '@/dtos';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { INITIAL_ORDERS, PRODUCTS, SEEDED_USERS, BRANCHES } from '@/lib/constants';
+import { getServerOrders, addServerOrder } from '@/lib/server-orders';
 
 // ====================================================================
 // STREAM A: DIRECT SELF-SERVICE ORDERS API ENDPOINT
@@ -73,6 +74,7 @@ export async function POST(req: NextRequest) {
     };
 
     INITIAL_ORDERS.unshift(newOrder as any);
+    addServerOrder(newOrder as any);
 
     return NextResponse.json({
       success: true,
@@ -93,7 +95,7 @@ export async function GET(req: NextRequest) {
   const customerId = searchParams.get('customerId');
   const branchId = searchParams.get('branchId');
 
-  let orders = [...INITIAL_ORDERS];
+  let orders = [...getServerOrders()];
 
   if (customerId) {
     orders = orders.filter((o) => o.customerId === customerId);

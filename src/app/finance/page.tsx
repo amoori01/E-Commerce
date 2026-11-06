@@ -138,6 +138,7 @@ export default function FinanceDashboardPage() {
           orderNumber: order.orderNumber,
           action: 'approve',
           verifiedBy: currentUser?.fullName ? `${currentUser.fullName} (Finance Lead)` : 'Helen Girmachew (Finance Lead)',
+          order,
         }),
       });
 
@@ -223,6 +224,7 @@ export default function FinanceDashboardPage() {
           action: 'reject',
           rejectionReason: rejectReasonInput.trim() || 'CBE FT reference not found in bank ledger records',
           verifiedBy: currentUser?.fullName || 'Helen Girmachew',
+          order: selectedOrder,
         }),
       });
 
