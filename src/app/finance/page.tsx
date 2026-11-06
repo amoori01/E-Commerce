@@ -630,6 +630,14 @@ export default function FinanceDashboardPage() {
                       ETB {selectedOrder.totalAmountEtb.toLocaleString('en-US', { minimumFractionDigits: 2 })}
                     </span>
                   </div>
+                  {selectedOrder.discountEtb && selectedOrder.discountEtb > 0 && (
+                    <div className="flex justify-between items-center text-emerald-600 dark:text-[#C6F432] text-[11px] font-semibold">
+                      <span>Voucher Discount ({selectedOrder.couponCode || 'Promo'}):</span>
+                      <span className="font-mono">
+                        -ETB {selectedOrder.discountEtb.toLocaleString('en-US', { minimumFractionDigits: 2 })}
+                      </span>
+                    </div>
+                  )}
                   <div className="flex justify-between items-center text-[#71717A] dark:text-[#A1A1AA] text-[11px]">
                     <span>15% ERCA VAT Included:</span>
                     <span className="font-mono text-[#0B0B0C] dark:text-white">

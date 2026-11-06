@@ -163,9 +163,28 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   const applyCoupon = (code: string) => {
     const normalized = code.trim().toUpperCase();
     const { INITIAL_COUPONS } = require('@/lib/constants');
-    const found = INITIAL_COUPONS.find((c: import('@/types').CouponDiscount) => c.code === normalized);
+    let allCoupons: import('@/types').CouponDiscount[] = [...INITIAL_COUPONS];
+    if (typeof window !== 'undefined') {
+      try {
+        const local = localStorage.getItem('amg_coupons');
+        if (local) {
+          const parsed = JSON.parse(local);
+          if (Array.isArray(parsed)) {
+            allCoupons = [...parsed, ...INITIAL_COUPONS];
+          }
+        }
+      } catch (e) {}
+    }
+
+    const found = allCoupons.find((c: import('@/types').CouponDiscount) => c.code.toUpperCase() === normalized);
     if (!found) {
       return { success: false, message: 'Invalid corporate voucher or promo code.' };
+    }
+    if (found.isActive === false) {
+      return { success: false, message: 'This coupon voucher has been deactivated.' };
+    }
+    if (found.validUntil && new Date(found.validUntil) < new Date()) {
+      return { success: false, message: 'This promotional voucher has expired.' };
     }
     if (subtotal < found.minOrderValueEtb) {
       return {

@@ -2,8 +2,16 @@
 
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/lib/auth-context';
-import { INITIAL_ORDERS, INITIAL_QUOTES, PRODUCTS, SUBSIDIARIES, SEEDED_USERS } from '@/lib/constants';
-import { Product } from '@/types';
+import {
+  INITIAL_ORDERS,
+  INITIAL_QUOTES,
+  PRODUCTS,
+  SUBSIDIARIES,
+  SEEDED_USERS,
+  BRANCHES,
+  INITIAL_COUPONS,
+} from '@/lib/constants';
+import { Product, UserProfile, UserRole, CouponDiscount } from '@/types';
 import {
   Shield,
   Layers,
@@ -13,6 +21,7 @@ import {
   ShoppingCart,
   Users,
   CheckCircle,
+  CheckCircle2,
   AlertTriangle,
   Building2,
   RefreshCw,
@@ -28,13 +37,55 @@ import {
   Search,
   X,
   Filter,
-  Tag
+  Tag,
+  UserPlus,
+  UserCheck,
+  UserX,
+  Ban,
+  Trash2,
+  Edit3,
+  Percent,
+  Calendar,
 } from 'lucide-react';
 import { MfaVerificationModal } from '@/components/modals/MfaVerificationModal';
 
 export default function SuperAdminPage() {
   const { currentUser, activeRole, switchRole } = useAuth();
-  const [activeTab, setActiveTab] = useState<'overview' | 'products' | 'orders' | 'rfqs' | 'users' | 'payments' | 'tax_settings'>('overview');
+  const [activeTab, setActiveTab] = useState<
+    'overview' | 'products' | 'orders' | 'rfqs' | 'users' | 'coupons' | 'payments' | 'tax_settings'
+  >('overview');
+
+  // User Management State (Feature 1)
+  const [usersList, setUsersList] = useState<UserProfile[]>(SEEDED_USERS);
+  const [isAddUserOpen, setIsAddUserOpen] = useState(false);
+  const [editingUser, setEditingUser] = useState<UserProfile | null>(null);
+  const [userSearch, setUserSearch] = useState('');
+  const [userRoleFilter, setUserRoleFilter] = useState<string>('all');
+
+  // Add User Form State
+  const [newUserName, setNewUserName] = useState('');
+  const [newUserEmail, setNewUserEmail] = useState('');
+  const [newUserPhone, setNewUserPhone] = useState('+251 91 100 0000');
+  const [newUserRole, setNewUserRole] = useState<UserRole>('branch_admin');
+  const [newUserSubId, setNewUserSubId] = useState(SUBSIDIARIES[0].id);
+  const [newUserBranchId, setNewUserBranchId] = useState(BRANCHES[0].id);
+  const [newUserCompany, setNewUserCompany] = useState('');
+  const [newUserTin, setNewUserTin] = useState('');
+
+  // Coupon Discount State (Feature 2)
+  const [couponsList, setCouponsList] = useState<CouponDiscount[]>(INITIAL_COUPONS);
+  const [isAddCouponOpen, setIsAddCouponOpen] = useState(false);
+  const [couponSearch, setCouponSearch] = useState('');
+
+  // Add Coupon Form State
+  const [newCouponCode, setNewCouponCode] = useState('');
+  const [newCouponDesc, setNewCouponDesc] = useState('');
+  const [newCouponType, setNewCouponType] = useState<'percentage' | 'fixed_etb'>('percentage');
+  const [newCouponValue, setNewCouponValue] = useState<number>(10);
+  const [newCouponMinOrder, setNewCouponMinOrder] = useState<number>(50000);
+  const [newCouponMaxCap, setNewCouponMaxCap] = useState<number>(25000);
+  const [newCouponExpiry, setNewCouponExpiry] = useState('2026-12-31');
+  const [newCouponSubId, setNewCouponSubId] = useState<string>('all');
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -42,7 +93,29 @@ export default function SuperAdminPage() {
       const tabParam = params.get('tab');
       if (tabParam === 'products' || tabParam === 'catalog') {
         setActiveTab('products');
+      } else if (tabParam === 'users') {
+        setActiveTab('users');
+      } else if (tabParam === 'coupons') {
+        setActiveTab('coupons');
       }
+
+      // Load cached users and coupons
+      try {
+        const storedUsers = localStorage.getItem('amg_users');
+        if (storedUsers) {
+          const parsed = JSON.parse(storedUsers);
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            setUsersList(parsed);
+          }
+        }
+        const storedCoupons = localStorage.getItem('amg_coupons');
+        if (storedCoupons) {
+          const parsed = JSON.parse(storedCoupons);
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            setCouponsList(parsed);
+          }
+        }
+      } catch (e) {}
     }
   }, []);
 
@@ -148,6 +221,135 @@ export default function SuperAdminPage() {
     setTimeout(() => setSavedSettingsNotice(null), 3500);
   };
 
+  // User Management Handlers (Feature 1)
+  const handleCreateUser = (e: React.FormEvent) => {
+    e.preventDefault();
+    const selectedSub = SUBSIDIARIES.find((s) => s.id === newUserSubId);
+    const selectedBranch = BRANCHES.find((b) => b.id === newUserBranchId);
+
+    const newUser: UserProfile = {
+      id: `usr-${Date.now()}`,
+      fullName: newUserName,
+      email: newUserEmail,
+      phone: newUserPhone,
+      role: newUserRole,
+      subsidiaryId: selectedSub?.id,
+      subsidiaryName: selectedSub?.name,
+      branchId: selectedBranch?.id,
+      branchName: selectedBranch?.name,
+      companyName: newUserCompany || undefined,
+      tinNumber: newUserTin || undefined,
+      isVerified: true,
+      isActive: true,
+    };
+
+    const nextList = [newUser, ...usersList];
+    setUsersList(nextList);
+    if (typeof window !== 'undefined') {
+      try {
+        localStorage.setItem('amg_users', JSON.stringify(nextList));
+      } catch (e) {}
+    }
+
+    setIsAddUserOpen(false);
+    setNewUserName('');
+    setNewUserEmail('');
+    setNewUserCompany('');
+    setNewUserTin('');
+    setSavedSettingsNotice(`User "${newUser.fullName}" (${newUser.role}) successfully created & activated!`);
+    setTimeout(() => setSavedSettingsNotice(null), 3500);
+  };
+
+  const handleToggleUserActive = (userId: string) => {
+    const nextList = usersList.map((u) => {
+      if (u.id === userId) {
+        const nextStatus = u.isActive === false ? true : false;
+        return { ...u, isActive: nextStatus };
+      }
+      return u;
+    });
+    setUsersList(nextList);
+    if (typeof window !== 'undefined') {
+      try {
+        localStorage.setItem('amg_users', JSON.stringify(nextList));
+      } catch (e) {}
+    }
+  };
+
+  const handleSaveEditedUser = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingUser) return;
+    const nextList = usersList.map((u) => (u.id === editingUser.id ? editingUser : u));
+    setUsersList(nextList);
+    if (typeof window !== 'undefined') {
+      try {
+        localStorage.setItem('amg_users', JSON.stringify(nextList));
+      } catch (e) {}
+    }
+    setEditingUser(null);
+    setSavedSettingsNotice(`Updated governance scope for ${editingUser.fullName}.`);
+    setTimeout(() => setSavedSettingsNotice(null), 3500);
+  };
+
+  // Coupon Handlers (Feature 2)
+  const handleCreateCoupon = (e: React.FormEvent) => {
+    e.preventDefault();
+    const code = newCouponCode.trim().toUpperCase();
+    if (!code) return;
+
+    const newCoupon: CouponDiscount = {
+      code,
+      description: newCouponDesc || `${newCouponValue}${newCouponType === 'percentage' ? '%' : ' ETB'} Corporate Discount`,
+      discountType: newCouponType,
+      discountValue: newCouponValue,
+      minOrderValueEtb: newCouponMinOrder,
+      maxDiscountEtb: newCouponType === 'percentage' && newCouponMaxCap > 0 ? newCouponMaxCap : undefined,
+      validUntil: newCouponExpiry,
+      eligibleSubsidiaryId: newCouponSubId === 'all' ? undefined : newCouponSubId,
+      isActive: true,
+    };
+
+    const nextList = [newCoupon, ...couponsList.filter((c) => c.code !== code)];
+    setCouponsList(nextList);
+    if (typeof window !== 'undefined') {
+      try {
+        localStorage.setItem('amg_coupons', JSON.stringify(nextList));
+      } catch (e) {}
+    }
+
+    setIsAddCouponOpen(false);
+    setNewCouponCode('');
+    setNewCouponDesc('');
+    setSavedSettingsNotice(`Corporate promo voucher "${newCoupon.code}" created and live for checkout!`);
+    setTimeout(() => setSavedSettingsNotice(null), 3500);
+  };
+
+  const handleToggleCouponActive = (code: string) => {
+    const nextList = couponsList.map((c) => {
+      if (c.code === code) {
+        return { ...c, isActive: c.isActive === false ? true : false };
+      }
+      return c;
+    });
+    setCouponsList(nextList);
+    if (typeof window !== 'undefined') {
+      try {
+        localStorage.setItem('amg_coupons', JSON.stringify(nextList));
+      } catch (e) {}
+    }
+  };
+
+  const handleDeleteCoupon = (code: string) => {
+    if (!confirm(`Are you sure you want to delete promo coupon ${code}?`)) return;
+    const nextList = couponsList.filter((c) => c.code !== code);
+    setCouponsList(nextList);
+    if (typeof window !== 'undefined') {
+      try {
+        localStorage.setItem('amg_coupons', JSON.stringify(nextList));
+      } catch (e) {}
+    }
+  };
+
   return (
     <div className="min-h-screen bg-slate-950 text-slate-200">
       {/* 1. EXECUTIVE THEME HERO BANNER (Obsidian & Indigo Enterprise Authority) */}
@@ -217,9 +419,10 @@ export default function SuperAdminPage() {
             { id: 'products', label: `Master Catalog (${productsList.length})` },
             { id: 'orders', label: `Direct Orders (${INITIAL_ORDERS.length})` },
             { id: 'rfqs', label: `RFQ Pipeline (${INITIAL_QUOTES.length})` },
+            { id: 'coupons', label: `Promo Vouchers (${couponsList.length})` },
             { id: 'tax_settings', label: 'ERCA Tax & Financial Rules' },
             { id: 'payments', label: 'Payment Gateway Switchboard' },
-            { id: 'users', label: `RBAC Governance (${SEEDED_USERS.length})` },
+            { id: 'users', label: `Staff & RBAC (${usersList.length})` },
           ].map((tab) => (
             <button
               key={tab.id}
@@ -708,55 +911,681 @@ export default function SuperAdminPage() {
           </div>
         )}
 
-        {/* TAB 6: RBAC GOVERNANCE */}
-        {activeTab === 'users' && (
+        {/* TAB: CORPORATE PROMO VOUCHERS & B2B REBATES (FEATURE 2) */}
+        {activeTab === 'coupons' && (
           <div className="bg-slate-900 border border-slate-800 rounded-sm p-5 space-y-4">
-            <h3 className="text-sm font-bold text-white uppercase tracking-wider">
-              RBAC & ABAC Stakeholder Access Directory
-            </h3>
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-3 border-b border-slate-800 gap-3">
+              <div>
+                <div className="flex items-center space-x-2">
+                  <Tag className="w-4 h-4 text-emerald-400" />
+                  <h3 className="text-sm font-bold text-white uppercase tracking-wider">
+                    Corporate Promo Vouchers & B2B Rebates Engine
+                  </h3>
+                </div>
+                <p className="text-[11px] text-slate-400 mt-0.5">
+                  Manage promotional discount codes and commercial rebates applied dynamically at cart & checkout.
+                </p>
+              </div>
+
+              <div className="flex items-center space-x-2">
+                <div className="relative">
+                  <Search className="w-3.5 h-3.5 text-slate-500 absolute left-2.5 top-2" />
+                  <input
+                    type="text"
+                    placeholder="Search vouchers..."
+                    value={couponSearch}
+                    onChange={(e) => setCouponSearch(e.target.value)}
+                    className="pl-8 pr-2.5 py-1 border border-slate-800 bg-slate-950 text-white rounded-sm text-xs outline-none focus:border-indigo-500 w-44"
+                  />
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setIsAddCouponOpen(true)}
+                  className="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-sm text-xs transition-colors flex items-center space-x-1 shadow-sm"
+                >
+                  <Plus className="w-3.5 h-3.5" />
+                  <span>Create Promo Voucher</span>
+                </button>
+              </div>
+            </div>
+
             <div className="overflow-x-auto">
               <table className="w-full text-left text-xs">
                 <thead className="bg-slate-950 text-slate-400 font-semibold border-b border-slate-800">
                   <tr>
-                    <th className="py-2 px-3">Name</th>
-                    <th className="py-2 px-3">Email Address</th>
-                    <th className="py-2 px-3">Role Level</th>
-                    <th className="py-2 px-3">Assigned Scope / Branch</th>
-                    <th className="py-2 px-3">ERCA TIN</th>
-                    <th className="py-2 px-3 text-center">Assume Persona</th>
+                    <th className="py-2.5 px-3">Voucher Code</th>
+                    <th className="py-2.5 px-3">Description & Scope</th>
+                    <th className="py-2.5 px-3">Discount Value</th>
+                    <th className="py-2.5 px-3">Min Order Requirement</th>
+                    <th className="py-2.5 px-3">Expiration Date</th>
+                    <th className="py-2.5 px-3 text-center">Status</th>
+                    <th className="py-2.5 px-3 text-center">Actions</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-800 text-slate-300">
-                  {SEEDED_USERS.map((usr) => (
-                    <tr key={usr.id} className="hover:bg-slate-800/40">
-                      <td className="py-2.5 px-3 font-bold text-white">{usr.fullName}</td>
-                      <td className="py-2.5 px-3 font-mono text-slate-400">{usr.email}</td>
-                      <td className="py-2.5 px-3">
-                        <span className="px-2 py-0.5 bg-slate-800 text-indigo-300 rounded-sm font-mono font-bold text-[10px] uppercase">
-                          {usr.role}
-                        </span>
-                      </td>
-                      <td className="py-2.5 px-3 text-slate-400">
-                        {usr.subsidiaryName || usr.branchName || 'Global Enterprise Scope'}
-                      </td>
-                      <td className="py-2.5 px-3 font-mono text-slate-500">{usr.tinNumber || 'N/A'}</td>
-                      <td className="py-2.5 px-3 text-center">
-                        <button
-                          type="button"
-                          onClick={() => switchRole(usr.role)}
-                          className="px-2.5 py-1 bg-slate-800 hover:bg-indigo-600 hover:text-white border border-slate-700 rounded-sm text-[10px] font-bold transition-colors"
-                        >
-                          Switch Role
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
+                  {couponsList
+                    .filter(
+                      (c) =>
+                        couponSearch === '' ||
+                        c.code.toLowerCase().includes(couponSearch.toLowerCase()) ||
+                        c.description.toLowerCase().includes(couponSearch.toLowerCase())
+                    )
+                    .map((c) => {
+                      const isExpired = c.validUntil && new Date(c.validUntil) < new Date();
+                      const isActive = c.isActive !== false && !isExpired;
+                      return (
+                        <tr key={c.code} className="hover:bg-slate-800/40">
+                          <td className="py-2.5 px-3">
+                            <span className="font-mono font-bold text-white bg-slate-950 border border-slate-800 px-2 py-0.5 rounded text-xs">
+                              {c.code}
+                            </span>
+                          </td>
+                          <td className="py-2.5 px-3">
+                            <div className="font-medium text-slate-200">{c.description}</div>
+                            <div className="text-[10px] text-slate-500">
+                              {c.eligibleSubsidiaryId
+                                ? SUBSIDIARIES.find((s) => s.id === c.eligibleSubsidiaryId)?.name || 'Specific Division'
+                                : 'All Operating Subsidiaries'}
+                            </div>
+                          </td>
+                          <td className="py-2.5 px-3 font-mono font-bold text-emerald-400">
+                            {c.discountType === 'percentage'
+                              ? `${c.discountValue}% OFF`
+                              : `ETB ${c.discountValue.toLocaleString()} Direct Rebate`}
+                            {c.maxDiscountEtb && (
+                              <span className="block text-[10px] font-normal text-slate-400">
+                                Max Cap: ETB {c.maxDiscountEtb.toLocaleString()}
+                              </span>
+                            )}
+                          </td>
+                          <td className="py-2.5 px-3 font-mono text-slate-400">
+                            ETB {c.minOrderValueEtb.toLocaleString()}
+                          </td>
+                          <td className="py-2.5 px-3 font-mono text-[11px] text-slate-400">
+                            {c.validUntil || 'Perpetual'}
+                          </td>
+                          <td className="py-2.5 px-3 text-center">
+                            {isExpired ? (
+                              <span className="px-2 py-0.5 bg-rose-950 text-rose-400 border border-rose-800 rounded text-[10px] font-bold">
+                                EXPIRED
+                              </span>
+                            ) : isActive ? (
+                              <span className="px-2 py-0.5 bg-emerald-950 text-emerald-400 border border-emerald-800 rounded text-[10px] font-bold">
+                                ACTIVE
+                              </span>
+                            ) : (
+                              <span className="px-2 py-0.5 bg-amber-950 text-amber-400 border border-amber-800 rounded text-[10px] font-bold">
+                                PAUSED
+                              </span>
+                            )}
+                          </td>
+                          <td className="py-2.5 px-3 text-center space-x-1.5 whitespace-nowrap">
+                            <button
+                              type="button"
+                              onClick={() => handleToggleCouponActive(c.code)}
+                              className={`px-2 py-1 rounded text-[10px] font-bold transition-colors ${
+                                c.isActive === false
+                                  ? 'bg-emerald-800 hover:bg-emerald-700 text-white'
+                                  : 'bg-amber-900/60 hover:bg-amber-800 text-amber-200 border border-amber-700/60'
+                              }`}
+                            >
+                              {c.isActive === false ? 'Activate' : 'Pause'}
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => handleDeleteCoupon(c.code)}
+                              className="px-2 py-1 bg-rose-950 hover:bg-rose-900 text-rose-300 border border-rose-800 rounded text-[10px] font-bold transition-colors"
+                            >
+                              Delete
+                            </button>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
+
+        {/* TAB: STAFF & RBAC GOVERNANCE (FEATURE 1) */}
+        {activeTab === 'users' && (
+          <div className="bg-slate-900 border border-slate-800 rounded-sm p-5 space-y-4">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-3 border-b border-slate-800 gap-3">
+              <div>
+                <div className="flex items-center space-x-2">
+                  <Users className="w-4 h-4 text-indigo-400" />
+                  <h3 className="text-sm font-bold text-white uppercase tracking-wider">
+                    Staff & RBAC Stakeholder Access Directory
+                  </h3>
+                </div>
+                <p className="text-[11px] text-slate-400 mt-0.5">
+                  Manage enterprise personnel, branch depot administrators, finance auditors, and corporate client accounts.
+                </p>
+              </div>
+
+              <div className="flex items-center space-x-2">
+                {/* Role Filter */}
+                <select
+                  value={userRoleFilter}
+                  onChange={(e) => setUserRoleFilter(e.target.value)}
+                  className="border border-slate-800 bg-slate-950 text-slate-300 rounded-sm px-2.5 py-1 text-xs outline-none focus:border-indigo-500"
+                >
+                  <option value="all">All Roles ({usersList.length})</option>
+                  <option value="super_admin">Super Admins</option>
+                  <option value="branch_admin">Branch Admins</option>
+                  <option value="finance_officer">Finance Officers</option>
+                  <option value="sales_agent">Sales Agents</option>
+                  <option value="customer">Corporate Customers</option>
+                </select>
+
+                <div className="relative">
+                  <Search className="w-3.5 h-3.5 text-slate-500 absolute left-2.5 top-2" />
+                  <input
+                    type="text"
+                    placeholder="Search name, email, TIN..."
+                    value={userSearch}
+                    onChange={(e) => setUserSearch(e.target.value)}
+                    className="pl-8 pr-2.5 py-1 border border-slate-800 bg-slate-950 text-white rounded-sm text-xs outline-none focus:border-indigo-500 w-44"
+                  />
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => setIsAddUserOpen(true)}
+                  className="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-sm text-xs transition-colors flex items-center space-x-1 shadow-sm shrink-0"
+                >
+                  <UserPlus className="w-3.5 h-3.5" />
+                  <span>Add New Employee</span>
+                </button>
+              </div>
+            </div>
+
+            <div className="overflow-x-auto">
+              <table className="w-full text-left text-xs">
+                <thead className="bg-slate-950 text-slate-400 font-semibold border-b border-slate-800">
+                  <tr>
+                    <th className="py-2.5 px-3">Name & Phone</th>
+                    <th className="py-2.5 px-3">Email Address</th>
+                    <th className="py-2.5 px-3">Role Level</th>
+                    <th className="py-2.5 px-3">Assigned Scope / Branch</th>
+                    <th className="py-2.5 px-3">ERCA TIN</th>
+                    <th className="py-2.5 px-3 text-center">Account Status</th>
+                    <th className="py-2.5 px-3 text-center">Governance Actions</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-800 text-slate-300">
+                  {usersList
+                    .filter((usr) => {
+                      const matchesRole = userRoleFilter === 'all' || usr.role === userRoleFilter;
+                      const matchesSearch =
+                        userSearch === '' ||
+                        usr.fullName.toLowerCase().includes(userSearch.toLowerCase()) ||
+                        usr.email.toLowerCase().includes(userSearch.toLowerCase()) ||
+                        (usr.tinNumber && usr.tinNumber.toLowerCase().includes(userSearch.toLowerCase())) ||
+                        (usr.companyName && usr.companyName.toLowerCase().includes(userSearch.toLowerCase()));
+                      return matchesRole && matchesSearch;
+                    })
+                    .map((usr) => {
+                      const isSuspended = usr.isActive === false;
+                      return (
+                        <tr key={usr.id} className={isSuspended ? 'bg-rose-950/20' : 'hover:bg-slate-800/40'}>
+                          <td className="py-2.5 px-3">
+                            <div className="font-bold text-white flex items-center space-x-1.5">
+                              <span>{usr.fullName}</span>
+                              {usr.companyName && (
+                                <span className="text-[10px] text-slate-400 font-normal">({usr.companyName})</span>
+                              )}
+                            </div>
+                            <div className="text-[10px] font-mono text-slate-500">{usr.phone || 'No phone'}</div>
+                          </td>
+                          <td className="py-2.5 px-3 font-mono text-slate-400">{usr.email}</td>
+                          <td className="py-2.5 px-3">
+                            <span className="px-2 py-0.5 bg-slate-800 text-indigo-300 rounded-sm font-mono font-bold text-[10px] uppercase">
+                              {usr.role.replace(/_/g, ' ')}
+                            </span>
+                          </td>
+                          <td className="py-2.5 px-3 text-slate-400">
+                            <div className="font-medium text-slate-300">
+                              {usr.subsidiaryName || 'Global Enterprise Scope'}
+                            </div>
+                            {usr.branchName && (
+                              <div className="text-[10px] text-emerald-400 font-mono">Hub: {usr.branchName}</div>
+                            )}
+                          </td>
+                          <td className="py-2.5 px-3 font-mono text-slate-500">{usr.tinNumber || '—'}</td>
+                          <td className="py-2.5 px-3 text-center">
+                            {isSuspended ? (
+                              <span className="px-2 py-0.5 bg-rose-950 text-rose-400 border border-rose-800 rounded font-bold text-[10px]">
+                                SUSPENDED
+                              </span>
+                            ) : (
+                              <span className="px-2 py-0.5 bg-emerald-950 text-emerald-400 border border-emerald-800 rounded font-bold text-[10px]">
+                                ACTIVE
+                              </span>
+                            )}
+                          </td>
+                          <td className="py-2.5 px-3 text-center space-x-1.5 whitespace-nowrap">
+                            <button
+                              type="button"
+                              onClick={() => handleToggleUserActive(usr.id)}
+                              className={`px-2 py-1 rounded text-[10px] font-bold transition-colors ${
+                                isSuspended
+                                  ? 'bg-emerald-800 hover:bg-emerald-700 text-white'
+                                  : 'bg-rose-950 hover:bg-rose-900 text-rose-300 border border-rose-800'
+                              }`}
+                            >
+                              {isSuspended ? 'Reactivate' : 'Suspend'}
+                            </button>
+
+                            <button
+                              type="button"
+                              onClick={() => setEditingUser(usr)}
+                              className="px-2 py-1 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded text-[10px] font-bold border border-slate-700"
+                            >
+                              Edit Scope
+                            </button>
+
+                            <button
+                              type="button"
+                              onClick={() => switchRole(usr.role)}
+                              className="px-2 py-1 bg-indigo-900/60 hover:bg-indigo-600 text-indigo-200 hover:text-white rounded text-[10px] font-bold border border-indigo-700/60"
+                            >
+                              Assume
+                            </button>
+                          </td>
+                        </tr>
+                      );
+                    })}
                 </tbody>
               </table>
             </div>
           </div>
         )}
       </div>
+
+      {/* CREATE NEW EMPLOYEE / USER MODAL (FEATURE 1) */}
+      {isAddUserOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm overflow-y-auto">
+          <div className="bg-slate-900 border border-slate-700 rounded-sm shadow-2xl max-w-lg w-full p-6 space-y-4 text-xs my-8 text-slate-200">
+            <div className="flex justify-between items-center border-b border-slate-800 pb-3">
+              <div className="flex items-center space-x-2 text-white font-bold">
+                <UserPlus className="w-5 h-5 text-indigo-400" />
+                <span className="text-sm uppercase tracking-wider">Add Enterprise Staff / Stakeholder</span>
+              </div>
+              <button onClick={() => setIsAddUserOpen(false)} className="text-slate-400 hover:text-white font-bold">
+                ✕
+              </button>
+            </div>
+
+            <form onSubmit={handleCreateUser} className="space-y-3.5">
+              <div>
+                <label className="block text-[11px] font-bold text-slate-300 mb-1">Full Name</label>
+                <input
+                  type="text"
+                  required
+                  placeholder="e.g. Almaz Bekele"
+                  value={newUserName}
+                  onChange={(e) => setNewUserName(e.target.value)}
+                  className="w-full bg-slate-950 border border-slate-800 px-3 py-1.5 rounded text-white focus:border-indigo-500 outline-none"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-[11px] font-bold text-slate-300 mb-1">Email Address</label>
+                  <input
+                    type="email"
+                    required
+                    placeholder="e.g. almaz@amgholdings.et"
+                    value={newUserEmail}
+                    onChange={(e) => setNewUserEmail(e.target.value)}
+                    className="w-full bg-slate-950 border border-slate-800 px-3 py-1.5 rounded text-white font-mono focus:border-indigo-500 outline-none"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-[11px] font-bold text-slate-300 mb-1">Phone Number</label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="+251 91 100 0000"
+                    value={newUserPhone}
+                    onChange={(e) => setNewUserPhone(e.target.value)}
+                    className="w-full bg-slate-950 border border-slate-800 px-3 py-1.5 rounded text-white font-mono focus:border-indigo-500 outline-none"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-[11px] font-bold text-slate-300 mb-1">Role Permission Level</label>
+                <select
+                  value={newUserRole}
+                  onChange={(e) => setNewUserRole(e.target.value as UserRole)}
+                  className="w-full bg-slate-950 border border-slate-800 px-3 py-1.5 rounded text-white font-semibold focus:border-indigo-500 outline-none"
+                >
+                  <option value="branch_admin">Branch Admin (Depot Warehouse & Dispatch)</option>
+                  <option value="finance_officer">Finance Officer (Payment & Ledger Audits)</option>
+                  <option value="sales_agent">Sales Agent (Assisted RFQ & Client Portfolios)</option>
+                  <option value="super_admin">Super Admin (Consortium Executive)</option>
+                  <option value="customer">Corporate / Retail Customer</option>
+                </select>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-[11px] font-bold text-slate-300 mb-1">Subsidiary Division Scope</label>
+                  <select
+                    value={newUserSubId}
+                    onChange={(e) => setNewUserSubId(e.target.value)}
+                    className="w-full bg-slate-950 border border-slate-800 px-3 py-1.5 rounded text-white focus:border-indigo-500 outline-none"
+                  >
+                    {SUBSIDIARIES.map((s) => (
+                      <option key={s.id} value={s.id}>
+                        {s.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-[11px] font-bold text-slate-300 mb-1">Assigned Regional Hub</label>
+                  <select
+                    value={newUserBranchId}
+                    onChange={(e) => setNewUserBranchId(e.target.value)}
+                    className="w-full bg-slate-950 border border-slate-800 px-3 py-1.5 rounded text-white focus:border-indigo-500 outline-none"
+                  >
+                    {BRANCHES.map((b) => (
+                      <option key={b.id} value={b.id}>
+                        {b.name} ({b.city})
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-[11px] font-bold text-slate-300 mb-1">Company Name (Optional)</label>
+                  <input
+                    type="text"
+                    placeholder="e.g. MIDROC Construction"
+                    value={newUserCompany}
+                    onChange={(e) => setNewUserCompany(e.target.value)}
+                    className="w-full bg-slate-950 border border-slate-800 px-3 py-1.5 rounded text-white focus:border-indigo-500 outline-none"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-[11px] font-bold text-slate-300 mb-1">ERCA TIN Number (Optional)</label>
+                  <input
+                    type="text"
+                    placeholder="e.g. 0049281728"
+                    value={newUserTin}
+                    onChange={(e) => setNewUserTin(e.target.value)}
+                    className="w-full bg-slate-950 border border-slate-800 px-3 py-1.5 rounded text-white font-mono focus:border-indigo-500 outline-none"
+                  />
+                </div>
+              </div>
+
+              <div className="pt-3 flex justify-end space-x-2 border-t border-slate-800">
+                <button
+                  type="button"
+                  onClick={() => setIsAddUserOpen(false)}
+                  className="px-3 py-1.5 border border-slate-700 bg-slate-800 text-slate-300 rounded hover:bg-slate-700 font-bold"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="px-4 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded shadow-sm flex items-center space-x-1"
+                >
+                  <UserCheck className="w-3.5 h-3.5" />
+                  <span>Register & Activate User</span>
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* EDIT USER SCOPE MODAL */}
+      {editingUser && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm overflow-y-auto">
+          <div className="bg-slate-900 border border-slate-700 rounded-sm shadow-2xl max-w-md w-full p-6 space-y-4 text-xs my-8 text-slate-200">
+            <div className="flex justify-between items-center border-b border-slate-800 pb-3">
+              <div className="flex items-center space-x-2 text-white font-bold">
+                <Edit3 className="w-4 h-4 text-indigo-400" />
+                <span className="text-sm uppercase tracking-wider">Edit Governance Scope: {editingUser.fullName}</span>
+              </div>
+              <button onClick={() => setEditingUser(null)} className="text-slate-400 hover:text-white font-bold">
+                ✕
+              </button>
+            </div>
+
+            <form onSubmit={handleSaveEditedUser} className="space-y-3.5">
+              <div>
+                <label className="block text-[11px] font-bold text-slate-300 mb-1">Role Permission Level</label>
+                <select
+                  value={editingUser.role}
+                  onChange={(e) => setEditingUser({ ...editingUser, role: e.target.value as UserRole })}
+                  className="w-full bg-slate-950 border border-slate-800 px-3 py-1.5 rounded text-white font-semibold focus:border-indigo-500 outline-none"
+                >
+                  <option value="branch_admin">Branch Admin</option>
+                  <option value="finance_officer">Finance Officer</option>
+                  <option value="sales_agent">Sales Agent</option>
+                  <option value="super_admin">Super Admin</option>
+                  <option value="customer">Customer</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-[11px] font-bold text-slate-300 mb-1">Subsidiary Division</label>
+                <select
+                  value={editingUser.subsidiaryId || ''}
+                  onChange={(e) => {
+                    const sub = SUBSIDIARIES.find((s) => s.id === e.target.value);
+                    setEditingUser({ ...editingUser, subsidiaryId: sub?.id, subsidiaryName: sub?.name });
+                  }}
+                  className="w-full bg-slate-950 border border-slate-800 px-3 py-1.5 rounded text-white focus:border-indigo-500 outline-none"
+                >
+                  <option value="">Consortium Global Scope</option>
+                  {SUBSIDIARIES.map((s) => (
+                    <option key={s.id} value={s.id}>
+                      {s.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-[11px] font-bold text-slate-300 mb-1">Assigned Regional Hub</label>
+                <select
+                  value={editingUser.branchId || ''}
+                  onChange={(e) => {
+                    const br = BRANCHES.find((b) => b.id === e.target.value);
+                    setEditingUser({ ...editingUser, branchId: br?.id, branchName: br?.name });
+                  }}
+                  className="w-full bg-slate-950 border border-slate-800 px-3 py-1.5 rounded text-white focus:border-indigo-500 outline-none"
+                >
+                  <option value="">Consortium-Wide</option>
+                  {BRANCHES.map((b) => (
+                    <option key={b.id} value={b.id}>
+                      {b.name} ({b.city})
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="pt-3 flex justify-end space-x-2 border-t border-slate-800">
+                <button
+                  type="button"
+                  onClick={() => setEditingUser(null)}
+                  className="px-3 py-1.5 border border-slate-700 bg-slate-800 text-slate-300 rounded hover:bg-slate-700 font-bold"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="px-4 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded shadow-sm"
+                >
+                  Save Scope Changes
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* CREATE NEW PROMO VOUCHER MODAL (FEATURE 2) */}
+      {isAddCouponOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm overflow-y-auto">
+          <div className="bg-slate-900 border border-slate-700 rounded-sm shadow-2xl max-w-lg w-full p-6 space-y-4 text-xs my-8 text-slate-200">
+            <div className="flex justify-between items-center border-b border-slate-800 pb-3">
+              <div className="flex items-center space-x-2 text-white font-bold">
+                <Tag className="w-5 h-5 text-emerald-400" />
+                <span className="text-sm uppercase tracking-wider">Create Corporate Promo Voucher</span>
+              </div>
+              <button onClick={() => setIsAddCouponOpen(false)} className="text-slate-400 hover:text-white font-bold">
+                ✕
+              </button>
+            </div>
+
+            <form onSubmit={handleCreateCoupon} className="space-y-3.5">
+              <div>
+                <label className="block text-[11px] font-bold text-slate-300 mb-1">
+                  Voucher Promo Code (Uppercase)
+                </label>
+                <input
+                  type="text"
+                  required
+                  placeholder="e.g. SUMMERSTEEL15, AMGCBE5000"
+                  value={newCouponCode}
+                  onChange={(e) => setNewCouponCode(e.target.value.toUpperCase())}
+                  className="w-full bg-slate-950 border border-slate-800 px-3 py-1.5 rounded text-white font-mono font-bold tracking-wider focus:border-indigo-500 outline-none uppercase"
+                />
+              </div>
+
+              <div>
+                <label className="block text-[11px] font-bold text-slate-300 mb-1">
+                  Description / Marketing Purpose
+                </label>
+                <input
+                  type="text"
+                  required
+                  placeholder="e.g. 15% Procurement rebate on construction steel & rebar"
+                  value={newCouponDesc}
+                  onChange={(e) => setNewCouponDesc(e.target.value)}
+                  className="w-full bg-slate-950 border border-slate-800 px-3 py-1.5 rounded text-white focus:border-indigo-500 outline-none"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-[11px] font-bold text-slate-300 mb-1">Discount Model</label>
+                  <select
+                    value={newCouponType}
+                    onChange={(e) => setNewCouponType(e.target.value as 'percentage' | 'fixed_etb')}
+                    className="w-full bg-slate-950 border border-slate-800 px-3 py-1.5 rounded text-white focus:border-indigo-500 outline-none font-semibold"
+                  >
+                    <option value="percentage">Percentage Discount (%)</option>
+                    <option value="fixed_etb">Fixed Direct Rebate (ETB)</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-[11px] font-bold text-slate-300 mb-1">
+                    {newCouponType === 'percentage' ? 'Percentage Rate (%)' : 'Deduction Amount (ETB)'}
+                  </label>
+                  <input
+                    type="number"
+                    min="1"
+                    required
+                    value={newCouponValue}
+                    onChange={(e) => setNewCouponValue(Math.max(1, Number(e.target.value)))}
+                    className="w-full bg-slate-950 border border-slate-800 px-3 py-1.5 rounded text-white font-mono font-bold focus:border-indigo-500 outline-none"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-[11px] font-bold text-slate-300 mb-1">
+                    Minimum Order Subtotal (ETB)
+                  </label>
+                  <input
+                    type="number"
+                    min="0"
+                    required
+                    value={newCouponMinOrder}
+                    onChange={(e) => setNewCouponMinOrder(Math.max(0, Number(e.target.value)))}
+                    className="w-full bg-slate-950 border border-slate-800 px-3 py-1.5 rounded text-white font-mono focus:border-indigo-500 outline-none"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-[11px] font-bold text-slate-300 mb-1">
+                    Maximum Discount Cap (ETB, Optional)
+                  </label>
+                  <input
+                    type="number"
+                    min="0"
+                    value={newCouponMaxCap}
+                    onChange={(e) => setNewCouponMaxCap(Number(e.target.value))}
+                    className="w-full bg-slate-950 border border-slate-800 px-3 py-1.5 rounded text-white font-mono focus:border-indigo-500 outline-none"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-[11px] font-bold text-slate-300 mb-1">Valid Until (Expiry Date)</label>
+                  <input
+                    type="date"
+                    required
+                    value={newCouponExpiry}
+                    onChange={(e) => setNewCouponExpiry(e.target.value)}
+                    className="w-full bg-slate-950 border border-slate-800 px-3 py-1.5 rounded text-white focus:border-indigo-500 outline-none"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-[11px] font-bold text-slate-300 mb-1">Eligible Subsidiary Division</label>
+                  <select
+                    value={newCouponSubId}
+                    onChange={(e) => setNewCouponSubId(e.target.value)}
+                    className="w-full bg-slate-950 border border-slate-800 px-3 py-1.5 rounded text-white focus:border-indigo-500 outline-none"
+                  >
+                    <option value="all">All Operating Subsidiaries</option>
+                    {SUBSIDIARIES.map((s) => (
+                      <option key={s.id} value={s.id}>
+                        {s.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+
+              <div className="pt-3 flex justify-end space-x-2 border-t border-slate-800">
+                <button
+                  type="button"
+                  onClick={() => setIsAddCouponOpen(false)}
+                  className="px-3 py-1.5 border border-slate-700 bg-slate-800 text-slate-300 rounded hover:bg-slate-700 font-bold"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="px-4 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded shadow-sm flex items-center space-x-1"
+                >
+                  <Tag className="w-3.5 h-3.5" />
+                  <span>Issue & Activate Voucher</span>
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
 
       <MfaVerificationModal
         isOpen={isMfaOpen}

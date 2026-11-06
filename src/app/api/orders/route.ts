@@ -26,8 +26,10 @@ export async function POST(req: NextRequest) {
       (sum, item) => sum + item.unitPriceEtb * item.quantity,
       0
     );
-    const tax = subtotal * 0.15; // 15% Ethiopian VAT
-    const totalAmount = subtotal + tax;
+    const discountEtb = Math.max(0, Number((body as any).discountEtb) || 0);
+    const effectiveSubtotal = Math.max(0, subtotal - discountEtb);
+    const tax = effectiveSubtotal * 0.15; // 15% Ethiopian VAT
+    const totalAmount = effectiveSubtotal + tax;
 
     const orderNumber = `AMG-ORD-2026-${Math.floor(1000 + Math.random() * 9000)}`;
 
@@ -52,6 +54,8 @@ export async function POST(req: NextRequest) {
       deliveryType: body.deliveryType,
       deliveryAddress: body.deliveryAddress,
       subtotalEtb: subtotal,
+      discountEtb: discountEtb > 0 ? discountEtb : undefined,
+      couponCode: (body as any).couponCode || undefined,
       taxEtb: tax,
       totalAmountEtb: totalAmount,
       paymentMethod: body.paymentMethod || 'cbe_transfer',

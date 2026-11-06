@@ -6,10 +6,22 @@ import { useCart } from '@/lib/cart-context';
 import { useAuth } from '@/lib/auth-context';
 import { BRANCHES, SEEDED_USERS } from '@/lib/constants';
 import { PaymentGateway } from '@/types';
-import { CheckCircle2, Building2, Truck, ShieldCheck, X, ArrowRight, Landmark, Receipt } from 'lucide-react';
+import { CheckCircle2, Building2, Truck, ShieldCheck, X, ArrowRight, Landmark, Receipt, Tag } from 'lucide-react';
 
 export function CheckoutModal() {
-  const { isCheckoutOpen, closeCheckout, items, subtotal, tax, total, clearCart } = useCart();
+  const {
+    isCheckoutOpen,
+    closeCheckout,
+    items,
+    subtotal,
+    tax,
+    total,
+    clearCart,
+    appliedCoupon,
+    couponDiscountEtb,
+    applyCoupon,
+    removeCoupon,
+  } = useCart();
   const { currentUser, activeRole, switchRole } = useAuth();
 
   const [step, setStep] = useState<'details' | 'payment' | 'confirmation'>('details');
@@ -22,6 +34,20 @@ export function CheckoutModal() {
   const [confirmedOrderNumber, setConfirmedOrderNumber] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
+  // Checkout Coupon Input State
+  const [checkoutCouponCode, setCheckoutCouponCode] = useState('');
+  const [couponFeedback, setCouponFeedback] = useState<{ success: boolean; message: string } | null>(null);
+
+  const handleApplyCheckoutCoupon = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!checkoutCouponCode.trim()) return;
+    const res = applyCoupon(checkoutCouponCode);
+    setCouponFeedback(res);
+    if (res.success) {
+      setCheckoutCouponCode('');
+    }
+  };
 
   // Dynamic Freight calculation based on items total weight
   const totalWeightTons = Math.max(
@@ -57,6 +83,8 @@ export function CheckoutModal() {
         paymentMethod: 'cbe_transfer',
         cbeFtReference: cbeFtCode.trim() ? cbeFtCode.trim().toUpperCase() : undefined,
         cbePayerAccount: cbePayerAccount.trim() || undefined,
+        couponCode: appliedCoupon?.code,
+        discountEtb: couponDiscountEtb > 0 ? couponDiscountEtb : undefined,
         items: items.map((i) => ({
           productId: i.product.id,
           quantity: i.quantity,
@@ -275,12 +303,83 @@ export function CheckoutModal() {
                 )}
               </div>
 
+              {/* Promo Coupon / Corporate Voucher Input */}
+              <div className="bg-[#FAFAFA] dark:bg-[#141416] border border-[#E4E4E7] dark:border-[#222225] p-3.5 rounded-2xl space-y-2">
+                <div className="flex items-center justify-between text-xs font-bold text-[#0B0B0C] dark:text-white">
+                  <div className="flex items-center space-x-1.5">
+                    <Tag className="w-3.5 h-3.5 text-[#C6F432]" />
+                    <span>Corporate Promo Voucher & Rebates</span>
+                  </div>
+                  {appliedCoupon && (
+                    <span className="text-[10px] font-mono bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 px-2 py-0.5 rounded-full">
+                      Voucher Active
+                    </span>
+                  )}
+                </div>
+
+                {appliedCoupon ? (
+                  <div className="flex items-center justify-between p-2.5 bg-emerald-950/40 border border-emerald-600/40 rounded-xl text-xs">
+                    <div>
+                      <div className="font-mono font-bold text-[#C6F432]">{appliedCoupon.code}</div>
+                      <div className="text-[11px] text-[#A1A1AA]">{appliedCoupon.description}</div>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <span className="font-mono font-bold text-[#C6F432]">
+                        -ETB {couponDiscountEtb.toLocaleString('en-US', { minimumFractionDigits: 2 })}
+                      </span>
+                      <button
+                        type="button"
+                        onClick={removeCoupon}
+                        className="text-xs text-rose-400 hover:text-rose-300 font-bold px-2 py-0.5 rounded border border-rose-500/30 hover:bg-rose-500/10"
+                      >
+                        Remove
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <form onSubmit={handleApplyCheckoutCoupon} className="space-y-1.5">
+                    <div className="flex space-x-2">
+                      <input
+                        type="text"
+                        placeholder="e.g. BUILDETHIOPIA10, ROOFING5000, NEWCORP5"
+                        value={checkoutCouponCode}
+                        onChange={(e) => setCheckoutCouponCode(e.target.value)}
+                        className="flex-1 border border-[#E4E4E7] dark:border-[#222225] bg-white dark:bg-[#1A1A1D] text-[#0B0B0C] dark:text-white px-3 py-1.5 text-xs rounded-xl focus:border-[#0B0B0C] dark:focus:border-[#C6F432] outline-none font-mono uppercase"
+                      />
+                      <button
+                        type="submit"
+                        className="px-3.5 py-1.5 bg-[#0B0B0C] dark:bg-[#C6F432] text-white dark:text-[#0B0B0C] font-bold text-xs rounded-xl hover:opacity-90 transition-opacity"
+                      >
+                        Apply
+                      </button>
+                    </div>
+                    {couponFeedback && (
+                      <p className={`text-[11px] ${couponFeedback.success ? 'text-emerald-400' : 'text-rose-400'}`}>
+                        {couponFeedback.message}
+                      </p>
+                    )}
+                  </form>
+                )}
+              </div>
+
               {/* Tax & Financial Summary */}
               <div className="border-t border-[#E4E4E7] dark:border-[#222225] pt-4 space-y-1.5 text-xs">
                 <div className="flex justify-between text-[#71717A] dark:text-[#A1A1AA]">
-                  <span>Subtotal:</span>
+                  <span>Items Subtotal:</span>
                   <span className="font-mono text-[#0B0B0C] dark:text-white">ETB {subtotal.toLocaleString('en-US', { minimumFractionDigits: 2 })}</span>
                 </div>
+                {couponDiscountEtb > 0 && (
+                  <div className="flex justify-between text-[#C6F432] font-semibold">
+                    <span>Corporate Voucher Discount ({appliedCoupon?.code}):</span>
+                    <span className="font-mono">-ETB {couponDiscountEtb.toLocaleString('en-US', { minimumFractionDigits: 2 })}</span>
+                  </div>
+                )}
+                {freightRate > 0 && (
+                  <div className="flex justify-between text-[#71717A] dark:text-[#A1A1AA]">
+                    <span>Heavy Freight Haulage:</span>
+                    <span className="font-mono text-[#0B0B0C] dark:text-white">ETB {freightRate.toLocaleString('en-US', { minimumFractionDigits: 2 })}</span>
+                  </div>
+                )}
                 <div className="flex justify-between text-[#71717A] dark:text-[#A1A1AA]">
                   <span>Ethiopian VAT (15%):</span>
                   <span className="font-mono text-[#0B0B0C] dark:text-white">ETB {tax.toLocaleString('en-US', { minimumFractionDigits: 2 })}</span>
@@ -378,11 +477,21 @@ export function CheckoutModal() {
               </div>
 
               {/* Total Summary */}
-              <div className="p-3.5 bg-[#0B0B0C] text-white rounded-xl flex justify-between items-center border border-[#1A1A1D]">
-                <span className="text-xs font-semibold text-[#A1A1AA]">Total Settlement Amount:</span>
-                <span className="font-mono font-black text-base text-[#C6F432]">
-                  ETB {total.toLocaleString('en-US', { minimumFractionDigits: 2 })}
-                </span>
+              <div className="p-3.5 bg-[#0B0B0C] text-white rounded-xl space-y-1.5 border border-[#1A1A1D]">
+                <div className="flex justify-between items-center">
+                  <span className="text-xs font-semibold text-[#A1A1AA]">Total Settlement Amount:</span>
+                  <span className="font-mono font-black text-base text-[#C6F432]">
+                    ETB {total.toLocaleString('en-US', { minimumFractionDigits: 2 })}
+                  </span>
+                </div>
+                {couponDiscountEtb > 0 && (
+                  <div className="flex justify-between items-center text-[11px] text-[#C6F432] pt-1.5 border-t border-[#222225]">
+                    <span>Voucher Applied ({appliedCoupon?.code}):</span>
+                    <span className="font-mono font-semibold">
+                      -ETB {couponDiscountEtb.toLocaleString('en-US', { minimumFractionDigits: 2 })}
+                    </span>
+                  </div>
+                )}
               </div>
 
               {errorMessage && (

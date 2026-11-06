@@ -68,6 +68,7 @@ export interface UserProfile {
   companyName?: string;
   tinNumber?: string;
   isVerified: boolean;
+  isActive?: boolean;
   clientPortfolio?: string;
   specialization?: string;
 }
@@ -157,6 +158,8 @@ export interface Order {
   deliveryType: 'branch_pickup' | 'freight_delivery';
   deliveryAddress?: string;
   subtotalEtb: number;
+  discountEtb?: number;
+  couponCode?: string;
   taxEtb: number;
   totalAmountEtb: number;
   paymentMethod?: PaymentGateway;
@@ -379,6 +382,7 @@ export interface CouponDiscount {
   maxDiscountEtb?: number;
   validUntil: string;
   eligibleSubsidiaryId?: string;
+  isActive?: boolean;
 }
 
 export interface ProductReview {
