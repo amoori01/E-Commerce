@@ -629,7 +629,14 @@ export default function SuperAdminPage() {
           ].map((tab) => (
             <button
               key={tab.id}
-              onClick={() => setActiveTab(tab.id as any)}
+              onClick={() => {
+                setActiveTab(tab.id as any);
+                if (typeof window !== 'undefined') {
+                  const url = new URL(window.location.href);
+                  url.searchParams.set('tab', tab.id);
+                  window.history.pushState({}, '', url.toString());
+                }
+              }}
               className={`px-4 py-2.5 font-bold transition-all border-b-2 -mb-px whitespace-nowrap text-xs ${
                 activeTab === tab.id
                   ? 'border-indigo-500 text-indigo-400 bg-slate-900/60'
@@ -1651,6 +1658,33 @@ export default function SuperAdminPage() {
                     className="pl-8 pr-2.5 py-1 border border-slate-800 bg-slate-950 text-white rounded-sm text-xs outline-none focus:border-indigo-500 w-44"
                   />
                 </div>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    const csvContent =
+                      'data:text/csv;charset=utf-8,' +
+                      ['Timestamp,Action Category,Administrator,Admin Email,Details,IP Address,Status']
+                        .concat(
+                          auditLogsList.map(
+                            (l) =>
+                              `"${new Date(l.timestamp).toISOString()}","${l.action}","${l.adminName}","${l.adminEmail}","${l.details.replace(/"/g, '""')}","${l.ipAddress || 'Internal'}","${l.status}"`
+                          )
+                        )
+                        .join('\n');
+                    const encodedUri = encodeURI(csvContent);
+                    const link = document.createElement('a');
+                    link.setAttribute('href', encodedUri);
+                    link.setAttribute('download', `amg-security-compliance-audit-${new Date().toISOString().slice(0, 10)}.csv`);
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                  }}
+                  className="px-3 py-1 border border-slate-700 hover:bg-slate-800 text-slate-200 font-bold rounded-sm text-xs transition-colors flex items-center space-x-1.5 shadow-sm shrink-0"
+                >
+                  <Download className="w-3.5 h-3.5" />
+                  <span>Export CSV</span>
+                </button>
               </div>
             </div>
 

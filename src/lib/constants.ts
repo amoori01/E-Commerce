@@ -1916,6 +1916,26 @@ export const INITIAL_ADMIN_AUDIT_LOGS: import('@/types').AdminAuditLog[] = [
     ipAddress: '196.188.241.10',
     status: 'SUCCESS',
   },
+  {
+    id: 'log-105',
+    timestamp: '2026-11-03T15:45:00Z',
+    adminName: 'Alemayehu Tadesse (Super Admin)',
+    adminEmail: 'admin@amgholdings.et',
+    action: 'DEPOT_TRANSFER',
+    details: 'Dispatched transfer TRF-2026-0041: 400 units of AMG-STEEL-RB-16MM from Adama Industrial Park Hub to Addis Ababa Central Hub (Truck: ET-3-99120)',
+    ipAddress: '196.188.241.10',
+    status: 'SUCCESS',
+  },
+  {
+    id: 'log-106',
+    timestamp: '2026-11-02T22:00:00Z',
+    adminName: 'Alemayehu Tadesse (Super Admin)',
+    adminEmail: 'admin@amgholdings.et',
+    action: 'MAINTENANCE_TOGGLE',
+    details: 'Scheduled infrastructure maintenance window toggled off after successful ERP mirror synchronization.',
+    ipAddress: '196.188.241.10',
+    status: 'SUCCESS',
+  },
 ];
 
 export const INITIAL_DEPOT_TRANSFERS: import('@/types').InterDepotTransfer[] = [
