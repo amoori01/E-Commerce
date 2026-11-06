@@ -1794,6 +1794,11 @@ export default function SuperAdminPage() {
                   <button
                     type="button"
                     onClick={() => {
+                      if (typeof window !== 'undefined') {
+                        try {
+                          localStorage.setItem('amg_maintenance_message', maintenanceMessage);
+                        } catch (e) {}
+                      }
                       logAdminAudit('MAINTENANCE_TOGGLE', `Updated maintenance banner: "${maintenanceMessage}"`);
                       setSavedSettingsNotice('Maintenance banner message committed.');
                       setTimeout(() => setSavedSettingsNotice(null), 3000);

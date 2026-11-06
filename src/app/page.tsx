@@ -20,6 +20,7 @@ import {
   X,
   Search,
   Eye,
+  AlertTriangle,
 } from 'lucide-react';
 
 function HomePageContent() {
@@ -31,6 +32,16 @@ function HomePageContent() {
   const [expandedSpecsId, setExpandedSpecsId] = useState<string | null>(null);
   const [quickViewProduct, setQuickViewProduct] = useState<Product | null>(null);
   const [addedProductId, setAddedProductId] = useState<string | null>(null);
+  const [isMaintenanceActive, setIsMaintenanceActive] = useState<boolean>(false);
+  const [maintenanceNotice, setMaintenanceNotice] = useState<string>('');
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      setIsMaintenanceActive(localStorage.getItem('amg_maintenance_mode') === 'true');
+      const msg = localStorage.getItem('amg_maintenance_message');
+      if (msg) setMaintenanceNotice(msg);
+    }
+  }, []);
 
   const handleAddToCartWithFeedback = (product: Product) => {
     addToCart(product);
@@ -113,6 +124,14 @@ function HomePageContent() {
 
   return (
     <div className="space-y-12 pb-20 bg-[#FAFAFA] dark:bg-[#0B0B0C] transition-colors">
+      {/* Consortium Maintenance Mode Alert */}
+      {isMaintenanceActive && (
+        <div className="bg-amber-500 text-slate-950 font-bold px-4 py-3 text-center text-xs flex items-center justify-center space-x-2 shadow-lg">
+          <AlertTriangle className="w-4 h-4 shrink-0" />
+          <span>CONSORTIUM MAINTENANCE NOTICE: {maintenanceNotice || 'Scheduled infrastructure mirror sync in progress. Order intake and catalog browsing will resume momentarily.'}</span>
+        </div>
+      )}
+
       {/* 1. STREAMLINED ENTERPRISE HERO */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 pt-6">
         <div className="bg-[#0B0B0C] text-white rounded-3xl p-8 sm:p-12 border border-[#1A1A1D] shadow-2xl relative overflow-hidden group hover:border-[#C6F432]/30 transition-all duration-300">
