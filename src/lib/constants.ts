@@ -1875,4 +1875,173 @@ export const INITIAL_AUDIT_MOVEMENTS: import('@/types').StockMovementAudit[] = [
   },
 ];
 
+export const INITIAL_ADMIN_AUDIT_LOGS: import('@/types').AdminAuditLog[] = [
+  {
+    id: 'log-101',
+    timestamp: '2026-11-06T20:15:00Z',
+    adminName: 'Alemayehu Tadesse (Super Admin)',
+    adminEmail: 'admin@amgholdings.et',
+    action: 'TAX_POLICY_UPDATE',
+    details: 'Verified national VAT rate committed at 15.0% and Withholding Tax at 2.0% under MFA token.',
+    ipAddress: '196.188.241.10 (EthioTelecom IP)',
+    status: 'SUCCESS',
+  },
+  {
+    id: 'log-102',
+    timestamp: '2026-11-06T18:40:00Z',
+    adminName: 'Alemayehu Tadesse (Super Admin)',
+    adminEmail: 'admin@amgholdings.et',
+    action: 'COUPON_MANAGEMENT',
+    details: 'Created corporate promotion BUILDETHIOPIA10 (10% discount, min order ETB 50,000).',
+    ipAddress: '196.188.241.10',
+    status: 'SUCCESS',
+  },
+  {
+    id: 'log-103',
+    timestamp: '2026-11-05T14:22:00Z',
+    adminName: 'Alemayehu Tadesse (Super Admin)',
+    adminEmail: 'admin@amgholdings.et',
+    action: 'PAYMENT_KILL_SWITCH',
+    details: 'All 4 national switches (Telebirr, CBE Birr, Chapa, Bank Wire) validated and active.',
+    ipAddress: '196.188.241.10',
+    status: 'SUCCESS',
+  },
+  {
+    id: 'log-104',
+    timestamp: '2026-11-04T11:10:00Z',
+    adminName: 'Alemayehu Tadesse (Super Admin)',
+    adminEmail: 'admin@amgholdings.et',
+    action: 'USER_GOVERNANCE',
+    details: 'Provisioned role for Dawit Getachew as Branch Admin for Addis Ababa Central Hub.',
+    ipAddress: '196.188.241.10',
+    status: 'SUCCESS',
+  },
+];
+
+export const INITIAL_DEPOT_TRANSFERS: import('@/types').InterDepotTransfer[] = [
+  {
+    transferNumber: 'TRF-2026-0041',
+    date: '2026-11-05T08:30:00Z',
+    sku: 'AMG-STEEL-RB-16MM',
+    productName: 'Grade 60 Deformed High-Yield Rebar (16mm x 12m)',
+    sourceBranchId: 'a2222222-2222-2222-2222-222222222222',
+    sourceBranchName: 'Adama Industrial Park Hub',
+    destBranchId: 'a1111111-1111-1111-1111-111111111111',
+    destBranchName: 'Addis Ababa Central Hub',
+    quantity: 400,
+    status: 'IN_TRANSIT',
+    dispatchedBy: 'Adama Logistics Desk',
+    truckPlate: 'ET-3-99120',
+  },
+  {
+    transferNumber: 'TRF-2026-0038',
+    date: '2026-11-03T10:15:00Z',
+    sku: 'AMG-ROOF-ET-040',
+    productName: 'Ethio Tile Pre-Painted Roofing Sheet (0.40mm Terracotta Red)',
+    sourceBranchId: 'a1111111-1111-1111-1111-111111111111',
+    sourceBranchName: 'Addis Ababa Central Hub',
+    destBranchId: 'a4444444-4444-4444-4444-444444444444',
+    destBranchName: 'Dire Dawa Logistics Hub',
+    quantity: 250,
+    status: 'RECEIVED',
+    dispatchedBy: 'Addis Dispatch Bay 02',
+    truckPlate: 'AA-3-48191',
+  },
+];
+
+export const INITIAL_SETTLEMENT_BATCHES: import('@/types').FinancialSettlementBatch[] = [
+  {
+    batchId: 'SETTLE-2026-W44-01',
+    date: '2026-11-06T17:00:00Z',
+    gateway: 'cbe_transfer',
+    gatewayName: 'Commercial Bank of Ethiopia Direct RTGS / Transfer',
+    grossAmountEtb: 4850000,
+    feeAmountEtb: 0,
+    netDisbursedEtb: 4850000,
+    transactionCount: 28,
+    status: 'SETTLED',
+    payoutAccount: 'CBE Corporate A/C 1000123456789',
+  },
+  {
+    batchId: 'SETTLE-2026-W44-02',
+    date: '2026-11-06T17:00:00Z',
+    gateway: 'telebirr',
+    gatewayName: 'Telebirr SuperApp Digital Core Rail',
+    grossAmountEtb: 1420000,
+    feeAmountEtb: 21300, // 1.5% fee
+    netDisbursedEtb: 1398700,
+    transactionCount: 42,
+    status: 'SETTLED',
+    payoutAccount: 'Ethio Telecom Merchant 9812901',
+  },
+  {
+    batchId: 'SETTLE-2026-W44-03',
+    date: '2026-11-05T17:00:00Z',
+    gateway: 'chapa',
+    gatewayName: 'Chapa Visa & Mastercard Switch',
+    grossAmountEtb: 890000,
+    feeAmountEtb: 22250, // 2.5% fee
+    netDisbursedEtb: 867750,
+    transactionCount: 15,
+    status: 'SETTLED',
+    payoutAccount: 'Awash Bank Corporate A/C 0132049182',
+  },
+  {
+    batchId: 'SETTLE-2026-W44-04',
+    date: '2026-11-07T00:00:00Z',
+    gateway: 'cbe_birr',
+    gatewayName: 'CBE Birr Instant Mobile Banking Core',
+    grossAmountEtb: 620000,
+    feeAmountEtb: 6200, // 1.0% fee
+    netDisbursedEtb: 613800,
+    transactionCount: 19,
+    status: 'PENDING_CLEARANCE',
+    payoutAccount: 'CBE Core Settlement Ledger',
+  },
+];
+
+export const INITIAL_WEBHOOK_STATUSES: import('@/types').WebhookHealthStatus[] = [
+  {
+    serviceName: 'CBE Bank Transfer Verification API',
+    endpoint: '/api/payments/finance-verify',
+    status: 'OPERATIONAL',
+    latencyMs: 34,
+    lastPing: '2026-11-06T21:40:00Z',
+    successRate: 99.8,
+  },
+  {
+    serviceName: 'Telebirr SuperApp STK Callback',
+    endpoint: '/api/webhooks/telebirr',
+    status: 'OPERATIONAL',
+    latencyMs: 62,
+    lastPing: '2026-11-06T21:39:00Z',
+    successRate: 99.4,
+  },
+  {
+    serviceName: 'CBE Birr Core Banking Webhook',
+    endpoint: '/api/webhooks/cbe-birr',
+    status: 'OPERATIONAL',
+    latencyMs: 45,
+    lastPing: '2026-11-06T21:38:00Z',
+    successRate: 99.1,
+  },
+  {
+    serviceName: 'Chapa International Card Gateway',
+    endpoint: '/api/webhooks/chapa',
+    status: 'OPERATIONAL',
+    latencyMs: 118,
+    lastPing: '2026-11-06T21:37:00Z',
+    successRate: 98.7,
+  },
+  {
+    serviceName: 'Consortium ERP Bi-Directional Mirror',
+    endpoint: '/api/erp/sync',
+    status: 'OPERATIONAL',
+    latencyMs: 82,
+    lastPing: '2026-11-06T21:39:30Z',
+    successRate: 100.0,
+  },
+];
+
+
 

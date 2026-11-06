@@ -411,3 +411,52 @@ export interface ErpSyncMessage {
   errorMessage?: string;
 }
 
+export interface AdminAuditLog {
+  id: string;
+  timestamp: string;
+  adminName: string;
+  adminEmail: string;
+  action: 'PAYMENT_KILL_SWITCH' | 'TAX_POLICY_UPDATE' | 'USER_GOVERNANCE' | 'COUPON_MANAGEMENT' | 'PRODUCT_CATALOG' | 'MAINTENANCE_TOGGLE' | 'DEPOT_TRANSFER';
+  details: string;
+  ipAddress?: string;
+  status: 'SUCCESS' | 'WARNING' | 'FAILED';
+}
+
+export interface InterDepotTransfer {
+  transferNumber: string;
+  date: string;
+  sku: string;
+  productName: string;
+  sourceBranchId: string;
+  sourceBranchName: string;
+  destBranchId: string;
+  destBranchName: string;
+  quantity: number;
+  status: 'IN_TRANSIT' | 'RECEIVED' | 'PENDING_DISPATCH';
+  dispatchedBy: string;
+  truckPlate: string;
+}
+
+export interface FinancialSettlementBatch {
+  batchId: string;
+  date: string;
+  gateway: 'cbe_transfer' | 'telebirr' | 'cbe_birr' | 'chapa';
+  gatewayName: string;
+  grossAmountEtb: number;
+  feeAmountEtb: number;
+  netDisbursedEtb: number;
+  transactionCount: number;
+  status: 'SETTLED' | 'PENDING_CLEARANCE';
+  payoutAccount: string;
+}
+
+export interface WebhookHealthStatus {
+  serviceName: string;
+  endpoint: string;
+  status: 'OPERATIONAL' | 'DEGRADED' | 'MAINTENANCE';
+  latencyMs: number;
+  lastPing: string;
+  successRate: number;
+}
+
+

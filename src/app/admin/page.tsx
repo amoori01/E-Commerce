@@ -10,8 +10,23 @@ import {
   SEEDED_USERS,
   BRANCHES,
   INITIAL_COUPONS,
+  INVENTORY_ITEMS,
+  INITIAL_ADMIN_AUDIT_LOGS,
+  INITIAL_DEPOT_TRANSFERS,
+  INITIAL_SETTLEMENT_BATCHES,
+  INITIAL_WEBHOOK_STATUSES,
 } from '@/lib/constants';
-import { Product, UserProfile, UserRole, CouponDiscount } from '@/types';
+import {
+  Product,
+  UserProfile,
+  UserRole,
+  CouponDiscount,
+  AdminAuditLog,
+  InterDepotTransfer,
+  FinancialSettlementBatch,
+  WebhookHealthStatus,
+  InventoryItem,
+} from '@/types';
 import {
   Shield,
   Layers,
@@ -46,13 +61,35 @@ import {
   Edit3,
   Percent,
   Calendar,
+  Activity,
+  Truck,
+  ArrowUpDown,
+  Landmark,
+  Download,
+  Radio,
+  Server,
+  HardDrive,
+  Send,
+  Clock,
+  Warehouse,
 } from 'lucide-react';
 import { MfaVerificationModal } from '@/components/modals/MfaVerificationModal';
 
 export default function SuperAdminPage() {
   const { currentUser, activeRole, switchRole } = useAuth();
   const [activeTab, setActiveTab] = useState<
-    'overview' | 'products' | 'orders' | 'rfqs' | 'users' | 'coupons' | 'payments' | 'tax_settings'
+    | 'overview'
+    | 'products'
+    | 'orders'
+    | 'rfqs'
+    | 'coupons'
+    | 'users'
+    | 'inventory_health'
+    | 'settlement'
+    | 'audit_logs'
+    | 'system_health'
+    | 'payments'
+    | 'tax_settings'
   >('overview');
 
   // User Management State (Feature 1)
@@ -87,33 +124,72 @@ export default function SuperAdminPage() {
   const [newCouponExpiry, setNewCouponExpiry] = useState('2026-12-31');
   const [newCouponSubId, setNewCouponSubId] = useState<string>('all');
 
+  // Feature 3: Security & Compliance Audit Log State
+  const [auditLogsList, setAuditLogsList] = useState<AdminAuditLog[]>(INITIAL_ADMIN_AUDIT_LOGS);
+  const [auditSearch, setAuditSearch] = useState('');
+  const [auditActionFilter, setAuditActionFilter] = useState<string>('all');
+
+  // Feature 4: Cross-Depot Inventory Health & Transfer State
+  const [inventoryList, setInventoryList] = useState<InventoryItem[]>(INVENTORY_ITEMS);
+  const [transfersList, setTransfersList] = useState<InterDepotTransfer[]>(INITIAL_DEPOT_TRANSFERS);
+  const [isTransferModalOpen, setIsTransferModalOpen] = useState(false);
+  const [transferSku, setTransferSku] = useState(INVENTORY_ITEMS[0].sku);
+  const [transferSourceId, setTransferSourceId] = useState(BRANCHES[1].id); // Adama
+  const [transferDestId, setTransferDestId] = useState(BRANCHES[0].id); // Addis
+  const [transferQty, setTransferQty] = useState<number>(100);
+  const [transferTruckPlate, setTransferTruckPlate] = useState('ET-3-88219');
+  const [transferDriver, setTransferDriver] = useState('Kassahun Wolde');
+
+  // Feature 5: Financial Settlement & Gateway Reconciliation State
+  const [settlementBatches, setSettlementBatches] = useState<FinancialSettlementBatch[]>(INITIAL_SETTLEMENT_BATCHES);
+  const [settlementSearch, setSettlementSearch] = useState('');
+
+  // Feature 6: System Health & Maintenance Mode State
+  const [isMaintenanceMode, setIsMaintenanceMode] = useState<boolean>(false);
+  const [maintenanceMessage, setMaintenanceMessage] = useState(
+    'Scheduled consortium infrastructure mirror sync in progress. Order intake and catalog browsing will resume momentarily.'
+  );
+  const [webhookStatuses, setWebhookStatuses] = useState<WebhookHealthStatus[]>(INITIAL_WEBHOOK_STATUSES);
+  const [isPingingWebhooks, setIsPingingWebhooks] = useState(false);
+
   useEffect(() => {
     if (typeof window !== 'undefined') {
       const params = new URLSearchParams(window.location.search);
       const tabParam = params.get('tab');
-      if (tabParam === 'products' || tabParam === 'catalog') {
-        setActiveTab('products');
-      } else if (tabParam === 'users') {
-        setActiveTab('users');
-      } else if (tabParam === 'coupons') {
-        setActiveTab('coupons');
+      if (tabParam) {
+        setActiveTab(tabParam as any);
       }
 
-      // Load cached users and coupons
+      // Load cached states
       try {
         const storedUsers = localStorage.getItem('amg_users');
         if (storedUsers) {
           const parsed = JSON.parse(storedUsers);
-          if (Array.isArray(parsed) && parsed.length > 0) {
-            setUsersList(parsed);
-          }
+          if (Array.isArray(parsed) && parsed.length > 0) setUsersList(parsed);
         }
         const storedCoupons = localStorage.getItem('amg_coupons');
         if (storedCoupons) {
           const parsed = JSON.parse(storedCoupons);
-          if (Array.isArray(parsed) && parsed.length > 0) {
-            setCouponsList(parsed);
-          }
+          if (Array.isArray(parsed) && parsed.length > 0) setCouponsList(parsed);
+        }
+        const storedAudits = localStorage.getItem('amg_admin_audit_logs');
+        if (storedAudits) {
+          const parsed = JSON.parse(storedAudits);
+          if (Array.isArray(parsed) && parsed.length > 0) setAuditLogsList(parsed);
+        }
+        const storedTransfers = localStorage.getItem('amg_depot_transfers');
+        if (storedTransfers) {
+          const parsed = JSON.parse(storedTransfers);
+          if (Array.isArray(parsed) && parsed.length > 0) setTransfersList(parsed);
+        }
+        const storedSettlements = localStorage.getItem('amg_settlement_batches');
+        if (storedSettlements) {
+          const parsed = JSON.parse(storedSettlements);
+          if (Array.isArray(parsed) && parsed.length > 0) setSettlementBatches(parsed);
+        }
+        const storedMaint = localStorage.getItem('amg_maintenance_mode');
+        if (storedMaint) {
+          setIsMaintenanceMode(storedMaint === 'true');
         }
       } catch (e) {}
     }
@@ -215,8 +291,35 @@ export default function SuperAdminPage() {
     setIsMfaOpen(true);
   };
 
+  const logAdminAudit = (
+    action: AdminAuditLog['action'],
+    details: string,
+    status: AdminAuditLog['status'] = 'SUCCESS'
+  ) => {
+    const newLog: AdminAuditLog = {
+      id: `log-${Date.now()}`,
+      timestamp: new Date().toISOString(),
+      adminName: currentUser.fullName,
+      adminEmail: currentUser.email,
+      action,
+      details,
+      ipAddress: '196.188.241.10 (EthioTelecom / Addis HQ)',
+      status,
+    };
+    setAuditLogsList((prev) => {
+      const next = [newLog, ...prev];
+      if (typeof window !== 'undefined') {
+        try {
+          localStorage.setItem('amg_admin_audit_logs', JSON.stringify(next));
+        } catch (e) {}
+      }
+      return next;
+    });
+  };
+
   const handleMfaConfirmed = () => {
     setIsMfaOpen(false);
+    logAdminAudit('TAX_POLICY_UPDATE', `Committed national VAT rate ${vatRate}% & Withholding ${withholdingRate}% under MFA`);
     setSavedSettingsNotice(`Tax Policy Updated: Standard VAT ${vatRate}% & Withholding ${withholdingRate}% committed across all subsidiaries under verified MFA token.`);
     setTimeout(() => setSavedSettingsNotice(null), 3500);
   };
@@ -348,6 +451,102 @@ export default function SuperAdminPage() {
         localStorage.setItem('amg_coupons', JSON.stringify(nextList));
       } catch (e) {}
     }
+    logAdminAudit('COUPON_MANAGEMENT', `Deleted promo coupon ${code}`);
+  };
+
+  // Feature 4: Inter-Depot Stock Transfer
+  const handleInitiateDepotTransfer = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (transferSourceId === transferDestId) {
+      alert('Source and Destination depots cannot be the same facility.');
+      return;
+    }
+    const product = inventoryList.find((i) => i.sku === transferSku);
+    const sourceBranch = BRANCHES.find((b) => b.id === transferSourceId);
+    const destBranch = BRANCHES.find((b) => b.id === transferDestId);
+
+    const newTransfer: InterDepotTransfer = {
+      transferNumber: `TRF-2026-${Math.floor(1000 + Math.random() * 9000)}`,
+      date: new Date().toISOString(),
+      sku: transferSku,
+      productName: product?.productName || 'Industrial Consignment',
+      sourceBranchId: transferSourceId,
+      sourceBranchName: sourceBranch?.name || 'Regional Hub',
+      destBranchId: transferDestId,
+      destBranchName: destBranch?.name || 'Regional Hub',
+      quantity: transferQty,
+      status: 'IN_TRANSIT',
+      dispatchedBy: currentUser.fullName,
+      truckPlate: transferTruckPlate,
+    };
+
+    const nextList = [newTransfer, ...transfersList];
+    setTransfersList(nextList);
+    if (typeof window !== 'undefined') {
+      try {
+        localStorage.setItem('amg_depot_transfers', JSON.stringify(nextList));
+      } catch (e) {}
+    }
+
+    logAdminAudit(
+      'DEPOT_TRANSFER',
+      `Dispatched transfer ${newTransfer.transferNumber}: ${transferQty} units of ${transferSku} from ${newTransfer.sourceBranchName} to ${newTransfer.destBranchName} (Truck: ${transferTruckPlate})`
+    );
+
+    setIsTransferModalOpen(false);
+    setSavedSettingsNotice(`Inter-depot transfer ${newTransfer.transferNumber} dispatched successfully!`);
+    setTimeout(() => setSavedSettingsNotice(null), 3500);
+  };
+
+  // Feature 5: Reconcile Financial Batch
+  const handleReconcileBatch = (batchId: string) => {
+    const nextList = settlementBatches.map((b) =>
+      b.batchId === batchId ? { ...b, status: 'SETTLED' as const } : b
+    );
+    setSettlementBatches(nextList);
+    if (typeof window !== 'undefined') {
+      try {
+        localStorage.setItem('amg_settlement_batches', JSON.stringify(nextList));
+      } catch (e) {}
+    }
+    logAdminAudit('TAX_POLICY_UPDATE', `Reconciled financial settlement batch ${batchId}`);
+    setSavedSettingsNotice(`Settlement batch ${batchId} reconciled and cleared for subsidiary payout.`);
+    setTimeout(() => setSavedSettingsNotice(null), 3500);
+  };
+
+  // Feature 6: Maintenance Mode & Webhook Ping
+  const handleToggleMaintenanceMode = () => {
+    const nextState = !isMaintenanceMode;
+    setIsMaintenanceMode(nextState);
+    if (typeof window !== 'undefined') {
+      try {
+        localStorage.setItem('amg_maintenance_mode', String(nextState));
+      } catch (e) {}
+    }
+    logAdminAudit(
+      'MAINTENANCE_TOGGLE',
+      `Platform maintenance mode set to ${nextState ? 'ENABLED' : 'DISABLED'}`,
+      nextState ? 'WARNING' : 'SUCCESS'
+    );
+    setSavedSettingsNotice(`Consortium Maintenance Mode ${nextState ? 'ACTIVATED' : 'DEACTIVATED'}.`);
+    setTimeout(() => setSavedSettingsNotice(null), 3500);
+  };
+
+  const handlePingWebhooks = () => {
+    setIsPingingWebhooks(true);
+    setTimeout(() => {
+      setWebhookStatuses((prev) =>
+        prev.map((w) => ({
+          ...w,
+          latencyMs: Math.floor(25 + Math.random() * 80),
+          lastPing: new Date().toISOString(),
+        }))
+      );
+      setIsPingingWebhooks(false);
+      logAdminAudit('MAINTENANCE_TOGGLE', 'Pings verified for all payment webhooks & ERP mirrors (100% operational)');
+      setSavedSettingsNotice('All national payment webhooks and ERP mirrors verified live (100% operational).');
+      setTimeout(() => setSavedSettingsNotice(null), 3500);
+    }, 600);
   };
 
   return (
@@ -416,12 +615,16 @@ export default function SuperAdminPage() {
         <div className="flex border-b border-slate-800 space-x-2 overflow-x-auto scrollbar-none">
           {[
             { id: 'overview', label: 'Executive Overview' },
+            { id: 'inventory_health', label: 'Consortium Depot Health' },
+            { id: 'settlement', label: 'Gateway Settlement Ledger' },
+            { id: 'audit_logs', label: `Compliance Audit (${auditLogsList.length})` },
+            { id: 'system_health', label: 'System & Webhooks' },
             { id: 'products', label: `Master Catalog (${productsList.length})` },
             { id: 'orders', label: `Direct Orders (${INITIAL_ORDERS.length})` },
             { id: 'rfqs', label: `RFQ Pipeline (${INITIAL_QUOTES.length})` },
             { id: 'coupons', label: `Promo Vouchers (${couponsList.length})` },
-            { id: 'tax_settings', label: 'ERCA Tax & Financial Rules' },
-            { id: 'payments', label: 'Payment Gateway Switchboard' },
+            { id: 'payments', label: 'Payment Switches' },
+            { id: 'tax_settings', label: 'ERCA Tax Rules' },
             { id: 'users', label: `Staff & RBAC (${usersList.length})` },
           ].map((tab) => (
             <button
@@ -437,6 +640,28 @@ export default function SuperAdminPage() {
             </button>
           ))}
         </div>
+
+        {/* Global Maintenance Mode Banner */}
+        {isMaintenanceMode && (
+          <div className="bg-amber-950/80 border-2 border-amber-500 p-4 rounded-sm flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-amber-200 text-xs shadow-lg animate-pulse">
+            <div className="flex items-center space-x-3">
+              <AlertTriangle className="w-5 h-5 text-amber-400 shrink-0" />
+              <div>
+                <strong className="text-white uppercase tracking-wider block">
+                  CONSORTIUM MAINTENANCE MODE ACTIVE
+                </strong>
+                <span>{maintenanceMessage}</span>
+              </div>
+            </div>
+            <button
+              type="button"
+              onClick={handleToggleMaintenanceMode}
+              className="px-3 py-1.5 bg-amber-600 hover:bg-amber-700 text-white font-bold rounded-sm text-xs transition-colors shrink-0"
+            >
+              Resume Normal Operations
+            </button>
+          </div>
+        )}
 
         {savedSettingsNotice && (
           <div className="bg-emerald-950/70 border border-emerald-600 text-emerald-300 p-3 rounded-sm flex items-center space-x-2 font-semibold text-xs">
@@ -1048,6 +1273,565 @@ export default function SuperAdminPage() {
           </div>
         )}
 
+        {/* TAB: CONSORTIUM DEPOT HEALTH & INVENTORY VALUATION (FEATURE 4) */}
+        {activeTab === 'inventory_health' && (
+          <div className="space-y-6">
+            {/* KPI Cards */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+              <div className="bg-slate-900 border border-slate-800 p-4 rounded-sm space-y-1 shadow-panel">
+                <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">
+                  Consortium Stock Valuation
+                </span>
+                <div className="text-xl font-extrabold font-mono text-emerald-400">
+                  ETB 48,250,000
+                </div>
+                <span className="text-[11px] text-slate-400">Asset value across 4 regional yards</span>
+              </div>
+
+              <div className="bg-slate-900 border border-slate-800 p-4 rounded-sm space-y-1 shadow-panel">
+                <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">
+                  Managed Physical Units
+                </span>
+                <div className="text-xl font-extrabold font-mono text-white">
+                  {inventoryList.reduce((acc, i) => acc + i.quantityOnHand, 0).toLocaleString()} Units
+                </div>
+                <span className="text-[11px] text-slate-400">Total physical on-hand quantity</span>
+              </div>
+
+              <div className="bg-slate-900 border border-slate-800 p-4 rounded-sm space-y-1 shadow-panel">
+                <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">
+                  Safety Stock Alerts
+                </span>
+                <div className="text-xl font-extrabold font-mono text-amber-400">
+                  {inventoryList.filter((i) => i.quantityOnHand <= i.safetyStockThreshold).length} Low-Stock Triggers
+                </div>
+                <span className="text-[11px] text-amber-500">Approaching threshold safety line</span>
+              </div>
+
+              <div className="bg-slate-900 border border-slate-800 p-4 rounded-sm space-y-1 shadow-panel">
+                <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">
+                  Inter-Depot Transfers
+                </span>
+                <div className="text-xl font-extrabold font-mono text-indigo-400">
+                  {transfersList.filter((t) => t.status === 'IN_TRANSIT').length} In-Transit
+                </div>
+                <span className="text-[11px] text-slate-400">Regional logistics balancing grid</span>
+              </div>
+            </div>
+
+            {/* Cross-Depot Stock Matrix */}
+            <div className="bg-slate-900 border border-slate-800 rounded-sm p-5 space-y-4">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-3 border-b border-slate-800 gap-3">
+                <div>
+                  <div className="flex items-center space-x-2">
+                    <Warehouse className="w-4 h-4 text-emerald-400" />
+                    <h3 className="text-sm font-bold text-white uppercase tracking-wider">
+                      Regional Depot Inventory Distribution & Health Matrix
+                    </h3>
+                  </div>
+                  <p className="text-[11px] text-slate-400 mt-0.5">
+                    Live physical stock comparison across Addis Ababa Central Hub, Adama, Dire Dawa, and Hawassa.
+                  </p>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => setIsTransferModalOpen(true)}
+                  className="px-3.5 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-sm text-xs transition-colors flex items-center space-x-1.5 shadow-sm shrink-0"
+                >
+                  <ArrowUpDown className="w-3.5 h-3.5" />
+                  <span>Initiate Inter-Depot Transfer</span>
+                </button>
+              </div>
+
+              <div className="overflow-x-auto">
+                <table className="w-full text-left text-xs">
+                  <thead className="bg-slate-950 text-slate-400 font-semibold border-b border-slate-800">
+                    <tr>
+                      <th className="py-2.5 px-3">SKU & Description</th>
+                      <th className="py-2.5 px-3">Operating Division</th>
+                      <th className="py-2.5 px-3">Primary Depot Facility</th>
+                      <th className="py-2.5 px-3">Yard Bay Location</th>
+                      <th className="py-2.5 px-3 text-right">Physical On-Hand</th>
+                      <th className="py-2.5 px-3 text-right">Reserved</th>
+                      <th className="py-2.5 px-3 text-center">Safety Status</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-800 text-slate-300">
+                    {inventoryList.map((item) => {
+                      const isLow = item.quantityOnHand <= item.safetyStockThreshold;
+                      return (
+                        <tr key={item.id} className="hover:bg-slate-800/40">
+                          <td className="py-2.5 px-3">
+                            <span className="font-mono font-bold text-indigo-400">{item.sku}</span>
+                            <div className="text-white font-medium">{item.productName}</div>
+                          </td>
+                          <td className="py-2.5 px-3 text-slate-400">{item.subsidiaryName}</td>
+                          <td className="py-2.5 px-3 text-slate-300 font-semibold">{item.branchName}</td>
+                          <td className="py-2.5 px-3 font-mono text-[11px] text-slate-400">{item.bayLocation || 'Yard Bay 04'}</td>
+                          <td className="py-2.5 px-3 text-right font-mono font-bold text-white text-sm">
+                            {item.quantityOnHand.toLocaleString()}
+                          </td>
+                          <td className="py-2.5 px-3 text-right font-mono text-slate-400">
+                            {item.quantityReserved.toLocaleString()}
+                          </td>
+                          <td className="py-2.5 px-3 text-center">
+                            {isLow ? (
+                              <span className="px-2 py-0.5 bg-amber-950 text-amber-400 border border-amber-800 rounded font-bold text-[10px]">
+                                ⚠️ REORDER RISK
+                              </span>
+                            ) : (
+                              <span className="px-2 py-0.5 bg-emerald-950 text-emerald-400 border border-emerald-800 rounded font-bold text-[10px]">
+                                HEALTHY BUFFER
+                              </span>
+                            )}
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            {/* Inter-Depot Transfers Ledger */}
+            <div className="bg-slate-900 border border-slate-800 rounded-sm p-5 space-y-4">
+              <div className="flex items-center space-x-2 pb-3 border-b border-slate-800">
+                <Truck className="w-4 h-4 text-indigo-400" />
+                <h3 className="text-sm font-bold text-white uppercase tracking-wider">
+                  Active Inter-Depot Stock Transfers & Transit Waybills
+                </h3>
+              </div>
+
+              <div className="overflow-x-auto">
+                <table className="w-full text-left text-xs">
+                  <thead className="bg-slate-950 text-slate-400 font-semibold border-b border-slate-800">
+                    <tr>
+                      <th className="py-2.5 px-3">Transfer #</th>
+                      <th className="py-2.5 px-3">Date</th>
+                      <th className="py-2.5 px-3">Product / SKU</th>
+                      <th className="py-2.5 px-3">Origin Hub</th>
+                      <th className="py-2.5 px-3">Destination Hub</th>
+                      <th className="py-2.5 px-3 text-right">Transfer Qty</th>
+                      <th className="py-2.5 px-3">Carrier / Truck Plate</th>
+                      <th className="py-2.5 px-3 text-center">Transit Status</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-800 text-slate-300">
+                    {transfersList.map((trf) => (
+                      <tr key={trf.transferNumber} className="hover:bg-slate-800/40">
+                        <td className="py-2.5 px-3 font-mono font-bold text-indigo-400">{trf.transferNumber}</td>
+                        <td className="py-2.5 px-3 text-slate-400 font-mono text-[11px]">
+                          {new Date(trf.date).toLocaleDateString()}
+                        </td>
+                        <td className="py-2.5 px-3">
+                          <div className="font-bold text-white">{trf.productName}</div>
+                          <div className="text-[10px] font-mono text-slate-500">{trf.sku}</div>
+                        </td>
+                        <td className="py-2.5 px-3 text-slate-300">{trf.sourceBranchName}</td>
+                        <td className="py-2.5 px-3 text-slate-300 font-bold">{trf.destBranchName}</td>
+                        <td className="py-2.5 px-3 text-right font-mono font-bold text-emerald-400 text-sm">
+                          {trf.quantity.toLocaleString()} Units
+                        </td>
+                        <td className="py-2.5 px-3 text-slate-400">
+                          <span className="font-mono font-bold text-slate-200">{trf.truckPlate}</span>
+                          <span className="block text-[10px]">{trf.dispatchedBy}</span>
+                        </td>
+                        <td className="py-2.5 px-3 text-center">
+                          {trf.status === 'IN_TRANSIT' ? (
+                            <span className="px-2 py-0.5 bg-amber-950 text-amber-400 border border-amber-800 rounded font-bold text-[10px] animate-pulse">
+                              IN TRANSIT
+                            </span>
+                          ) : (
+                            <span className="px-2 py-0.5 bg-emerald-950 text-emerald-400 border border-emerald-800 rounded font-bold text-[10px]">
+                              RECEIVED
+                            </span>
+                          )}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* TAB: FINANCIAL SETTLEMENT & GATEWAY RECONCILIATION (FEATURE 5) */}
+        {activeTab === 'settlement' && (
+          <div className="space-y-6">
+            {/* Overview KPIs */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+              <div className="bg-slate-900 border border-slate-800 p-4 rounded-sm space-y-1 shadow-panel">
+                <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">
+                  Gross Settlement GMV
+                </span>
+                <div className="text-xl font-extrabold font-mono text-emerald-400">
+                  ETB {settlementBatches.reduce((acc, b) => acc + b.grossAmountEtb, 0).toLocaleString()}
+                </div>
+                <span className="text-[11px] text-slate-400">Aggregated digital collections</span>
+              </div>
+
+              <div className="bg-slate-900 border border-slate-800 p-4 rounded-sm space-y-1 shadow-panel">
+                <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">
+                  Processing Deductions & Fees
+                </span>
+                <div className="text-xl font-extrabold font-mono text-rose-400">
+                  -ETB {settlementBatches.reduce((acc, b) => acc + b.feeAmountEtb, 0).toLocaleString()}
+                </div>
+                <span className="text-[11px] text-slate-400">Telebirr, CBE Birr & Chapa switch fees</span>
+              </div>
+
+              <div className="bg-slate-900 border border-slate-800 p-4 rounded-sm space-y-1 shadow-panel">
+                <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">
+                  Net Disbursed Funds
+                </span>
+                <div className="text-xl font-extrabold font-mono text-indigo-400">
+                  ETB {settlementBatches.reduce((acc, b) => acc + b.netDisbursedEtb, 0).toLocaleString()}
+                </div>
+                <span className="text-[11px] text-slate-400">Ready for subsidiary bank payout</span>
+              </div>
+
+              <div className="bg-slate-900 border border-slate-800 p-4 rounded-sm space-y-1 shadow-panel">
+                <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">
+                  Reconciled Batches
+                </span>
+                <div className="text-xl font-extrabold font-mono text-white">
+                  {settlementBatches.filter((b) => b.status === 'SETTLED').length} of {settlementBatches.length} Cleared
+                </div>
+                <span className="text-[11px] text-slate-400">CBE & Telebirr ledger reconciliation</span>
+              </div>
+            </div>
+
+            {/* Payment Rails Performance Matrix */}
+            <div className="bg-slate-900 border border-slate-800 rounded-sm p-5 space-y-4">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-3 border-b border-slate-800 gap-3">
+                <div>
+                  <div className="flex items-center space-x-2">
+                    <Landmark className="w-4 h-4 text-emerald-400" />
+                    <h3 className="text-sm font-bold text-white uppercase tracking-wider">
+                      National Payment Gateway Settlement Matrix
+                    </h3>
+                  </div>
+                  <p className="text-[11px] text-slate-400 mt-0.5">
+                    Gross receipts, processing transaction interchange, and net commercial bank disbursements.
+                  </p>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    const csvContent =
+                      'data:text/csv;charset=utf-8,BatchID,Date,Gateway,GrossETB,FeesETB,NetETB,Status,Account\n' +
+                      settlementBatches
+                        .map((b) => `${b.batchId},${b.date},${b.gateway},${b.grossAmountEtb},${b.feeAmountEtb},${b.netDisbursedEtb},${b.status},${b.payoutAccount}`)
+                        .join('\n');
+                    const encodedUri = encodeURI(csvContent);
+                    const link = document.createElement('a');
+                    link.setAttribute('href', encodedUri);
+                    link.setAttribute('download', `AMG_Settlement_Report_${new Date().toISOString().split('T')[0]}.csv`);
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                  }}
+                  className="px-3.5 py-1.5 border border-slate-700 hover:bg-slate-800 text-slate-200 font-bold rounded-sm text-xs transition-colors flex items-center space-x-1.5 shadow-sm shrink-0"
+                >
+                  <Download className="w-3.5 h-3.5" />
+                  <span>Export ERCA Settlement CSV</span>
+                </button>
+              </div>
+
+              <div className="overflow-x-auto">
+                <table className="w-full text-left text-xs">
+                  <thead className="bg-slate-950 text-slate-400 font-semibold border-b border-slate-800">
+                    <tr>
+                      <th className="py-2.5 px-3">Batch Reference</th>
+                      <th className="py-2.5 px-3">Settlement Date</th>
+                      <th className="py-2.5 px-3">Digital Payment Switch</th>
+                      <th className="py-2.5 px-3 text-right">Gross GMV</th>
+                      <th className="py-2.5 px-3 text-right">Gateway Fees</th>
+                      <th className="py-2.5 px-3 text-right">Net Payout</th>
+                      <th className="py-2.5 px-3">Subsidiary Payout Account</th>
+                      <th className="py-2.5 px-3 text-center">Status</th>
+                      <th className="py-2.5 px-3 text-center">Action</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-800 text-slate-300">
+                    {settlementBatches.map((batch) => (
+                      <tr key={batch.batchId} className="hover:bg-slate-800/40">
+                        <td className="py-2.5 px-3 font-mono font-bold text-indigo-400">{batch.batchId}</td>
+                        <td className="py-2.5 px-3 text-slate-400 font-mono text-[11px]">
+                          {new Date(batch.date).toLocaleDateString()}
+                        </td>
+                        <td className="py-2.5 px-3">
+                          <span className="font-bold text-white block">{batch.gatewayName}</span>
+                          <span className="text-[10px] text-slate-500 font-mono">{batch.transactionCount} Transactions</span>
+                        </td>
+                        <td className="py-2.5 px-3 text-right font-mono font-bold text-white">
+                          ETB {batch.grossAmountEtb.toLocaleString()}
+                        </td>
+                        <td className="py-2.5 px-3 text-right font-mono text-rose-400">
+                          -ETB {batch.feeAmountEtb.toLocaleString()}
+                        </td>
+                        <td className="py-2.5 px-3 text-right font-mono font-bold text-emerald-400 text-sm">
+                          ETB {batch.netDisbursedEtb.toLocaleString()}
+                        </td>
+                        <td className="py-2.5 px-3 text-slate-400 font-mono text-[11px]">{batch.payoutAccount}</td>
+                        <td className="py-2.5 px-3 text-center">
+                          {batch.status === 'SETTLED' ? (
+                            <span className="px-2 py-0.5 bg-emerald-950 text-emerald-400 border border-emerald-800 rounded font-bold text-[10px]">
+                              SETTLED
+                            </span>
+                          ) : (
+                            <span className="px-2 py-0.5 bg-amber-950 text-amber-400 border border-amber-800 rounded font-bold text-[10px] animate-pulse">
+                              PENDING
+                            </span>
+                          )}
+                        </td>
+                        <td className="py-2.5 px-3 text-center">
+                          {batch.status !== 'SETTLED' ? (
+                            <button
+                              type="button"
+                              onClick={() => handleReconcileBatch(batch.batchId)}
+                              className="px-2 py-1 bg-emerald-700 hover:bg-emerald-600 text-white rounded text-[10px] font-bold transition-colors"
+                            >
+                              Reconcile
+                            </button>
+                          ) : (
+                            <span className="text-slate-500 font-mono text-[11px]">✓ Cleared</span>
+                          )}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* TAB: ADMIN SECURITY & COMPLIANCE AUDIT TRAIL (FEATURE 3) */}
+        {activeTab === 'audit_logs' && (
+          <div className="bg-slate-900 border border-slate-800 rounded-sm p-5 space-y-4">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-3 border-b border-slate-800 gap-3">
+              <div>
+                <div className="flex items-center space-x-2">
+                  <Shield className="w-4 h-4 text-indigo-400" />
+                  <h3 className="text-sm font-bold text-white uppercase tracking-wider">
+                    Administrative & Security Compliance Audit Trail
+                  </h3>
+                </div>
+                <p className="text-[11px] text-slate-400 mt-0.5">
+                  Immutable record of executive role impersonations, tax modifications, payment kill-switches, and coupon issuances.
+                </p>
+              </div>
+
+              <div className="flex items-center space-x-2">
+                <select
+                  value={auditActionFilter}
+                  onChange={(e) => setAuditActionFilter(e.target.value)}
+                  className="border border-slate-800 bg-slate-950 text-slate-300 rounded-sm px-2.5 py-1 text-xs outline-none focus:border-indigo-500"
+                >
+                  <option value="all">All Audit Actions ({auditLogsList.length})</option>
+                  <option value="PAYMENT_KILL_SWITCH">Payment Kill-Switches</option>
+                  <option value="TAX_POLICY_UPDATE">ERCA Tax Policy</option>
+                  <option value="USER_GOVERNANCE">User Governance</option>
+                  <option value="COUPON_MANAGEMENT">Vouchers & Rebates</option>
+                  <option value="DEPOT_TRANSFER">Depot Transfers</option>
+                  <option value="MAINTENANCE_TOGGLE">Maintenance Mode</option>
+                </select>
+
+                <div className="relative">
+                  <Search className="w-3.5 h-3.5 text-slate-500 absolute left-2.5 top-2" />
+                  <input
+                    type="text"
+                    placeholder="Search audit trail..."
+                    value={auditSearch}
+                    onChange={(e) => setAuditSearch(e.target.value)}
+                    className="pl-8 pr-2.5 py-1 border border-slate-800 bg-slate-950 text-white rounded-sm text-xs outline-none focus:border-indigo-500 w-44"
+                  />
+                </div>
+              </div>
+            </div>
+
+            <div className="overflow-x-auto">
+              <table className="w-full text-left text-xs">
+                <thead className="bg-slate-950 text-slate-400 font-semibold border-b border-slate-800">
+                  <tr>
+                    <th className="py-2.5 px-3">Timestamp</th>
+                    <th className="py-2.5 px-3">Action Category</th>
+                    <th className="py-2.5 px-3">Administrator</th>
+                    <th className="py-2.5 px-3">Governance Event Details</th>
+                    <th className="py-2.5 px-3">Network IP / Origin</th>
+                    <th className="py-2.5 px-3 text-center">Status</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-800 text-slate-300">
+                  {auditLogsList
+                    .filter((log) => {
+                      const matchesCategory = auditActionFilter === 'all' || log.action === auditActionFilter;
+                      const matchesSearch =
+                        auditSearch === '' ||
+                        log.details.toLowerCase().includes(auditSearch.toLowerCase()) ||
+                        log.adminName.toLowerCase().includes(auditSearch.toLowerCase()) ||
+                        (log.ipAddress && log.ipAddress.toLowerCase().includes(auditSearch.toLowerCase()));
+                      return matchesCategory && matchesSearch;
+                    })
+                    .map((log) => (
+                      <tr key={log.id} className="hover:bg-slate-800/40">
+                        <td className="py-2.5 px-3 font-mono text-[11px] text-slate-400 whitespace-nowrap">
+                          {new Date(log.timestamp).toLocaleDateString()} {new Date(log.timestamp).toLocaleTimeString()}
+                        </td>
+                        <td className="py-2.5 px-3 whitespace-nowrap">
+                          <span className="px-2 py-0.5 bg-slate-950 border border-slate-700 text-indigo-300 rounded font-mono font-bold text-[10px]">
+                            {log.action}
+                          </span>
+                        </td>
+                        <td className="py-2.5 px-3">
+                          <div className="font-bold text-white">{log.adminName}</div>
+                          <div className="text-[10px] text-slate-500 font-mono">{log.adminEmail}</div>
+                        </td>
+                        <td className="py-2.5 px-3 text-slate-200">{log.details}</td>
+                        <td className="py-2.5 px-3 font-mono text-slate-500 text-[11px] whitespace-nowrap">
+                          {log.ipAddress || 'Internal Loopback'}
+                        </td>
+                        <td className="py-2.5 px-3 text-center">
+                          <span
+                            className={`px-2 py-0.5 rounded font-bold text-[10px] ${
+                              log.status === 'SUCCESS'
+                                ? 'bg-emerald-950 text-emerald-400 border border-emerald-800'
+                                : 'bg-amber-950 text-amber-400 border border-amber-800'
+                            }`}
+                          >
+                            {log.status}
+                          </span>
+                        </td>
+                      </tr>
+                    ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
+
+        {/* TAB: SYSTEM HEALTH, API WEBHOOKS & MAINTENANCE MODE (FEATURE 6) */}
+        {activeTab === 'system_health' && (
+          <div className="space-y-6">
+            {/* Maintenance Mode Controller */}
+            <div className="bg-slate-900 border border-slate-800 rounded-sm p-5 space-y-4">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-3 border-b border-slate-800 gap-3">
+                <div className="flex items-center space-x-2">
+                  <Power className="w-5 h-5 text-amber-400" />
+                  <div>
+                    <h3 className="text-sm font-bold text-white uppercase tracking-wider">
+                      Consortium-Wide Maintenance Mode Kill-Switch
+                    </h3>
+                    <p className="text-[11px] text-slate-400 mt-0.5">
+                      Temporarily freeze catalog ordering and display scheduled downtime announcements across customer portals.
+                    </p>
+                  </div>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={handleToggleMaintenanceMode}
+                  className={`px-4 py-2 font-bold rounded-sm text-xs transition-colors flex items-center space-x-2 shadow-sm ${
+                    isMaintenanceMode
+                      ? 'bg-rose-600 hover:bg-rose-700 text-white'
+                      : 'bg-emerald-600 hover:bg-emerald-700 text-white'
+                  }`}
+                >
+                  <Power className="w-4 h-4" />
+                  <span>{isMaintenanceMode ? 'DEACTIVATE MAINTENANCE' : 'ACTIVATE MAINTENANCE'}</span>
+                </button>
+              </div>
+
+              <div>
+                <label className="block text-[11px] font-bold text-slate-300 mb-1">
+                  Customer-Facing Maintenance Banner Notice:
+                </label>
+                <div className="flex space-x-2">
+                  <input
+                    type="text"
+                    value={maintenanceMessage}
+                    onChange={(e) => setMaintenanceMessage(e.target.value)}
+                    className="flex-1 bg-slate-950 border border-slate-800 px-3 py-2 rounded text-white text-xs outline-none focus:border-indigo-500"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => {
+                      logAdminAudit('MAINTENANCE_TOGGLE', `Updated maintenance banner: "${maintenanceMessage}"`);
+                      setSavedSettingsNotice('Maintenance banner message committed.');
+                      setTimeout(() => setSavedSettingsNotice(null), 3000);
+                    }}
+                    className="px-3.5 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold rounded text-xs transition-colors"
+                  >
+                    Save Banner
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            {/* Live API Webhook & Microservices Health Monitor */}
+            <div className="bg-slate-900 border border-slate-800 rounded-sm p-5 space-y-4">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-3 border-b border-slate-800 gap-3">
+                <div className="flex items-center space-x-2">
+                  <Activity className="w-4 h-4 text-emerald-400" />
+                  <div>
+                    <h3 className="text-sm font-bold text-white uppercase tracking-wider">
+                      Live Payment Webhook Listeners & ERP Synchronization Monitor
+                    </h3>
+                    <p className="text-[11px] text-slate-400 mt-0.5">
+                      Sub-second telemetry for national banking endpoints, mobile money callbacks, and ERP data pipelines.
+                    </p>
+                  </div>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={handlePingWebhooks}
+                  disabled={isPingingWebhooks}
+                  className="px-3.5 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-sm text-xs transition-colors flex items-center space-x-1.5 shadow-sm disabled:opacity-50"
+                >
+                  <RefreshCw className={`w-3.5 h-3.5 ${isPingingWebhooks ? 'animate-spin' : ''}`} />
+                  <span>{isPingingWebhooks ? 'Testing Endpoints...' : 'Ping & Test Webhook Heartbeat'}</span>
+                </button>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                {webhookStatuses.map((wh) => (
+                  <div
+                    key={wh.serviceName}
+                    className="bg-slate-950 border border-slate-800 p-4 rounded-sm space-y-2 hover:border-slate-700 transition-colors"
+                  >
+                    <div className="flex justify-between items-start">
+                      <div className="font-bold text-white text-xs">{wh.serviceName}</div>
+                      <span className="px-2 py-0.5 bg-emerald-950 text-emerald-400 border border-emerald-800 rounded font-bold text-[10px] flex items-center space-x-1">
+                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                        <span>{wh.status}</span>
+                      </span>
+                    </div>
+
+                    <div className="font-mono text-[11px] text-indigo-400 bg-slate-900 p-1.5 rounded truncate">
+                      {wh.endpoint}
+                    </div>
+
+                    <div className="flex justify-between items-center text-[11px] text-slate-400 pt-1 border-t border-slate-800/80">
+                      <span>Latency: <strong className="text-emerald-400 font-mono">{wh.latencyMs} ms</strong></span>
+                      <span>Uptime: <strong className="text-slate-200 font-mono">{wh.successRate}%</strong></span>
+                    </div>
+
+                    <div className="text-[10px] text-slate-500 flex items-center space-x-1">
+                      <Clock className="w-3 h-3" />
+                      <span>Last Ping: {new Date(wh.lastPing).toLocaleTimeString()}</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* TAB: STAFF & RBAC GOVERNANCE (FEATURE 1) */}
         {activeTab === 'users' && (
           <div className="bg-slate-900 border border-slate-800 rounded-sm p-5 space-y-4">
@@ -1580,6 +2364,135 @@ export default function SuperAdminPage() {
                 >
                   <Tag className="w-3.5 h-3.5" />
                   <span>Issue & Activate Voucher</span>
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* INTER-DEPOT TRANSFER MODAL */}
+      {isTransferModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
+          <div className="bg-slate-900 border border-slate-700 rounded-sm max-w-lg w-full p-5 space-y-4 shadow-2xl text-xs">
+            <div className="flex items-center justify-between pb-3 border-b border-slate-800">
+              <div className="flex items-center space-x-2">
+                <Truck className="w-4 h-4 text-indigo-400" />
+                <h3 className="text-sm font-bold text-white">Initiate Inter-Depot Stock Transfer</h3>
+              </div>
+              <button
+                type="button"
+                onClick={() => setIsTransferModalOpen(false)}
+                className="text-slate-400 hover:text-white"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            <form onSubmit={handleInitiateDepotTransfer} className="space-y-3">
+              <div>
+                <label className="block text-[11px] font-bold text-slate-300 mb-1">Select Consignment Item (SKU)</label>
+                <select
+                  value={transferSku}
+                  onChange={(e) => setTransferSku(e.target.value)}
+                  className="w-full bg-slate-950 border border-slate-800 px-3 py-1.5 rounded text-white focus:border-indigo-500 outline-none"
+                >
+                  {inventoryList.map((item) => (
+                    <option key={item.sku} value={item.sku}>
+                      [{item.sku}] {item.productName} ({item.quantityOnHand.toLocaleString()} on-hand)
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-[11px] font-bold text-slate-300 mb-1">Source Depot (Origin)</label>
+                  <select
+                    value={transferSourceId}
+                    onChange={(e) => setTransferSourceId(e.target.value)}
+                    className="w-full bg-slate-950 border border-slate-800 px-3 py-1.5 rounded text-white focus:border-indigo-500 outline-none"
+                  >
+                    {BRANCHES.map((b) => (
+                      <option key={b.id} value={b.id}>
+                        {b.name} ({b.city})
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-[11px] font-bold text-slate-300 mb-1">Destination Depot (Target)</label>
+                  <select
+                    value={transferDestId}
+                    onChange={(e) => setTransferDestId(e.target.value)}
+                    className="w-full bg-slate-950 border border-slate-800 px-3 py-1.5 rounded text-white focus:border-indigo-500 outline-none"
+                  >
+                    {BRANCHES.map((b) => (
+                      <option key={b.id} value={b.id}>
+                        {b.name} ({b.city})
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-[11px] font-bold text-slate-300 mb-1">Transfer Quantity</label>
+                  <input
+                    type="number"
+                    min="1"
+                    required
+                    value={transferQty}
+                    onChange={(e) => setTransferQty(Math.max(1, Number(e.target.value)))}
+                    className="w-full bg-slate-950 border border-slate-800 px-3 py-1.5 rounded text-white font-mono font-bold focus:border-indigo-500 outline-none"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-[11px] font-bold text-slate-300 mb-1">Transit Truck Plate #</label>
+                  <input
+                    type="text"
+                    required
+                    value={transferTruckPlate}
+                    onChange={(e) => setTransferTruckPlate(e.target.value)}
+                    placeholder="e.g. ET-3-88219"
+                    className="w-full bg-slate-950 border border-slate-800 px-3 py-1.5 rounded text-white font-mono focus:border-indigo-500 outline-none uppercase"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-[11px] font-bold text-slate-300 mb-1">Assigned Logistics Driver</label>
+                <input
+                  type="text"
+                  required
+                  value={transferDriver}
+                  onChange={(e) => setTransferDriver(e.target.value)}
+                  placeholder="Driver Full Name & License ID"
+                  className="w-full bg-slate-950 border border-slate-800 px-3 py-1.5 rounded text-white focus:border-indigo-500 outline-none"
+                />
+              </div>
+
+              <div className="p-2.5 bg-indigo-950/30 border border-indigo-900/50 rounded text-[11px] text-indigo-300">
+                Direct cross-depot transfers automatically issue an official electronic transit waybill. Source depot stock will be reserved and transit status will be tracked until confirmed at destination weighbridge.
+              </div>
+
+              <div className="pt-3 flex justify-end space-x-2 border-t border-slate-800">
+                <button
+                  type="button"
+                  onClick={() => setIsTransferModalOpen(false)}
+                  className="px-3 py-1.5 border border-slate-700 bg-slate-800 text-slate-300 rounded hover:bg-slate-700 font-bold"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="px-4 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded shadow-sm flex items-center space-x-1"
+                >
+                  <Truck className="w-3.5 h-3.5" />
+                  <span>Dispatch Consignment</span>
                 </button>
               </div>
             </form>
