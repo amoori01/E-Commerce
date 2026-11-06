@@ -116,10 +116,7 @@ function HomePageContent() {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-5">
           {/* Bento Cell 1: Main Dark Narrative Card (8 cols) */}
           <div
-            data-hover-card="true"
-            data-hover-badge="AMG Consortium"
-            data-hover-title="Enterprise Digital Procurement"
-            className="lg:col-span-8 bg-[#0B0B0C] text-white rounded-3xl p-8 sm:p-10 flex flex-col justify-between border border-[#1A1A1D] shadow-xl relative overflow-hidden group"
+            className="lg:col-span-8 bg-[#0B0B0C] text-white rounded-3xl p-8 sm:p-10 flex flex-col justify-between border border-[#1A1A1D] shadow-xl relative overflow-hidden group hover:border-[#C6F432]/40 transition-all duration-300"
           >
             {/* Subtle Lime Ambient Glow */}
             <div className="absolute -top-24 -right-24 w-96 h-96 bg-[#C6F432]/10 rounded-full blur-3xl pointer-events-none group-hover:bg-[#C6F432]/15 transition-all duration-700" />
@@ -169,10 +166,7 @@ function HomePageContent() {
 
           {/* Bento Cell 2: Quick Metrics & Subsidiary Highlight (4 cols) */}
           <div
-            data-hover-card="true"
-            data-hover-badge="Consortium Specs"
-            data-hover-title="5 Sister Companies Standards"
-            className="lg:col-span-4 bg-white dark:bg-[#141416] text-[#0B0B0C] dark:text-white rounded-3xl p-7 border border-[#E4E4E7] dark:border-[#222225] shadow-sm flex flex-col justify-between"
+            className="lg:col-span-4 bg-white dark:bg-[#141416] text-[#0B0B0C] dark:text-white rounded-3xl p-7 border border-[#E4E4E7] dark:border-[#222225] hover:border-[#C6F432] dark:hover:border-[#C6F432] hover:-translate-y-1 hover:shadow-[0_15px_30px_-10px_rgba(198,244,50,0.18)] transition-all duration-300 shadow-sm flex flex-col justify-between"
           >
             <div>
               <div className="flex items-center justify-between pb-3 border-b border-[#F4F4F5] dark:border-[#222225]">
@@ -222,67 +216,58 @@ function HomePageContent() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-5 mt-5">
           {/* Card 1: Direct Order Stream A */}
           <div
-            data-hover-card="true"
-            data-hover-badge="Stream A"
-            data-hover-title="Direct Digital Checkout"
-            className="bg-white dark:bg-[#141416] rounded-3xl p-6 border border-[#E4E4E7] dark:border-[#222225] shadow-xs hover:border-[#0B0B0C] dark:hover:border-[#C6F432]/60 transition-all flex flex-col justify-between"
+            className="bg-white dark:bg-[#141416] rounded-3xl p-6 border border-[#E4E4E7] dark:border-[#222225] shadow-xs hover:border-[#C6F432] dark:hover:border-[#C6F432] hover:-translate-y-1.5 hover:shadow-[0_15px_30px_-10px_rgba(198,244,50,0.18)] transition-all duration-300 flex flex-col justify-between group"
           >
             <div className="space-y-2">
-              <div className="w-10 h-10 rounded-2xl bg-[#0B0B0C] dark:bg-[#1F1F24] flex items-center justify-center text-[#C6F432]">
-                <ShoppingCart className="w-5 h-5" />
+              <div className="w-10 h-10 rounded-2xl bg-[#0B0B0C] dark:bg-[#1F1F24] group-hover:bg-[#C6F432] transition-colors flex items-center justify-center text-[#C6F432] group-hover:text-[#0B0B0C]">
+                <ShoppingCart className="w-5 h-5 transition-transform group-hover:scale-110" />
               </div>
-              <h3 className="font-serif font-bold text-base text-[#0B0B0C] dark:text-white">Stream A: Direct Digital Buy</h3>
+              <h3 className="font-serif font-bold text-base text-[#0B0B0C] dark:text-white group-hover:text-[#0B0B0C] dark:group-hover:text-[#C6F432] transition-colors">Stream A: Direct Digital Buy</h3>
               <p className="text-xs text-[#71717A] dark:text-[#A1A1AA] leading-relaxed">
                 Standardized construction materials, roofing sheets, fasteners, lubricants, and packaged coffee with real-time depot reservations.
               </p>
             </div>
             <div className="pt-4 flex items-center justify-between text-xs font-semibold text-[#0B0B0C] dark:text-[#C6F432]">
               <span>Instant checkout</span>
-              <ArrowRight className="w-4 h-4 text-[#0B0B0C] dark:text-[#C6F432]" />
+              <ArrowRight className="w-4 h-4 text-[#0B0B0C] dark:text-[#C6F432] transition-transform group-hover:translate-x-1" />
             </div>
           </div>
 
           {/* Card 2: Custom Quotation Stream B */}
           <div
-            data-hover-card="true"
-            data-hover-badge="Stream B"
-            data-hover-title="Heavy Engineering Quotations"
-            className="bg-white dark:bg-[#141416] rounded-3xl p-6 border border-[#E4E4E7] dark:border-[#222225] shadow-xs hover:border-[#0B0B0C] dark:hover:border-[#C6F432]/60 transition-all flex flex-col justify-between"
+            className="bg-white dark:bg-[#141416] rounded-3xl p-6 border border-[#E4E4E7] dark:border-[#222225] shadow-xs hover:border-[#C6F432] dark:hover:border-[#C6F432] hover:-translate-y-1.5 hover:shadow-[0_15px_30px_-10px_rgba(198,244,50,0.18)] transition-all duration-300 flex flex-col justify-between group"
           >
             <div className="space-y-2">
               <div className="w-10 h-10 rounded-2xl bg-[#C6F432] flex items-center justify-center text-[#0B0B0C]">
-                <FileText className="w-5 h-5" />
+                <FileText className="w-5 h-5 transition-transform group-hover:scale-110" />
               </div>
-              <h3 className="font-serif font-bold text-base text-[#0B0B0C] dark:text-white">Stream B: Engineering RFQ</h3>
+              <h3 className="font-serif font-bold text-base text-[#0B0B0C] dark:text-white group-hover:text-[#0B0B0C] dark:group-hover:text-[#C6F432] transition-colors">Stream B: Engineering RFQ</h3>
               <p className="text-xs text-[#71717A] dark:text-[#A1A1AA] leading-relaxed">
                 Capital projects, custom PEB columns, Sinotruk tankers, and bulk gas cylinders priced by dedicated sales engineers with proforma invoices.
               </p>
             </div>
             <div className="pt-4 flex items-center justify-between text-xs font-semibold text-[#0B0B0C] dark:text-[#C6F432]">
               <span>Agent assisted</span>
-              <ArrowRight className="w-4 h-4 text-[#0B0B0C] dark:text-[#C6F432]" />
+              <ArrowRight className="w-4 h-4 text-[#0B0B0C] dark:text-[#C6F432] transition-transform group-hover:translate-x-1" />
             </div>
           </div>
 
           {/* Card 3: Regional Depots & Logistics */}
           <div
-            data-hover-card="true"
-            data-hover-badge="Logistics Hubs"
-            data-hover-title="Depot Stock & Freight"
-            className="bg-[#0B0B0C] text-white rounded-3xl p-6 border border-[#1A1A1D] shadow-xs flex flex-col justify-between"
+            className="bg-[#0B0B0C] text-white rounded-3xl p-6 border border-[#1A1A1D] shadow-xs hover:border-[#C6F432]/60 hover:-translate-y-1.5 hover:shadow-[0_15px_30px_-10px_rgba(198,244,50,0.22)] transition-all duration-300 flex flex-col justify-between group"
           >
             <div className="space-y-2">
-              <div className="w-10 h-10 rounded-2xl bg-[#1A1A1D] flex items-center justify-center text-[#C6F432]">
-                <Truck className="w-5 h-5" />
+              <div className="w-10 h-10 rounded-2xl bg-[#1A1A1D] group-hover:bg-[#C6F432] transition-colors flex items-center justify-center text-[#C6F432] group-hover:text-[#0B0B0C]">
+                <Truck className="w-5 h-5 transition-transform group-hover:scale-110" />
               </div>
-              <h3 className="font-serif font-bold text-base text-white">Regional Depot Clearance</h3>
+              <h3 className="font-serif font-bold text-base text-white group-hover:text-[#C6F432] transition-colors">Regional Depot Clearance</h3>
               <p className="text-xs text-[#A1A1AA] leading-relaxed">
                 Physical branch pickup or enterprise delivery across Addis Ababa HQ, Adama manufacturing plant, Hawassa, and Dire Dawa.
               </p>
             </div>
             <div className="pt-4 flex items-center justify-between text-xs font-semibold text-[#C6F432]">
               <span>Check branch stock</span>
-              <ArrowRight className="w-4 h-4 text-[#C6F432]" />
+              <ArrowRight className="w-4 h-4 text-[#C6F432] transition-transform group-hover:translate-x-1" />
             </div>
           </div>
         </div>
@@ -388,7 +373,7 @@ function HomePageContent() {
             className={`px-4 py-2 text-xs font-semibold rounded-full border transition-all ${
               selectedSubsidiary === 'all'
                 ? 'border-[#0B0B0C] dark:border-[#C6F432] bg-[#0B0B0C] dark:bg-[#C6F432] text-white dark:text-[#0B0B0C] shadow-xs'
-                : 'border-[#E4E4E7] dark:border-[#222225] bg-white dark:bg-[#141416] text-[#27272A] dark:text-[#D4D4D8] hover:border-[#0B0B0C] dark:hover:border-[#C6F432]/60'
+                : 'border-[#E4E4E7] dark:border-[#222225] bg-white dark:bg-[#141416] text-[#27272A] dark:text-[#D4D4D8] hover:border-[#C6F432] hover:text-[#0B0B0C] dark:hover:text-[#C6F432]'
             }`}
           >
             All 5 Subsidiaries
@@ -401,7 +386,7 @@ function HomePageContent() {
               className={`px-4 py-2 text-xs font-semibold rounded-full border transition-all ${
                 selectedSubsidiary === sub.id
                   ? 'border-[#0B0B0C] dark:border-[#C6F432] bg-[#0B0B0C] dark:bg-[#C6F432] text-white dark:text-[#0B0B0C] shadow-xs'
-                  : 'border-[#E4E4E7] dark:border-[#222225] bg-white dark:bg-[#141416] text-[#27272A] dark:text-[#D4D4D8] hover:border-[#0B0B0C] dark:hover:border-[#C6F432]/60'
+                  : 'border-[#E4E4E7] dark:border-[#222225] bg-white dark:bg-[#141416] text-[#27272A] dark:text-[#D4D4D8] hover:border-[#C6F432] hover:text-[#0B0B0C] dark:hover:text-[#C6F432]'
               }`}
             >
               {sub.name}
@@ -478,19 +463,22 @@ function HomePageContent() {
               return (
                 <div
                   key={product.id}
-                  data-hover-card="true"
-                  data-hover-title={product.name}
-                  data-hover-sku={product.sku}
-                  data-hover-price={
-                    isStreamA
-                      ? `ETB ${product.unitPriceEtb.toLocaleString('en-US', { minimumFractionDigits: 2 })}`
-                      : 'Stream B: RFQ'
-                  }
-                  data-hover-stream={product.transactionStream}
-                  data-hover-subsidiary={product.subsidiaryName}
-                  className="bg-white dark:bg-[#141416] border border-[#E4E4E7] dark:border-[#222225] rounded-3xl shadow-xs hover:shadow-xl hover:border-[#0B0B0C] dark:hover:border-[#C6F432]/60 transition-all duration-300 flex flex-col justify-between overflow-hidden group"
+                  onMouseMove={(e) => {
+                    const rect = e.currentTarget.getBoundingClientRect();
+                    e.currentTarget.style.setProperty('--spotlight-x', `${e.clientX - rect.left}px`);
+                    e.currentTarget.style.setProperty('--spotlight-y', `${e.clientY - rect.top}px`);
+                  }}
+                  className="relative bg-white dark:bg-[#141416] border border-[#E4E4E7] dark:border-[#222225] rounded-3xl shadow-xs hover:border-[#C6F432] dark:hover:border-[#C6F432] hover:-translate-y-2 hover:shadow-[0_22px_45px_-12px_rgba(198,244,50,0.22)] transition-all duration-300 flex flex-col justify-between overflow-hidden group"
                 >
-                  <div>
+                  {/* Interactive Cursor Spotlight Glow Effect on Mouse Pointer */}
+                  <div
+                    className="pointer-events-none absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-3xl z-0"
+                    style={{
+                      background: 'radial-gradient(380px circle at var(--spotlight-x, 50%) var(--spotlight-y, 50%), rgba(198, 244, 50, 0.12), transparent 70%)',
+                    }}
+                  />
+
+                  <div className="relative z-10">
                     {/* Image & Header Badge Bar */}
                     <div className="relative h-56 bg-[#F4F4F5] dark:bg-[#1A1A1D] overflow-hidden">
                       <Link
@@ -500,7 +488,7 @@ function HomePageContent() {
                         <img
                           src={product.imageUrl}
                           alt={product.name}
-                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                          className="w-full h-full object-cover group-hover:scale-108 transition-transform duration-500 ease-out"
                         />
                       </Link>
 
@@ -512,7 +500,7 @@ function HomePageContent() {
                           e.stopPropagation();
                           setQuickViewProduct(product);
                         }}
-                        className="absolute inset-0 m-auto w-36 h-10 bg-[#0B0B0C]/90 dark:bg-[#141416]/95 backdrop-blur-md text-white border border-[#C6F432]/60 hover:border-[#C6F432] rounded-full text-xs font-bold opacity-0 group-hover:opacity-100 transition-all duration-300 flex items-center justify-center space-x-1.5 shadow-xl transform translate-y-2 group-hover:translate-y-0 z-20"
+                        className="absolute inset-0 m-auto w-36 h-10 bg-[#0B0B0C]/90 dark:bg-[#141416]/95 backdrop-blur-md text-white border border-[#C6F432]/60 hover:border-[#C6F432] hover:bg-[#0B0B0C] hover:text-[#C6F432] rounded-full text-xs font-bold opacity-0 group-hover:opacity-100 transition-all duration-300 flex items-center justify-center space-x-1.5 shadow-xl transform translate-y-3 group-hover:translate-y-0 z-20"
                         title="Quick inspect product specifications"
                       >
                         <Eye className="w-4 h-4 text-[#C6F432]" />
@@ -521,9 +509,9 @@ function HomePageContent() {
 
                       <div className="absolute top-3.5 left-3.5 flex flex-col gap-1.5 z-10 pointer-events-none">
                         <span
-                          className={`px-3 py-1 text-[10px] font-bold uppercase tracking-wider rounded-full shadow-xs ${
+                          className={`px-3 py-1 text-[10px] font-bold uppercase tracking-wider rounded-full shadow-xs transition-colors ${
                             isStreamA
-                              ? 'bg-[#0B0B0C] text-[#C6F432] border border-[#C6F432]/30'
+                              ? 'bg-[#0B0B0C] text-[#C6F432] border border-[#C6F432]/30 group-hover:border-[#C6F432]'
                               : 'bg-white dark:bg-[#0B0B0C] text-[#0B0B0C] dark:text-white border border-[#E4E4E7] dark:border-[#2A2A2E]'
                           }`}
                         >
@@ -535,7 +523,7 @@ function HomePageContent() {
                         <button
                           type="button"
                           onClick={() => setQuickViewProduct(product)}
-                          className="p-1.5 bg-[#0B0B0C]/80 hover:bg-[#0B0B0C] text-white hover:text-[#C6F432] rounded-full backdrop-blur-md border border-[#2A2A2E] transition-colors"
+                          className="p-1.5 bg-[#0B0B0C]/80 hover:bg-[#0B0B0C] text-white hover:text-[#C6F432] rounded-full backdrop-blur-md border border-[#2A2A2E] hover:border-[#C6F432]/50 transition-colors shadow-xs"
                           title="Quick View component"
                         >
                           <Eye className="w-3.5 h-3.5" />
@@ -650,21 +638,21 @@ function HomePageContent() {
                   </div>
 
                   {/* Card Action Buttons */}
-                  <div className="p-6 pt-0">
+                  <div className="p-6 pt-0 relative z-10">
                     {isStreamA ? (
                       <button
                         type="button"
                         onClick={() => addToCart(product)}
-                        className="w-full py-3 bg-[#0B0B0C] dark:bg-[#C6F432] hover:bg-[#1A1A1D] dark:hover:bg-[#D7F860] text-white dark:text-[#0B0B0C] font-semibold text-xs rounded-full transition-all flex items-center justify-center space-x-2 shadow-sm"
+                        className="w-full py-3 bg-[#0B0B0C] dark:bg-[#C6F432] hover:bg-[#1A1A1D] dark:hover:bg-[#D7F860] text-white dark:text-[#0B0B0C] group-hover:bg-[#C6F432] group-hover:text-[#0B0B0C] font-semibold text-xs rounded-full transition-all duration-300 flex items-center justify-center space-x-2 shadow-sm group-hover:shadow-[0_10px_25px_-5px_rgba(198,244,50,0.35)]"
                       >
-                        <ShoppingCart className="w-4 h-4 text-[#C6F432] dark:text-[#0B0B0C]" />
+                        <ShoppingCart className="w-4 h-4 text-[#C6F432] group-hover:text-[#0B0B0C] dark:text-[#0B0B0C] transition-colors" />
                         <span>Add to Direct Cart</span>
                       </button>
                     ) : (
                       <button
                         type="button"
                         onClick={() => openRfq(product)}
-                        className="w-full py-3 bg-white dark:bg-[#141416] hover:bg-[#0B0B0C] dark:hover:bg-[#1F1F24] text-[#0B0B0C] dark:text-white hover:text-[#C6F432] border border-[#0B0B0C] dark:border-[#2A2A2E] font-semibold text-xs rounded-full transition-all flex items-center justify-center space-x-2 shadow-xs"
+                        className="w-full py-3 bg-white dark:bg-[#141416] hover:bg-[#0B0B0C] dark:hover:bg-[#1F1F24] text-[#0B0B0C] dark:text-white group-hover:border-[#C6F432] group-hover:text-[#0B0B0C] dark:group-hover:text-[#C6F432] border border-[#E4E4E7] dark:border-[#2A2A2E] font-semibold text-xs rounded-full transition-all duration-300 flex items-center justify-center space-x-2 shadow-xs group-hover:shadow-[0_10px_25px_-5px_rgba(198,244,50,0.2)]"
                       >
                         <FileText className="w-4 h-4 text-[#0B0B0C] dark:text-[#C6F432]" />
                         <span>Request Custom Quotation</span>

@@ -10,7 +10,6 @@ import { Footer } from '@/components/layout/Footer';
 import { CartDrawer } from '@/components/modals/CartDrawer';
 import { CheckoutModal } from '@/components/modals/CheckoutModal';
 import { RfqModal } from '@/components/modals/RfqModal';
-import { MousePointerInspector } from '@/components/ui/MousePointerInspector';
 
 const playfair = Playfair_Display({
   subsets: ['latin'],
@@ -51,8 +50,6 @@ export default function RootLayout({
                 <CartDrawer />
                 <CheckoutModal />
                 <RfqModal />
-                {/* Interactive cursor pointer inspector React component */}
-                <MousePointerInspector />
               </CartProvider>
             </WishlistProvider>
           </AuthProvider>
