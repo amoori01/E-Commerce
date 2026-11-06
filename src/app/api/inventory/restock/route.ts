@@ -100,23 +100,27 @@ export async function POST(req: NextRequest) {
         newStock = invItem.quantityOnHand;
       }
 
-      // Persist to Supabase if connected
-      try {
-        const { createAdminClient } = await import('@/lib/supabase/admin');
-        const supabase = createAdminClient();
-        if (invItem?.productId) {
-          await supabase
-            .from('product_inventory')
-            .update({
-              quantity_on_hand: newStock,
-            })
-            .match({
-              product_id: invItem.productId,
-              branch_id: targetBranchId,
-            });
+      // Persist to Supabase if connected and configured
+      const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+      const isConfigured = supabaseUrl && !supabaseUrl.includes('sample-project-id') && process.env.NODE_ENV !== 'test';
+      if (isConfigured) {
+        try {
+          const { createAdminClient } = await import('@/lib/supabase/admin');
+          const supabase = createAdminClient();
+          if (invItem?.productId) {
+            await supabase
+              .from('product_inventory')
+              .update({
+                quantity_on_hand: newStock,
+              })
+              .match({
+                product_id: invItem.productId,
+                branch_id: targetBranchId,
+              });
+          }
+        } catch (dbErr) {
+          console.warn('Supabase inventory update skipped or errored:', dbErr);
         }
-      } catch (dbErr) {
-        console.warn('Supabase inventory update skipped or errored:', dbErr);
       }
 
       return NextResponse.json({

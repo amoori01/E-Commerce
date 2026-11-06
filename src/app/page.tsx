@@ -13,18 +13,13 @@ import {
   ShoppingCart,
   Building2,
   Layers,
-  Shield,
   Truck,
-  ArrowRight,
   Info,
   ChevronRight,
-  Sparkles,
-  Download,
-  Flame,
   Check,
   X,
   Search,
-  Eye
+  Eye,
 } from 'lucide-react';
 
 function HomePageContent() {
@@ -118,35 +113,31 @@ function HomePageContent() {
 
   return (
     <div className="space-y-12 pb-20 bg-[#FAFAFA] dark:bg-[#0B0B0C] transition-colors">
-      {/* 1. BENTO SHOWCASE HERO SECTION */}
+      {/* 1. STREAMLINED ENTERPRISE HERO */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 pt-6">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-5">
-          {/* Bento Cell 1: Main Dark Narrative Card (8 cols) */}
-          <div
-            className="lg:col-span-8 bg-[#0B0B0C] text-white rounded-3xl p-8 sm:p-10 flex flex-col justify-between border border-[#1A1A1D] shadow-xl relative overflow-hidden group hover:border-[#C6F432]/40 transition-all duration-300"
-          >
-            {/* Subtle Lime Ambient Glow */}
-            <div className="absolute -top-24 -right-24 w-96 h-96 bg-[#C6F432]/10 rounded-full blur-3xl pointer-events-none group-hover:bg-[#C6F432]/15 transition-all duration-700" />
+        <div className="bg-[#0B0B0C] text-white rounded-3xl p-8 sm:p-12 border border-[#1A1A1D] shadow-2xl relative overflow-hidden group hover:border-[#C6F432]/30 transition-all duration-300">
+          {/* Subtle Ambient Lime Glow */}
+          <div className="absolute -top-32 -right-32 w-[28rem] h-[28rem] bg-[#C6F432]/10 rounded-full blur-3xl pointer-events-none group-hover:bg-[#C6F432]/15 transition-all duration-700" />
+          <div className="absolute -bottom-24 -left-24 w-64 h-64 bg-[#C6F432]/5 rounded-full blur-2xl pointer-events-none" />
 
-            <div className="space-y-5 relative z-10">
-              <div className="inline-flex items-center space-x-2 px-3 py-1 bg-[#1A1A1D] border border-[#2A2A2E] rounded-full text-xs font-medium text-[#E4E4E7]">
-                <span className="w-2 h-2 rounded-full bg-[#C6F432] inline-block shadow-[0_0_8px_#C6F432]" />
-                <span className="font-sans font-semibold tracking-wide">AMG Holdings Digital Procurement</span>
-                <span className="text-[#52525B]">|</span>
-                <span className="text-[#C6F432] font-semibold">Dual-Stream Baseline</span>
-              </div>
-
-              <h1 className="text-3xl sm:text-5xl font-serif font-black tracking-tight leading-[1.15] text-white max-w-2xl">
-                Heavy Engineering &amp; Commercial Materials, Delivered with Elegance.
-              </h1>
-
-              <p className="text-sm sm:text-base text-[#A1A1AA] max-w-xl font-sans leading-relaxed">
-                Procure certified ASTM steel, roofing systems, heavy fleet logistics, industrial gases, and specialty coffee. Instant digital ordering or direct sales engineer quotation under verified CBE bank settlement.
-              </p>
+          <div className="relative z-10 max-w-3xl space-y-5">
+            <div className="inline-flex items-center space-x-2 px-3.5 py-1.5 bg-[#141416] border border-[#2A2A2E] rounded-full text-xs font-medium text-[#E4E4E7]">
+              <span className="w-2 h-2 rounded-full bg-[#C6F432] inline-block shadow-[0_0_8px_#C6F432]" />
+              <span className="font-semibold tracking-wide">AMG Holdings Consortium</span>
+              <span className="text-[#52525B]">|</span>
+              <span className="text-[#C6F432] font-semibold">CBE Bank Verified Rail</span>
             </div>
 
-            {/* Action Bar */}
-            <div className="pt-8 flex flex-wrap items-center gap-3 relative z-10">
+            <h1 className="text-3xl sm:text-5xl lg:text-6xl font-serif font-black tracking-tight leading-[1.12] text-white">
+              Industrial &amp; Commercial Supplies, Delivered with Precision.
+            </h1>
+
+            <p className="text-sm sm:text-base text-[#A1A1AA] font-sans leading-relaxed max-w-2xl">
+              Procure certified structural steel, roofing systems, heavy fleet logistics, industrial cryogenic gases, and export Arabica coffee. Instant order reserve or sales engineering quotes under verified CBE bank transfer.
+            </p>
+
+            {/* Quick-action CTAs */}
+            <div className="pt-2 flex flex-wrap items-center gap-3">
               <button
                 type="button"
                 onClick={() => {
@@ -154,7 +145,7 @@ function HomePageContent() {
                   const el = document.getElementById('catalog-section');
                   el?.scrollIntoView({ behavior: 'smooth' });
                 }}
-                className="px-6 py-3 bg-[#C6F432] hover:bg-[#D7F860] text-[#0B0B0C] font-bold text-xs rounded-full transition-all flex items-center space-x-2 shadow-lg hover:shadow-[#C6F432]/20"
+                className="px-6 py-3.5 bg-[#C6F432] hover:bg-[#D7F860] text-[#0B0B0C] font-bold text-xs rounded-full transition-all flex items-center space-x-2 shadow-lg hover:shadow-[#C6F432]/25"
               >
                 <ShoppingCart className="w-4 h-4 text-[#0B0B0C]" />
                 <span>Shop Stream A (Direct Buy)</span>
@@ -163,7 +154,7 @@ function HomePageContent() {
               <button
                 type="button"
                 onClick={() => openRfq()}
-                className="px-6 py-3 bg-[#141416] hover:bg-[#1A1A1D] text-white border border-[#2A2A2E] hover:border-[#C6F432]/40 font-semibold text-xs rounded-full transition-all flex items-center space-x-2"
+                className="px-6 py-3.5 bg-[#141416] hover:bg-[#1A1A1D] text-white border border-[#2A2A2E] hover:border-[#C6F432]/40 font-semibold text-xs rounded-full transition-all flex items-center space-x-2"
               >
                 <FileText className="w-4 h-4 text-[#C6F432]" />
                 <span>Request Custom Quote (RFQ)</span>
@@ -171,116 +162,42 @@ function HomePageContent() {
             </div>
           </div>
 
-          {/* Bento Cell 2: Quick Metrics & Subsidiary Highlight (4 cols) */}
-          <div
-            className="lg:col-span-4 bg-white dark:bg-[#141416] text-[#0B0B0C] dark:text-white rounded-3xl p-7 border border-[#E4E4E7] dark:border-[#222225] hover:border-[#C6F432] dark:hover:border-[#C6F432] hover:-translate-y-1 hover:shadow-[0_15px_30px_-10px_rgba(198,244,50,0.18)] transition-all duration-300 shadow-sm flex flex-col justify-between"
-          >
-            <div>
-              <div className="flex items-center justify-between pb-3 border-b border-[#F4F4F5] dark:border-[#222225]">
-                <span className="text-[11px] font-bold uppercase tracking-wider text-[#71717A] dark:text-[#A1A1AA]">
-                  Consortium Operations
-                </span>
-                <span className="px-2 py-0.5 bg-[#F4F4F5] dark:bg-[#222225] text-[#0B0B0C] dark:text-[#C6F432] text-[10px] font-bold rounded-full">
-                  5 Sister Companies
-                </span>
+          {/* Integrated Trust & Operations Bar */}
+          <div className="mt-10 pt-6 border-t border-[#1F1F24] grid grid-cols-1 sm:grid-cols-3 gap-5 text-xs text-[#A1A1AA] relative z-10">
+            <div className="flex items-center space-x-3">
+              <div className="w-9 h-9 rounded-xl bg-[#141416] border border-[#2A2A2E] flex items-center justify-center text-[#C6F432] shrink-0">
+                <CheckCircle2 className="w-4 h-4" />
               </div>
-
-              <div className="divide-y divide-[#F4F4F5] dark:divide-[#222225] text-xs pt-2">
-                <div className="py-2.5 flex items-center justify-between">
-                  <span className="font-medium text-[#27272A] dark:text-[#D4D4D8]">Structural Steel &amp; PEB</span>
-                  <span className="font-mono text-[11px] font-bold text-[#0B0B0C] dark:text-[#C6F432] bg-[#FAFAFA] dark:bg-[#1A1A1D] px-2 py-0.5 rounded border border-[#E4E4E7] dark:border-[#2A2A2E]">Grade S355JR</span>
-                </div>
-                <div className="py-2.5 flex items-center justify-between">
-                  <span className="font-medium text-[#27272A] dark:text-[#D4D4D8]">Ethio &amp; Adama Roofing</span>
-                  <span className="font-mono text-[11px] font-bold text-[#0B0B0C] dark:text-[#C6F432] bg-[#FAFAFA] dark:bg-[#1A1A1D] px-2 py-0.5 rounded border border-[#E4E4E7] dark:border-[#2A2A2E]">0.40mm - 20Yr</span>
-                </div>
-                <div className="py-2.5 flex items-center justify-between">
-                  <span className="font-medium text-[#27272A] dark:text-[#D4D4D8]">Sinotruk Prime Movers</span>
-                  <span className="font-mono text-[11px] font-bold text-[#0B0B0C] dark:text-[#C6F432] bg-[#FAFAFA] dark:bg-[#1A1A1D] px-2 py-0.5 rounded border border-[#E4E4E7] dark:border-[#2A2A2E]">420HP Euro-III</span>
-                </div>
-                <div className="py-2.5 flex items-center justify-between">
-                  <span className="font-medium text-[#27272A] dark:text-[#D4D4D8]">Industrial Cryogenic LOX</span>
-                  <span className="font-mono text-[11px] font-bold text-[#0B0B0C] dark:text-[#C6F432] bg-[#FAFAFA] dark:bg-[#1A1A1D] px-2 py-0.5 rounded border border-[#E4E4E7] dark:border-[#2A2A2E]">99.6% Purity</span>
-                </div>
-                <div className="py-2.5 flex items-center justify-between">
-                  <span className="font-medium text-[#27272A] dark:text-[#D4D4D8]">Specialty Arabica Coffee</span>
-                  <span className="font-mono text-[11px] font-bold text-[#0B0B0C] dark:text-[#C6F432] bg-[#FAFAFA] dark:bg-[#1A1A1D] px-2 py-0.5 rounded border border-[#E4E4E7] dark:border-[#2A2A2E]">88.5 SCA Cup</span>
-                </div>
+              <div>
+                <span className="font-semibold text-white block">Stream A: Direct Buy</span>
+                <span className="text-[11px] text-[#71717A]">Immediate inventory reserve &amp; CBE checkout</span>
               </div>
             </div>
 
-            <div className="mt-4 pt-3 border-t border-[#F4F4F5] dark:border-[#222225] flex items-center justify-between text-[11px] text-[#71717A] dark:text-[#A1A1AA]">
-              <span className="flex items-center space-x-1.5 text-[#0B0B0C] dark:text-white font-medium">
-                <Shield className="w-3.5 h-3.5 text-[#C6F432]" />
-                <span>CBE FT Verified Rail</span>
-              </span>
-              <span className="font-semibold text-[#0B0B0C] dark:text-white">4 Regional Hubs</span>
-            </div>
-          </div>
-        </div>
-
-        {/* Bento Row 2: Secondary Quick-Access Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-5 mt-5">
-          {/* Card 1: Direct Order Stream A */}
-          <div
-            className="bg-white dark:bg-[#141416] rounded-3xl p-6 border border-[#E4E4E7] dark:border-[#222225] shadow-xs hover:border-[#C6F432] dark:hover:border-[#C6F432] hover:-translate-y-1.5 hover:shadow-[0_15px_30px_-10px_rgba(198,244,50,0.18)] transition-all duration-300 flex flex-col justify-between group"
-          >
-            <div className="space-y-2">
-              <div className="w-10 h-10 rounded-2xl bg-[#0B0B0C] dark:bg-[#1F1F24] group-hover:bg-[#C6F432] transition-colors flex items-center justify-center text-[#C6F432] group-hover:text-[#0B0B0C]">
-                <ShoppingCart className="w-5 h-5 transition-transform group-hover:scale-110" />
+            <div className="flex items-center space-x-3">
+              <div className="w-9 h-9 rounded-xl bg-[#141416] border border-[#2A2A2E] flex items-center justify-center text-[#C6F432] shrink-0">
+                <FileText className="w-4 h-4" />
               </div>
-              <h3 className="font-serif font-bold text-base text-[#0B0B0C] dark:text-white group-hover:text-[#0B0B0C] dark:group-hover:text-[#C6F432] transition-colors">Stream A: Direct Digital Buy</h3>
-              <p className="text-xs text-[#71717A] dark:text-[#A1A1AA] leading-relaxed">
-                Standardized construction materials, roofing sheets, fasteners, lubricants, and packaged coffee with real-time depot reservations.
-              </p>
-            </div>
-            <div className="pt-4 flex items-center justify-between text-xs font-semibold text-[#0B0B0C] dark:text-[#C6F432]">
-              <span>Instant checkout</span>
-              <ArrowRight className="w-4 h-4 text-[#0B0B0C] dark:text-[#C6F432] transition-transform group-hover:translate-x-1" />
-            </div>
-          </div>
-
-          {/* Card 2: Custom Quotation Stream B */}
-          <div
-            className="bg-white dark:bg-[#141416] rounded-3xl p-6 border border-[#E4E4E7] dark:border-[#222225] shadow-xs hover:border-[#C6F432] dark:hover:border-[#C6F432] hover:-translate-y-1.5 hover:shadow-[0_15px_30px_-10px_rgba(198,244,50,0.18)] transition-all duration-300 flex flex-col justify-between group"
-          >
-            <div className="space-y-2">
-              <div className="w-10 h-10 rounded-2xl bg-[#C6F432] flex items-center justify-center text-[#0B0B0C]">
-                <FileText className="w-5 h-5 transition-transform group-hover:scale-110" />
+              <div>
+                <span className="font-semibold text-white block">Stream B: Engineering RFQ</span>
+                <span className="text-[11px] text-[#71717A]">Custom fabrication &amp; proforma quotations</span>
               </div>
-              <h3 className="font-serif font-bold text-base text-[#0B0B0C] dark:text-white group-hover:text-[#0B0B0C] dark:group-hover:text-[#C6F432] transition-colors">Stream B: Engineering RFQ</h3>
-              <p className="text-xs text-[#71717A] dark:text-[#A1A1AA] leading-relaxed">
-                Capital projects, custom PEB columns, Sinotruk tankers, and bulk gas cylinders priced by dedicated sales engineers with proforma invoices.
-              </p>
             </div>
-            <div className="pt-4 flex items-center justify-between text-xs font-semibold text-[#0B0B0C] dark:text-[#C6F432]">
-              <span>Agent assisted</span>
-              <ArrowRight className="w-4 h-4 text-[#0B0B0C] dark:text-[#C6F432] transition-transform group-hover:translate-x-1" />
-            </div>
-          </div>
 
-          {/* Card 3: Regional Depots & Logistics */}
-          <div
-            className="bg-[#0B0B0C] text-white rounded-3xl p-6 border border-[#1A1A1D] shadow-xs hover:border-[#C6F432]/60 hover:-translate-y-1.5 hover:shadow-[0_15px_30px_-10px_rgba(198,244,50,0.22)] transition-all duration-300 flex flex-col justify-between group"
-          >
-            <div className="space-y-2">
-              <div className="w-10 h-10 rounded-2xl bg-[#1A1A1D] group-hover:bg-[#C6F432] transition-colors flex items-center justify-center text-[#C6F432] group-hover:text-[#0B0B0C]">
-                <Truck className="w-5 h-5 transition-transform group-hover:scale-110" />
+            <div className="flex items-center space-x-3">
+              <div className="w-9 h-9 rounded-xl bg-[#141416] border border-[#2A2A2E] flex items-center justify-center text-[#C6F432] shrink-0">
+                <Truck className="w-4 h-4" />
               </div>
-              <h3 className="font-serif font-bold text-base text-white group-hover:text-[#C6F432] transition-colors">Regional Depot Clearance</h3>
-              <p className="text-xs text-[#A1A1AA] leading-relaxed">
-                Physical branch pickup or enterprise delivery across Addis Ababa HQ, Adama manufacturing plant, Hawassa, and Dire Dawa.
-              </p>
-            </div>
-            <div className="pt-4 flex items-center justify-between text-xs font-semibold text-[#C6F432]">
-              <span>Check branch stock</span>
-              <ArrowRight className="w-4 h-4 text-[#C6F432] transition-transform group-hover:translate-x-1" />
+              <div>
+                <span className="font-semibold text-white block">4 Regional Depots</span>
+                <span className="text-[11px] text-[#71717A]">Addis Ababa, Adama, Hawassa &amp; Dire Dawa</span>
+              </div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* 2. CATALOG & BENTO FILTER CONTROLS */}
+      {/* 2. CATALOG & UNIFIED DIVISION NAVIGATOR */}
       <section id="catalog-section" className="max-w-7xl mx-auto px-4 sm:px-6 space-y-6">
         {/* Header & Controls Bar */}
         <div className="flex flex-col lg:flex-row lg:items-center justify-between border-b border-[#E4E4E7] dark:border-[#222225] pb-5 gap-4">
@@ -372,23 +289,64 @@ function HomePageContent() {
           </div>
         </div>
 
-        {/* Visual Category & Subsidiary Showcase with Category Pictures */}
+        {/* Unified Division & Category Navigator (Single Source of Truth, No Duplicate Chips) */}
         <div className="space-y-3">
           <div className="flex items-center justify-between">
             <div>
               <span className="text-[10px] font-mono uppercase tracking-widest text-[#71717A] dark:text-[#A1A1AA]">
-                Shop By Division
+                Browse Catalog
               </span>
               <h3 className="font-serif text-lg font-bold text-[#0B0B0C] dark:text-white">
-                Featured Industry Categories
+                Shop by Division
               </h3>
             </div>
-            <span className="text-xs text-[#71717A] dark:text-[#A1A1AA] hidden sm:inline">
-              Select a category to filter the catalog
-            </span>
+            {selectedSubsidiary !== 'all' && (
+              <button
+                type="button"
+                onClick={() => setSelectedSubsidiary('all')}
+                className="text-xs text-[#0B0B0C] dark:text-[#C6F432] font-semibold hover:underline flex items-center space-x-1"
+              >
+                <span>Show All 36 Products</span>
+                <ChevronRight className="w-3.5 h-3.5" />
+              </button>
+            )}
           </div>
 
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3.5">
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+            {/* Tile 0: All Divisions */}
+            <button
+              type="button"
+              onClick={() => setSelectedSubsidiary('all')}
+              className={`group relative text-left rounded-2xl overflow-hidden border transition-all duration-300 h-36 flex flex-col justify-end p-3.5 ${
+                selectedSubsidiary === 'all'
+                  ? 'border-[#C6F432] ring-2 ring-[#C6F432] shadow-[0_12px_25px_-8px_rgba(198,244,50,0.3)] -translate-y-1 bg-[#0B0B0C]'
+                  : 'border-[#E4E4E7] dark:border-[#222225] bg-white dark:bg-[#141416] hover:border-[#C6F432] hover:-translate-y-1 hover:shadow-md'
+              }`}
+            >
+              <div className="space-y-1.5">
+                <span
+                  className={`inline-block px-2 py-0.5 rounded-full text-[9px] font-mono font-bold uppercase tracking-wider ${
+                    selectedSubsidiary === 'all'
+                      ? 'bg-[#C6F432] text-[#0B0B0C]'
+                      : 'bg-[#F4F4F5] dark:bg-[#222225] text-[#71717A] dark:text-[#A1A1AA]'
+                  }`}
+                >
+                  36 items
+                </span>
+                <h4
+                  className={`font-serif font-bold text-xs ${
+                    selectedSubsidiary === 'all' ? 'text-white' : 'text-[#0B0B0C] dark:text-white'
+                  }`}
+                >
+                  All Divisions
+                </h4>
+                <p className="text-[10px] text-[#71717A] dark:text-[#A1A1AA] line-clamp-1">
+                  Entire Consortium
+                </p>
+              </div>
+            </button>
+
+            {/* Tiles 1-5: The 5 Sister Companies with Verified Photography */}
             {SUBSIDIARIES.map((sub) => {
               const isSelected = selectedSubsidiary === sub.id;
               const productCount = PRODUCTS.filter((p) => p.subsidiaryId === sub.id).length;
@@ -437,35 +395,6 @@ function HomePageContent() {
               );
             })}
           </div>
-        </div>
-
-        {/* Subsidiary Filter Chips */}
-        <div className="flex flex-wrap gap-2">
-          <button
-            type="button"
-            onClick={() => setSelectedSubsidiary('all')}
-            className={`px-4 py-2 text-xs font-semibold rounded-full border transition-all ${
-              selectedSubsidiary === 'all'
-                ? 'border-[#0B0B0C] dark:border-[#C6F432] bg-[#0B0B0C] dark:bg-[#C6F432] text-white dark:text-[#0B0B0C] shadow-xs'
-                : 'border-[#E4E4E7] dark:border-[#222225] bg-white dark:bg-[#141416] text-[#27272A] dark:text-[#D4D4D8] hover:border-[#C6F432] hover:text-[#0B0B0C] dark:hover:text-[#C6F432]'
-            }`}
-          >
-            All 5 Subsidiaries
-          </button>
-          {SUBSIDIARIES.map((sub) => (
-            <button
-              key={sub.id}
-              type="button"
-              onClick={() => setSelectedSubsidiary(sub.id)}
-              className={`px-4 py-2 text-xs font-semibold rounded-full border transition-all ${
-                selectedSubsidiary === sub.id
-                  ? 'border-[#0B0B0C] dark:border-[#C6F432] bg-[#0B0B0C] dark:bg-[#C6F432] text-white dark:text-[#0B0B0C] shadow-xs'
-                  : 'border-[#E4E4E7] dark:border-[#222225] bg-white dark:bg-[#141416] text-[#27272A] dark:text-[#D4D4D8] hover:border-[#C6F432] hover:text-[#0B0B0C] dark:hover:text-[#C6F432]'
-              }`}
-            >
-              {sub.name}
-            </button>
-          ))}
         </div>
 
         {/* Active Filter Notice & Reset Banner */}
