@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { CreateOrderDto, validateCreateOrderDto } from '@/dtos';
 import { createAdminClient } from '@/lib/supabase/admin';
-import { INITIAL_ORDERS } from '@/lib/constants';
+import { INITIAL_ORDERS, PRODUCTS, SEEDED_USERS, BRANCHES } from '@/lib/constants';
 
 // ====================================================================
 // STREAM A: DIRECT SELF-SERVICE ORDERS API ENDPOINT
@@ -30,13 +30,23 @@ export async function POST(req: NextRequest) {
 
     const orderNumber = `AMG-ORD-2026-${Math.floor(1000 + Math.random() * 9000)}`;
 
+    // Look up customer details
+    const customer = SEEDED_USERS.find((u) => u.id === body.customerId);
+    const customerName = customer
+      ? customer.companyName ? `${customer.fullName} (${customer.companyName})` : customer.fullName
+      : 'Verified Corporate Buyer';
+
+    // Look up branch details
+    const branch = BRANCHES.find((b) => b.id === body.fulfillmentBranchId);
+    const fulfillmentBranchName = branch ? branch.name : 'Addis Ababa Central Hub';
+
     const newOrder = {
       id: `ord-${Date.now()}`,
       orderNumber,
       customerId: body.customerId,
-      customerName: 'Verified Corporate Buyer',
+      customerName,
       fulfillmentBranchId: body.fulfillmentBranchId,
-      fulfillmentBranchName: 'Regional Plant Hub',
+      fulfillmentBranchName,
       status: 'payment_pending' as const,
       deliveryType: body.deliveryType,
       deliveryAddress: body.deliveryAddress,
@@ -48,15 +58,18 @@ export async function POST(req: NextRequest) {
       cbePayerAccount: (body as any).cbePayerAccount,
       reservationExpiresAt: new Date(Date.now() + 4 * 60 * 60 * 1000).toISOString(), // 4 hours for CBE bank verification
       createdAt: new Date().toISOString(),
-      items: body.items.map((i, idx) => ({
-        id: `item-${idx + 1}`,
-        productId: i.productId,
-        productName: `Industrial Consignment Item (${i.productId})`,
-        sku: `AMG-ITEM-${i.productId.substring(0, 8)}`,
-        quantity: i.quantity,
-        unitPriceEtb: i.unitPriceEtb,
-        totalPriceEtb: i.unitPriceEtb * i.quantity,
-      })),
+      items: body.items.map((i, idx) => {
+        const product = PRODUCTS.find((p) => p.id === i.productId);
+        return {
+          id: `item-${idx + 1}`,
+          productId: i.productId,
+          productName: product ? product.name : `Industrial Consignment Item (${i.productId})`,
+          sku: product ? product.sku : `AMG-ITEM-${i.productId.substring(0, 8)}`,
+          quantity: i.quantity,
+          unitPriceEtb: i.unitPriceEtb,
+          totalPriceEtb: i.unitPriceEtb * i.quantity,
+        };
+      }),
     };
 
     INITIAL_ORDERS.unshift(newOrder as any);

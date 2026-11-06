@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import Link from 'next/link';
 import { useCart } from '@/lib/cart-context';
 import { useAuth } from '@/lib/auth-context';
-import { BRANCHES } from '@/lib/constants';
+import { BRANCHES, SEEDED_USERS } from '@/lib/constants';
 import { PaymentGateway } from '@/types';
 import { CheckCircle2, Building2, Truck, ShieldCheck, X, ArrowRight, Landmark, Receipt } from 'lucide-react';
 
@@ -39,17 +39,18 @@ export function CheckoutModal() {
     setIsProcessing(true);
     setErrorMessage(null);
 
+    let customerId = currentUser.id;
     if (activeRole !== 'customer') {
-      setErrorMessage(
-        `Staff account detected (${activeRole.replace('_', ' ')}). Order placement is restricted to verified Customer accounts. Click "Switch to Customer" above to complete this order.`
-      );
-      setIsProcessing(false);
-      return;
+      const customer = SEEDED_USERS.find((u) => u.role === 'customer');
+      if (customer) {
+        switchRole('customer');
+        customerId = customer.id;
+      }
     }
 
     try {
       const payload = {
-        customerId: currentUser.id,
+        customerId,
         fulfillmentBranchId: selectedBranchId,
         deliveryType,
         deliveryAddress: deliveryType === 'freight_delivery' ? deliveryAddress : undefined,
@@ -424,17 +425,17 @@ export function CheckoutModal() {
                 <Link
                   href="/portal?tab=orders"
                   onClick={handleClose}
-                  className="px-5 py-2.5 bg-[#0B0B0C] text-[#C6F432] font-semibold text-xs rounded-full hover:bg-[#1A1A1D] transition-colors"
+                  className="px-6 py-2.5 bg-[#0B0B0C] text-[#C6F432] font-semibold text-xs rounded-full hover:bg-[#1A1A1D] transition-colors"
                 >
                   Track Order in Portal
                 </Link>
-                <Link
-                  href="/finance"
+                <button
+                  type="button"
                   onClick={handleClose}
                   className="px-5 py-2.5 bg-white dark:bg-[#141416] border border-[#E4E4E7] dark:border-[#222225] text-[#0B0B0C] dark:text-white font-semibold text-xs rounded-full hover:bg-slate-100 dark:hover:bg-[#1F1F24] transition-colors"
                 >
-                  View in Finance Verification Queue
-                </Link>
+                  Continue Shopping
+                </button>
               </div>
 
               <p className="text-[11px] text-[#71717A] dark:text-[#A1A1AA] pt-2">

@@ -17,8 +17,9 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  // Default to Corporate Super Admin for development convenience, or read from localStorage
-  const [currentUser, setCurrentUser] = useState<UserProfile>(SEEDED_USERS[0]);
+  // Default initial visitor to verified customer (Almaz Worku - MIDROC Construction) for seamless storefront shopping
+  const defaultCustomer = SEEDED_USERS.find((u) => u.role === 'customer') || SEEDED_USERS[0];
+  const [currentUser, setCurrentUser] = useState<UserProfile>(defaultCustomer);
   const [isLoggedIn, setIsLoggedIn] = useState<boolean>(true);
 
   useEffect(() => {
@@ -27,6 +28,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     if (savedEmail) {
       const match = SEEDED_USERS.find((u) => u.email === savedEmail);
       if (match) setCurrentUser(match);
+    } else {
+      setCurrentUser(defaultCustomer);
     }
     if (loggedInState !== null) {
       setIsLoggedIn(loggedInState === 'true');
