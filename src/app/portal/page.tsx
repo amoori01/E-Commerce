@@ -24,7 +24,8 @@ import {
   ArrowRight,
   History,
   GitBranch,
-  X
+  X,
+  QrCode,
 } from 'lucide-react';
 
 export default function CustomerPortalPage() {
@@ -625,6 +626,46 @@ export default function CustomerPortalPage() {
                     </button>
                   </div>
                 </div>
+
+                {/* Official Depot Gate Clearance Pass Banner */}
+                {ord.gatePassCode && (
+                  <div className="bg-[#0B0B0C] text-white border-2 border-[#C6F432] p-5 rounded-2xl shadow-xl space-y-3 relative overflow-hidden">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-[#222225] pb-3">
+                      <div className="flex items-center space-x-2 text-[#C6F432]">
+                        <QrCode className="w-5 h-5 text-[#C6F432]" />
+                        <span className="font-bold text-sm tracking-wide">
+                          Official Depot Gate Clearance Pass Issued
+                        </span>
+                      </div>
+                      <span className="px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold bg-[#C6F432] text-[#0B0B0C] w-fit">
+                        Authorized for Physical Yard Pickup
+                      </span>
+                    </div>
+
+                    <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 bg-[#141416] p-4 rounded-xl border border-[#222225]">
+                      <div className="space-y-1">
+                        <span className="text-[10px] text-[#A1A1AA] uppercase tracking-wider block font-semibold">
+                          Gate Clearance Pass Code:
+                        </span>
+                        <div className="font-mono text-xl sm:text-2xl font-black text-[#C6F432] tracking-widest">
+                          {ord.gatePassCode}
+                        </div>
+                        <div className="text-[11px] text-[#A1A1AA]">
+                          {ord.driverName ? `Assigned Driver: ${ord.driverName}` : ''}
+                          {ord.truckPlate ? ` • Vehicle Plate: ${ord.truckPlate}` : ''}
+                        </div>
+                      </div>
+
+                      <div className="text-right sm:max-w-xs">
+                        <span className="text-[10px] text-[#A1A1AA] block">Depot Loading Dock:</span>
+                        <span className="font-bold text-white text-xs block">{ord.fulfillmentBranchName}</span>
+                        <span className="text-[10px] text-[#C6F432] block mt-0.5 font-medium">
+                          Show this code at the gate weighbridge
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                )}
 
                 {/* CBE FT Reference Submission / Status Banner */}
                 {ord.status === 'payment_pending' && (

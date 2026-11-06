@@ -167,6 +167,10 @@ export interface Order {
   paymentVerifiedBy?: string;
   paymentRejectionReason?: string;
   reservationExpiresAt?: string;
+  gatePassCode?: string;
+  dispatchedAt?: string;
+  driverName?: string;
+  truckPlate?: string;
   createdAt: string;
   items: OrderItem[];
 }

@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/lib/auth-context';
 import { INVENTORY_ITEMS, BRANCHES, INITIAL_ORDERS, SEEDED_USERS } from '@/lib/constants';
+import { addServerOrder } from '@/lib/server-orders';
 import { InventoryItem, Order, UserProfile } from '@/types';
 import {
   Building2,
@@ -30,11 +31,19 @@ import {
 
 export default function BranchAdminPage() {
   const { currentUser, activeRole, switchRole } = useAuth();
-  const [selectedBranchId, setSelectedBranchId] = useState(
-    currentUser.branchId || BRANCHES[1].id // Default to Adama Industrial Park Hub
-  );
+  const [selectedBranchId, setSelectedBranchId] = useState<string>('all');
   const [inventoryList, setInventoryList] = useState<InventoryItem[]>(INVENTORY_ITEMS);
   const [ordersList, setOrdersList] = useState<Order[]>(INITIAL_ORDERS);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      const tabParam = params.get('tab');
+      if (tabParam === 'dispatch' || tabParam === 'inventory' || tabParam === 'agents') {
+        setActiveTab(tabParam);
+      }
+    }
+  }, []);
 
   useEffect(() => {
     const fetchBranchOrders = async () => {
@@ -110,17 +119,23 @@ export default function BranchAdminPage() {
     SEEDED_USERS.filter((u) => u.role === 'sales_agent')
   );
   const [editingAgent, setEditingAgent] = useState<UserProfile | null>(null);
-  const [targetAgentBranch, setTargetAgentBranch] = useState<string>(selectedBranchId);
+  const [targetAgentBranch, setTargetAgentBranch] = useState<string>(selectedBranchId === 'all' ? BRANCHES[0].id : selectedBranchId);
   const [portfolioInput, setPortfolioInput] = useState<string>('');
   const [specializationInput, setSpecializationInput] = useState<string>('');
   const [isSavingAgent, setIsSavingAgent] = useState(false);
   const [agentSearch, setAgentSearch] = useState('');
 
   const isBranchAdmin = activeRole === 'branch_admin';
-  const activeBranch = BRANCHES.find((b) => b.id === selectedBranchId) || BRANCHES[1];
+  const activeBranch = selectedBranchId === 'all'
+    ? { id: 'all', code: 'ALL_DEPOTS', name: 'All Regional Depots (Consortium Wide)', city: 'All Regional Depots' }
+    : BRANCHES.find((b) => b.id === selectedBranchId) || BRANCHES[0];
   const activeSubsidiaryName = currentUser.subsidiaryName || 'AMG Heavy Industry Division';
-  const branchInventory = inventoryList.filter((item) => item.branchId === selectedBranchId);
-  const branchOrders = ordersList.filter((ord) => ord.fulfillmentBranchId === selectedBranchId);
+  const branchInventory = selectedBranchId === 'all'
+    ? inventoryList
+    : inventoryList.filter((item) => item.branchId === selectedBranchId);
+  const branchOrders = selectedBranchId === 'all'
+    ? ordersList
+    : ordersList.filter((ord) => ord.fulfillmentBranchId === selectedBranchId);
 
   const subsidiaryAgents = agentsList.filter(
     (a) => !currentUser.subsidiaryId || a.subsidiaryId === currentUser.subsidiaryId || activeRole === 'super_admin'
@@ -270,9 +285,35 @@ export default function BranchAdminPage() {
     const pass = `GATE-PASS-${Math.floor(100000 + Math.random() * 900000)}`;
     setGatePassCode(pass);
 
+    const updatedOrder: Order = {
+      ...activeDispatchOrder,
+      status: 'shipped',
+      gatePassCode: pass,
+      driverName,
+      truckPlate,
+      dispatchedAt: new Date().toISOString(),
+    };
+
     setOrdersList((prev) =>
-      prev.map((o) => (o.id === activeDispatchOrder.id ? { ...o, status: 'shipped' } : o))
+      prev.map((o) => (o.id === activeDispatchOrder.id ? updatedOrder : o))
     );
+
+    // Persist to server store
+    addServerOrder(updatedOrder);
+
+    // Persist to localStorage and broadcast so Customer Portal updates immediately
+    if (typeof window !== 'undefined') {
+      try {
+        const local = localStorage.getItem('amg_live_orders');
+        const list = local ? JSON.parse(local) : [];
+        const nextList = [
+          updatedOrder,
+          ...list.filter((o: any) => o.id !== updatedOrder.id && o.orderNumber !== updatedOrder.orderNumber),
+        ];
+        localStorage.setItem('amg_live_orders', JSON.stringify(nextList));
+        window.dispatchEvent(new CustomEvent('amg_orders_updated', { detail: updatedOrder }));
+      } catch (e) {}
+    }
   };
 
   const handleScanBarcode = (e: React.FormEvent) => {
@@ -366,11 +407,15 @@ export default function BranchAdminPage() {
                 onChange={(e) => setSelectedBranchId(e.target.value)}
                 className="mt-1 bg-emerald-900 border border-emerald-600 text-white font-bold px-2 py-1 rounded-sm text-xs outline-none"
               >
-                {BRANCHES.map((b) => (
-                  <option key={b.id} value={b.id}>
-                    {b.name} ({b.city})
-                  </option>
-                ))}
+                <option value="all">All Regional Depots ({ordersList.length} total orders)</option>
+                {BRANCHES.map((b) => {
+                  const count = ordersList.filter((o) => o.fulfillmentBranchId === b.id).length;
+                  return (
+                    <option key={b.id} value={b.id}>
+                      {b.name} ({b.city}) {count > 0 ? `• [${count} order${count > 1 ? 's' : ''}]` : ''}
+                    </option>
+                  );
+                })}
               </select>
               <div className="text-[10px] text-emerald-300 mt-1 font-mono">
                 {activeBranch.address}
@@ -478,7 +523,13 @@ export default function BranchAdminPage() {
           >
             <Truck className="w-4 h-4" />
             <span>Freight Dispatch & Gate Clearance</span>
-            <span className="ml-1.5 px-1.5 py-0.2 bg-emerald-950 text-emerald-200 text-[10px] rounded-full">
+            <span
+              className={`ml-1.5 px-2 py-0.5 text-[10px] rounded-full font-bold ${
+                branchOrders.length > 0
+                  ? 'bg-amber-400 text-slate-950'
+                  : 'bg-emerald-950 text-emerald-200'
+              }`}
+            >
               {branchOrders.length}
             </span>
           </button>
