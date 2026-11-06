@@ -4,7 +4,8 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/lib/auth-context';
 import { INVENTORY_ITEMS, BRANCHES, INITIAL_ORDERS, SEEDED_USERS } from '@/lib/constants';
 import { addServerOrder } from '@/lib/server-orders';
-import { InventoryItem, Order, UserProfile } from '@/types';
+import { QrCodeView } from '@/components/ui/QrCodeView';
+import { InventoryItem, Order, UserProfile, Branch } from '@/types';
 import {
   Building2,
   PackageCheck,
@@ -41,6 +42,11 @@ export default function BranchAdminPage() {
       const tabParam = params.get('tab');
       if (tabParam === 'dispatch' || tabParam === 'inventory' || tabParam === 'agents') {
         setActiveTab(tabParam);
+      }
+      const scanParam = params.get('scan');
+      if (scanParam) {
+        setIsScannerOpen(true);
+        setScannedBarcode(scanParam);
       }
     }
   }, []);
@@ -126,8 +132,18 @@ export default function BranchAdminPage() {
   const [agentSearch, setAgentSearch] = useState('');
 
   const isBranchAdmin = activeRole === 'branch_admin';
-  const activeBranch = selectedBranchId === 'all'
-    ? { id: 'all', code: 'ALL_DEPOTS', name: 'All Regional Depots (Consortium Wide)', city: 'All Regional Depots' }
+  const activeBranch: Branch = selectedBranchId === 'all'
+    ? {
+        id: 'all',
+        code: 'ALL_DEPOTS',
+        name: 'All Regional Depots (Consortium Wide)',
+        city: 'All Regional Depots',
+        address: 'Consortium-Wide Central Oversight & Multi-Depot Logistics Grid',
+        phone: '+251 11 550 0000',
+        email: 'logistics@amgholdings.et',
+        isHub: true,
+        isActive: true,
+      }
     : BRANCHES.find((b) => b.id === selectedBranchId) || BRANCHES[0];
   const activeSubsidiaryName = currentUser.subsidiaryName || 'AMG Heavy Industry Division';
   const branchInventory = selectedBranchId === 'all'
@@ -954,11 +970,11 @@ export default function BranchAdminPage() {
 
               {gatePassCode ? (
                 <div className="text-center py-4 space-y-3">
-                  <div className="w-16 h-16 bg-emerald-100 text-emerald-700 rounded-full flex items-center justify-center mx-auto">
-                    <CheckCircle2 className="w-10 h-10" />
+                  <div className="flex justify-center">
+                    <QrCodeView value={gatePassCode} size={150} />
                   </div>
                   <div>
-                    <h4 className="text-base font-bold text-slate-900">Gate Pass Issued & Verified</h4>
+                    <h4 className="text-base font-bold text-slate-900">Gate Pass Issued &amp; Ready for Yard Exit</h4>
                     <span className="font-mono text-lg font-extrabold text-emerald-800 block mt-1">
                       {gatePassCode}
                     </span>

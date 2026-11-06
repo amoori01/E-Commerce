@@ -7,6 +7,7 @@ import { useAuth } from '@/lib/auth-context';
 import { INITIAL_ORDERS, INITIAL_QUOTES } from '@/lib/constants';
 import { Order, Quote } from '@/types';
 import { ProformaInvoiceModal } from '@/components/modals/ProformaInvoiceModal';
+import { QrCodeView } from '@/components/ui/QrCodeView';
 import {
   Building2,
   FileText,
@@ -642,26 +643,57 @@ export default function CustomerPortalPage() {
                       </span>
                     </div>
 
-                    <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 bg-[#141416] p-4 rounded-xl border border-[#222225]">
-                      <div className="space-y-1">
-                        <span className="text-[10px] text-[#A1A1AA] uppercase tracking-wider block font-semibold">
-                          Gate Clearance Pass Code:
+                    <div className="flex flex-col md:flex-row items-center gap-5 bg-[#141416] p-4 rounded-xl border border-[#222225]">
+                      {/* Real Visual Scannable QR Code */}
+                      <div className="flex flex-col items-center space-y-1.5 shrink-0">
+                        <QrCodeView value={ord.gatePassCode} size={130} />
+                        <span className="text-[9px] font-mono font-bold uppercase tracking-wider text-[#C6F432]">
+                          Scannable QR Pass
                         </span>
-                        <div className="font-mono text-xl sm:text-2xl font-black text-[#C6F432] tracking-widest">
-                          {ord.gatePassCode}
-                        </div>
-                        <div className="text-[11px] text-[#A1A1AA]">
-                          {ord.driverName ? `Assigned Driver: ${ord.driverName}` : ''}
-                          {ord.truckPlate ? ` • Vehicle Plate: ${ord.truckPlate}` : ''}
-                        </div>
                       </div>
 
-                      <div className="text-right sm:max-w-xs">
-                        <span className="text-[10px] text-[#A1A1AA] block">Depot Loading Dock:</span>
-                        <span className="font-bold text-white text-xs block">{ord.fulfillmentBranchName}</span>
-                        <span className="text-[10px] text-[#C6F432] block mt-0.5 font-medium">
-                          Show this code at the gate weighbridge
-                        </span>
+                      {/* Details & Pass Code */}
+                      <div className="flex-1 space-y-2 text-left w-full">
+                        <div>
+                          <span className="text-[10px] text-[#A1A1AA] uppercase tracking-wider block font-semibold">
+                            Gate Clearance Pass Code:
+                          </span>
+                          <div className="flex items-center space-x-2 mt-0.5">
+                            <span className="font-mono text-xl sm:text-2xl font-black text-[#C6F432] tracking-widest">
+                              {ord.gatePassCode}
+                            </span>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                navigator.clipboard.writeText(ord.gatePassCode || '');
+                                alert(`Gate Pass Code ${ord.gatePassCode} copied to clipboard!`);
+                              }}
+                              className="px-2.5 py-1 bg-[#222225] hover:bg-[#2A2A2E] text-white text-[10px] font-semibold rounded-md border border-[#333338] transition-colors"
+                            >
+                              Copy
+                            </button>
+                          </div>
+                        </div>
+
+                        <div className="text-[11px] text-[#A1A1AA] space-y-0.5">
+                          <div>
+                            {ord.driverName ? <span>Assigned Driver: <strong className="text-white">{ord.driverName}</strong></span> : ''}
+                            {ord.truckPlate ? <span> • Vehicle Plate: <strong className="font-mono text-white">{ord.truckPlate}</strong></span> : ''}
+                          </div>
+                          <div>
+                            Depot Loading Dock: <strong className="text-white">{ord.fulfillmentBranchName}</strong>
+                          </div>
+                        </div>
+
+                        <div className="pt-2 flex flex-wrap gap-2">
+                          <Link
+                            href={`/branch-admin?tab=inventory&scan=${encodeURIComponent(ord.gatePassCode)}`}
+                            className="px-3.5 py-1.5 bg-[#C6F432] hover:bg-[#D7F860] text-[#0B0B0C] font-bold text-xs rounded-lg transition-colors flex items-center space-x-1.5 shadow-sm"
+                          >
+                            <QrCode className="w-3.5 h-3.5" />
+                            <span>Scan &amp; Release in Branch Admin</span>
+                          </Link>
+                        </div>
                       </div>
                     </div>
                   </div>
