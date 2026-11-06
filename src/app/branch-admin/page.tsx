@@ -2,10 +2,30 @@
 
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/lib/auth-context';
-import { INVENTORY_ITEMS, BRANCHES, INITIAL_ORDERS, SEEDED_USERS } from '@/lib/constants';
+import {
+  INVENTORY_ITEMS,
+  BRANCHES,
+  INITIAL_ORDERS,
+  SEEDED_USERS,
+  INITIAL_GRN_LOGS,
+  INITIAL_AUDIT_MOVEMENTS,
+} from '@/lib/constants';
 import { addServerOrder } from '@/lib/server-orders';
 import { QrCodeView } from '@/components/ui/QrCodeView';
-import { InventoryItem, Order, UserProfile, Branch } from '@/types';
+import {
+  InventoryItem,
+  Order,
+  UserProfile,
+  Branch,
+  GoodsReceivedNote,
+  StockMovementAudit,
+  WeighbridgeTicket,
+} from '@/types';
+import { GrnModal } from '@/components/wms/GrnModal';
+import { PickListModal } from '@/components/wms/PickListModal';
+import { WeighbridgeModal } from '@/components/wms/WeighbridgeModal';
+import { MovementAuditView } from '@/components/wms/MovementAuditView';
+import { GrnArchiveView } from '@/components/wms/GrnArchiveView';
 import {
   Building2,
   PackageCheck,
@@ -27,7 +47,13 @@ import {
   Briefcase,
   Shield,
   X,
-  Filter
+  Filter,
+  FileText,
+  Scale,
+  History,
+  Warehouse,
+  Printer,
+  ShieldCheck,
 } from 'lucide-react';
 
 export default function BranchAdminPage() {
@@ -40,9 +66,15 @@ export default function BranchAdminPage() {
     if (typeof window !== 'undefined') {
       const params = new URLSearchParams(window.location.search);
       const tabParam = params.get('tab');
-      if (tabParam === 'dispatch' || tabParam === 'inventory' || tabParam === 'agents') {
-        setActiveTab(tabParam);
+      if (tabParam === 'dispatch' || tabParam === 'inventory' || tabParam === 'agents' || tabParam === 'grn' || tabParam === 'audit') {
+        setActiveTab(tabParam as any);
       }
+      try {
+        const storedGrn = localStorage.getItem('amg_wms_grn');
+        if (storedGrn) setGrnList(JSON.parse(storedGrn));
+        const storedAudit = localStorage.getItem('amg_wms_audit');
+        if (storedAudit) setAuditMovements(JSON.parse(storedAudit));
+      } catch (e) {}
       const scanParam = params.get('scan');
       if (scanParam) {
         setIsScannerOpen(true);
@@ -117,8 +149,22 @@ export default function BranchAdminPage() {
   const [isRestocking, setIsRestocking] = useState(false);
   const [restockSuccessNotice, setRestockSuccessNotice] = useState<string | null>(null);
 
+  // WMS Enterprise State: GRN Model 19 & Audit Movements
+  const [grnList, setGrnList] = useState<GoodsReceivedNote[]>(INITIAL_GRN_LOGS);
+  const [auditMovements, setAuditMovements] = useState<StockMovementAudit[]>(INITIAL_AUDIT_MOVEMENTS);
+
+  // WMS Modals
+  const [isGrnModalOpen, setIsGrnModalOpen] = useState(false);
+  const [grnTargetItem, setGrnTargetItem] = useState<InventoryItem | null>(null);
+
+  const [isPickModalOpen, setIsPickModalOpen] = useState(false);
+  const [activePickOrder, setActivePickOrder] = useState<Order | null>(null);
+
+  const [isWeighbridgeModalOpen, setIsWeighbridgeModalOpen] = useState(false);
+  const [activeWeighbridgeOrder, setActiveWeighbridgeOrder] = useState<Order | null>(null);
+
   // Tab Switcher
-  const [activeTab, setActiveTab] = useState<'inventory' | 'dispatch' | 'agents'>('inventory');
+  const [activeTab, setActiveTab] = useState<'inventory' | 'dispatch' | 'grn' | 'audit' | 'agents'>('inventory');
 
   // Sales Agent & Client Portfolio Assignment State (SRS Section 2)
   const [agentsList, setAgentsList] = useState<UserProfile[]>(
@@ -258,6 +304,24 @@ export default function BranchAdminPage() {
       console.warn('Inventory sync error:', err);
     }
 
+    // Log movement in audit ledger
+    const newMovement: StockMovementAudit = {
+      id: `mv-${Date.now()}`,
+      timestamp: new Date().toISOString(),
+      sku: selectedItemForAdjustment.sku,
+      productName: selectedItemForAdjustment.productName,
+      depotId: activeBranch.id,
+      depotName: activeBranch.name,
+      movementType: adjustReason === 'damage_writeoff' ? 'DAMAGE_WRITE_OFF' : 'CYCLE_ADJUSTMENT',
+      referenceNumber: `ADJ-${Math.floor(1000 + Math.random() * 9000)}`,
+      quantityChange: delta,
+      balanceAfter: Math.max(0, selectedItemForAdjustment.quantityOnHand + delta),
+      performedBy: 'Branch Admin (Depot Yard Inspector)',
+      notes: `Manual adjustment logged: ${adjustReason}`,
+      batchNumber: selectedItemForAdjustment.batchNumber,
+    };
+    setAuditMovements((prev) => [newMovement, ...prev]);
+
     setFeedbackMsg(
       `Inventory for ${selectedItemForAdjustment.productName} updated (${delta > 0 ? `+${delta}` : delta} units logged as ${adjustReason}).`
     );
@@ -273,6 +337,24 @@ export default function BranchAdminPage() {
           : i
       )
     );
+
+    // Also record in audit ledger
+    const newMovement: StockMovementAudit = {
+      id: `mv-${Date.now()}`,
+      timestamp: new Date().toISOString(),
+      sku: item.sku,
+      productName: item.productName,
+      depotId: activeBranch.id,
+      depotName: activeBranch.name,
+      movementType: 'GRN_INTAKE',
+      referenceNumber: `GRN-QUICK-${Math.floor(1000 + Math.random() * 9000)}`,
+      quantityChange: qty,
+      balanceAfter: item.quantityOnHand + qty,
+      performedBy: 'Branch Admin (Depot Yard Inspector)',
+      notes: `Quick factory intake batch received`,
+      batchNumber: item.batchNumber,
+    };
+    setAuditMovements((prev) => [newMovement, ...prev]);
 
     try {
       await fetch('/api/inventory/restock', {
@@ -292,6 +374,165 @@ export default function BranchAdminPage() {
 
     setFeedbackMsg(`Received batch intake of +${qty} units for ${item.productName}. Physical on-hand updated.`);
     setTimeout(() => setFeedbackMsg(null), 3500);
+  };
+
+  // WMS Handlers
+  const handleOpenGrnModal = (item: InventoryItem) => {
+    setGrnTargetItem(item);
+    setIsGrnModalOpen(true);
+  };
+
+  const handleGrnIssued = (grn: GoodsReceivedNote, updatedQty: number, batchNumber: string) => {
+    setInventoryList((prev) =>
+      prev.map((i) =>
+        i.sku === grn.items[0].sku
+          ? {
+              ...i,
+              quantityOnHand: i.quantityOnHand + updatedQty,
+              batchNumber: batchNumber || i.batchNumber,
+              updatedAt: new Date().toISOString(),
+            }
+          : i
+      )
+    );
+
+    setGrnList((prev) => {
+      const next = [grn, ...prev];
+      if (typeof window !== 'undefined') {
+        try {
+          localStorage.setItem('amg_wms_grn', JSON.stringify(next));
+        } catch (e) {}
+      }
+      return next;
+    });
+
+    const newMovement: StockMovementAudit = {
+      id: `mv-${Date.now()}`,
+      timestamp: grn.date,
+      sku: grn.items[0].sku,
+      productName: grn.items[0].productName,
+      depotId: grn.depotId,
+      depotName: grn.depotName,
+      movementType: 'GRN_INTAKE',
+      referenceNumber: grn.grnNumber,
+      quantityChange: updatedQty,
+      balanceAfter: (grnTargetItem?.quantityOnHand || 0) + updatedQty,
+      performedBy: grn.receivedBy,
+      notes: `Waybill ${grn.supplierWaybillNumber} • Truck ${grn.truckPlate} (${grn.driverName})`,
+      batchNumber,
+    };
+
+    setAuditMovements((prev) => {
+      const next = [newMovement, ...prev];
+      if (typeof window !== 'undefined') {
+        try {
+          localStorage.setItem('amg_wms_audit', JSON.stringify(next));
+        } catch (e) {}
+      }
+      return next;
+    });
+
+    setFeedbackMsg(`Issued official Model 19 GRN (${grn.grnNumber}). Added +${updatedQty} to physical stock.`);
+  };
+
+  const handleConfirmPickAndStage = (orderId: string, stagingDock: string, pickedBy: string) => {
+    let targetOrder: Order | undefined;
+    setOrdersList((prev) =>
+      prev.map((o) => {
+        if (o.id === orderId) {
+          targetOrder = o;
+          const updated: Order = {
+            ...o,
+            pickingStatus: 'staged',
+            stagingDock,
+            pickedBy,
+            stagedAt: new Date().toISOString(),
+          };
+          addServerOrder(updated);
+          if (typeof window !== 'undefined') {
+            try {
+              const local = localStorage.getItem('amg_live_orders');
+              const list = local ? JSON.parse(local) : [];
+              const nextList = [
+                updated,
+                ...list.filter((x: any) => x.id !== updated.id && x.orderNumber !== updated.orderNumber),
+              ];
+              localStorage.setItem('amg_live_orders', JSON.stringify(nextList));
+              window.dispatchEvent(new CustomEvent('amg_orders_updated', { detail: updated }));
+            } catch (e) {}
+          }
+          return updated;
+        }
+        return o;
+      })
+    );
+
+    if (targetOrder) {
+      const newMovement: StockMovementAudit = {
+        id: `mv-${Date.now()}`,
+        timestamp: new Date().toISOString(),
+        sku: targetOrder.items[0]?.sku || 'MULTIPLE',
+        productName: targetOrder.items[0]?.productName || 'Order Items',
+        depotId: activeBranch.id,
+        depotName: activeBranch.name,
+        movementType: 'PICK_STAGING',
+        referenceNumber: targetOrder.orderNumber,
+        quantityChange: -(targetOrder.items[0]?.quantity || 0),
+        balanceAfter: (branchInventory.find((i) => i.sku === targetOrder?.items[0]?.sku)?.quantityOnHand || 100),
+        performedBy: pickedBy,
+        notes: `Picked from yard bays and staged at ${stagingDock}`,
+      };
+      setAuditMovements((prev) => [newMovement, ...prev]);
+    }
+
+    setFeedbackMsg(`Order ${targetOrder?.orderNumber || orderId} picked and staged at ${stagingDock}. Ready for Gate Clearance Pass.`);
+  };
+
+  const handleWeighbridgeScaleConfirmed = (ticket: WeighbridgeTicket) => {
+    const targetOrder = ordersList.find((o) => o.orderNumber === ticket.orderNumber);
+    if (targetOrder) {
+      const updated: Order = {
+        ...targetOrder,
+        status: 'completed',
+        weighbridgeTicket: ticket,
+      };
+      setOrdersList((prev) => prev.map((o) => (o.id === targetOrder.id ? updated : o)));
+      addServerOrder(updated);
+      if (typeof window !== 'undefined') {
+        try {
+          const local = localStorage.getItem('amg_live_orders');
+          const list = local ? JSON.parse(local) : [];
+          const nextList = [
+            updated,
+            ...list.filter((x: any) => x.id !== updated.id && x.orderNumber !== updated.orderNumber),
+          ];
+          localStorage.setItem('amg_live_orders', JSON.stringify(nextList));
+          window.dispatchEvent(new CustomEvent('amg_orders_updated', { detail: updated }));
+        } catch (e) {}
+      }
+
+      const newMovement: StockMovementAudit = {
+        id: `mv-${Date.now()}`,
+        timestamp: ticket.timestamp,
+        sku: targetOrder.items[0]?.sku || 'MULTIPLE',
+        productName: targetOrder.items[0]?.productName || 'Consignment Cargo',
+        depotId: activeBranch.id,
+        depotName: activeBranch.name,
+        movementType: 'DISPATCH_FULFILLMENT',
+        referenceNumber: ticket.ticketNumber,
+        quantityChange: -(targetOrder.items[0]?.quantity || 0),
+        balanceAfter: (branchInventory.find((i) => i.sku === targetOrder?.items[0]?.sku)?.quantityOnHand || 100),
+        performedBy: ticket.weighmasterName,
+        notes: `Gate Exit weighed at ${ticket.gateNumber}. Net Cargo: ${ticket.netWeightKg} KG (${ticket.weightVarianceKg >= 0 ? '+' : ''}${ticket.weightVarianceKg} KG variance).`,
+      };
+      setAuditMovements((prev) => [newMovement, ...prev]);
+
+      setScanResult({
+        order: updated,
+        message: `WEIGHBRIDGE & GATE CLEARANCE APPROVED: Ticket ${ticket.ticketNumber} verified! Net Cargo ${ticket.netWeightKg.toLocaleString()} KG passed Gate 04 scale. Order marked COMPLETED.`,
+      });
+      setFeedbackMsg(`Consignment released through Gate 04 weighbridge scale (Ticket: ${ticket.ticketNumber}).`);
+    }
   };
 
   const handleGenerateGatePass = (e: React.FormEvent) => {
@@ -555,7 +796,7 @@ export default function BranchAdminPage() {
             }`}
           >
             <Boxes className="w-4 h-4" />
-            <span>Depot Inventory Ledger & Intakes</span>
+            <span>Depot Inventory Ledger</span>
           </button>
 
           <button
@@ -568,7 +809,7 @@ export default function BranchAdminPage() {
             }`}
           >
             <Truck className="w-4 h-4" />
-            <span>Freight Dispatch & Gate Clearance</span>
+            <span>Picking, Staging & Gate Exit</span>
             <span
               className={`ml-1.5 px-2 py-0.5 text-[10px] rounded-full font-bold ${
                 branchOrders.length > 0
@@ -582,6 +823,38 @@ export default function BranchAdminPage() {
 
           <button
             type="button"
+            onClick={() => setActiveTab('grn')}
+            className={`px-4 py-2.5 font-bold text-xs rounded-t-sm flex items-center space-x-2 transition-all ${
+              activeTab === 'grn'
+                ? 'bg-emerald-800 text-white shadow-sm border-t-2 border-emerald-500'
+                : 'bg-white text-slate-700 hover:bg-slate-100 border border-b-0 border-slate-200'
+            }`}
+          >
+            <FileText className="w-4 h-4" />
+            <span>Model 19 (GRN) Archive</span>
+            <span className="ml-1.5 px-1.5 py-0.2 bg-emerald-950 text-emerald-200 text-[10px] rounded-full">
+              {grnList.length}
+            </span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setActiveTab('audit')}
+            className={`px-4 py-2.5 font-bold text-xs rounded-t-sm flex items-center space-x-2 transition-all ${
+              activeTab === 'audit'
+                ? 'bg-emerald-800 text-white shadow-sm border-t-2 border-emerald-500'
+                : 'bg-white text-slate-700 hover:bg-slate-100 border border-b-0 border-slate-200'
+            }`}
+          >
+            <History className="w-4 h-4" />
+            <span>Movement Audit Ledger</span>
+            <span className="ml-1.5 px-1.5 py-0.2 bg-emerald-950 text-emerald-200 text-[10px] rounded-full">
+              {auditMovements.length}
+            </span>
+          </button>
+
+          <button
+            type="button"
             onClick={() => setActiveTab('agents')}
             className={`px-4 py-2.5 font-bold text-xs rounded-t-sm flex items-center space-x-2 transition-all ${
               activeTab === 'agents'
@@ -590,7 +863,7 @@ export default function BranchAdminPage() {
             }`}
           >
             <Users className="w-4 h-4" />
-            <span>Sales Agent Portfolio Assignments</span>
+            <span>Sales Agent Assignments</span>
             <span className="ml-1.5 px-1.5 py-0.2 bg-emerald-950 text-emerald-200 text-[10px] rounded-full">
               {subsidiaryAgents.length} Agents
             </span>
@@ -631,13 +904,13 @@ export default function BranchAdminPage() {
             <table className="w-full text-left text-xs">
               <thead className="bg-emerald-50 text-emerald-900 font-semibold border-b border-emerald-200">
                 <tr>
-                  <th className="py-2.5 px-3">SKU</th>
-                  <th className="py-2.5 px-3">Product Name</th>
+                  <th className="py-2.5 px-3">SKU & Product</th>
+                  <th className="py-2.5 px-3">Yard Bay & Batch Traceability</th>
                   <th className="py-2.5 px-3">Subsidiary</th>
                   <th className="py-2.5 px-3 text-right">Physical On-Hand</th>
-                  <th className="py-2.5 px-3 text-right">Reserved Stock</th>
+                  <th className="py-2.5 px-3 text-right">Reserved</th>
                   <th className="py-2.5 px-3 text-right">Safety Threshold</th>
-                  <th className="py-2.5 px-3 text-center">Depot Action</th>
+                  <th className="py-2.5 px-3 text-center">Depot Intake & WMS Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-200">
@@ -646,14 +919,28 @@ export default function BranchAdminPage() {
                     const isLow = item.quantityOnHand <= item.safetyStockThreshold;
                     return (
                       <tr key={item.id} className="hover:bg-slate-50">
-                        <td className="py-2.5 px-3 font-mono font-bold text-emerald-800">{item.sku}</td>
-                        <td className="py-2.5 px-3 font-semibold text-slate-900">{item.productName}</td>
+                        <td className="py-2.5 px-3">
+                          <div className="font-mono font-bold text-emerald-800">{item.sku}</div>
+                          <div className="font-semibold text-slate-900">{item.productName}</div>
+                        </td>
+                        <td className="py-2.5 px-3">
+                          <div className="font-bold text-slate-800 flex items-center space-x-1">
+                            <Warehouse className="w-3.5 h-3.5 text-emerald-700" />
+                            <span>{item.bayLocation || 'Yard Bay 04 • Shed B'}</span>
+                          </div>
+                          <div className="text-[10px] font-mono text-slate-500 mt-0.5">
+                            Batch: <span className="font-bold text-slate-700">{item.batchNumber || 'BATCH-2026-ACTIVE'}</span>
+                            {item.millTestCert && (
+                              <span className="ml-1 text-emerald-800">[{item.millTestCert}]</span>
+                            )}
+                          </div>
+                        </td>
                         <td className="py-2.5 px-3 text-slate-600">{item.subsidiaryName}</td>
                         <td className="py-2.5 px-3 text-right font-mono font-bold text-slate-900 text-sm">
-                          {item.quantityOnHand}
+                          {item.quantityOnHand.toLocaleString()}
                         </td>
                         <td className="py-2.5 px-3 text-right font-mono text-slate-500">
-                          {item.quantityReserved}
+                          {item.quantityReserved.toLocaleString()}
                         </td>
                         <td className="py-2.5 px-3 text-right font-mono">
                           <span
@@ -666,22 +953,31 @@ export default function BranchAdminPage() {
                             {item.safetyStockThreshold} {isLow ? '⚠️ REORDER' : ''}
                           </span>
                         </td>
-                        <td className="py-2.5 px-3 text-center space-x-1.5 whitespace-nowrap">
+                        <td className="py-2.5 px-3 text-center space-x-1 whitespace-nowrap">
+                          <button
+                            type="button"
+                            onClick={() => handleOpenGrnModal(item)}
+                            className="px-2.5 py-1 bg-emerald-950 hover:bg-black text-[#C6F432] rounded-sm font-bold text-[10px] transition-colors shadow-sm inline-flex items-center space-x-1 border border-emerald-700"
+                            title="Issue official Ethiopian Model 19 Goods Received Note with supplier waybill"
+                          >
+                            <FileText className="w-3 h-3 text-[#C6F432]" />
+                            <span>Log GRN (ሞዴል 19)</span>
+                          </button>
                           <button
                             type="button"
                             onClick={() => handleQuickBatchIntake(item, 50)}
                             className="px-2 py-1 bg-emerald-700 hover:bg-emerald-800 text-white rounded-sm font-bold text-[10px] transition-colors shadow-sm"
-                            title="Receive factory delivery of +50 units"
+                            title="Quick factory delivery of +50 units"
                           >
-                            +50 Intake
+                            +50
                           </button>
                           <button
                             type="button"
                             onClick={() => handleQuickBatchIntake(item, 500)}
                             className="px-2 py-1 bg-indigo-700 hover:bg-indigo-800 text-white rounded-sm font-bold text-[10px] transition-colors shadow-sm"
-                            title="Receive major consignment of +500 units"
+                            title="Quick major consignment of +500 units"
                           >
-                            +500 Batch
+                            +500
                           </button>
                           <button
                             type="button"
@@ -797,45 +1093,93 @@ export default function BranchAdminPage() {
                 <th className="py-2 px-3">Order Number</th>
                 <th className="py-2 px-3">Buyer Company</th>
                 <th className="py-2 px-3">Delivery Method</th>
-                <th className="py-2 px-3">Status</th>
+                <th className="py-2 px-3">Order Status</th>
+                <th className="py-2 px-3">WMS Staging Status</th>
                 <th className="py-2 px-3">Consignment</th>
-                <th className="py-2 px-3 text-center">Fulfillment Action</th>
+                <th className="py-2 px-3 text-center">Fulfillment & Weighbridge Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-200">
               {branchOrders.length > 0 ? (
-                branchOrders.map((ord) => (
-                  <tr key={ord.id} className="hover:bg-slate-50">
-                    <td className="py-2.5 px-3 font-mono font-bold text-emerald-800">{ord.orderNumber}</td>
-                    <td className="py-2.5 px-3 font-medium text-slate-900">
-                      {ord.customerName}
-                      <span className="block text-[10px] text-slate-500">{ord.customerCompany}</span>
-                    </td>
-                    <td className="py-2.5 px-3 capitalize text-slate-700">
-                      {ord.deliveryType.replace(/_/g, ' ')}
-                    </td>
-                    <td className="py-2.5 px-3">
-                      <span className="px-2 py-0.5 bg-emerald-100 text-emerald-800 rounded-sm font-bold text-[10px] uppercase">
-                        {ord.status.replace(/_/g, ' ')}
-                      </span>
-                    </td>
-                    <td className="py-2.5 px-3 text-[11px] text-slate-600">
-                      {ord.items.map((i) => `${i.quantity}x ${i.productName}`).join(', ')}
-                    </td>
-                    <td className="py-2.5 px-3 text-center">
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setActiveDispatchOrder(ord);
-                          setGatePassCode(null);
-                        }}
-                        className="px-2.5 py-1 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-sm text-[10px] transition-colors"
-                      >
-                        Generate Gate Pass / Dispatch
-                      </button>
-                    </td>
-                  </tr>
-                ))
+                branchOrders.map((ord) => {
+                  const isStaged = ord.pickingStatus === 'staged';
+                  return (
+                    <tr key={ord.id} className="hover:bg-slate-50">
+                      <td className="py-2.5 px-3 font-mono font-bold text-emerald-800">{ord.orderNumber}</td>
+                      <td className="py-2.5 px-3 font-medium text-slate-900">
+                        {ord.customerName}
+                        <span className="block text-[10px] text-slate-500">{ord.customerCompany}</span>
+                      </td>
+                      <td className="py-2.5 px-3 capitalize text-slate-700">
+                        {ord.deliveryType.replace(/_/g, ' ')}
+                      </td>
+                      <td className="py-2.5 px-3">
+                        <span className="px-2 py-0.5 bg-emerald-100 text-emerald-800 rounded-sm font-bold text-[10px] uppercase">
+                          {ord.status.replace(/_/g, ' ')}
+                        </span>
+                      </td>
+                      <td className="py-2.5 px-3">
+                        {isStaged ? (
+                          <div className="space-y-0.5">
+                            <span className="px-2 py-0.5 bg-emerald-100 text-emerald-950 border border-emerald-300 rounded font-bold text-[10px] flex items-center w-fit space-x-1">
+                              <Warehouse className="w-3 h-3 text-emerald-700" />
+                              <span>Staged: {ord.stagingDock?.split('(')[0] || 'Dock 02'}</span>
+                            </span>
+                            <span className="text-[10px] text-slate-400 block font-mono">
+                              By: {ord.pickedBy?.split(' ')[0] || 'Yard Staff'}
+                            </span>
+                          </div>
+                        ) : (
+                          <span className="px-2 py-0.5 bg-amber-50 text-amber-800 border border-amber-200 rounded font-medium text-[10px]">
+                            Awaiting Picking
+                          </span>
+                        )}
+                      </td>
+                      <td className="py-2.5 px-3 text-[11px] text-slate-600">
+                        {ord.items.map((i) => `${i.quantity}x ${i.productName}`).join(', ')}
+                      </td>
+                      <td className="py-2.5 px-3 text-center space-x-1 whitespace-nowrap">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setActivePickOrder(ord);
+                            setIsPickModalOpen(true);
+                          }}
+                          className="px-2 py-1 bg-slate-800 hover:bg-slate-900 text-white font-bold rounded-sm text-[10px] transition-colors inline-flex items-center space-x-1"
+                          title="Generate Picking List with Yard Bay addresses and assign Staging Dock"
+                        >
+                          <ClipboardList className="w-3 h-3 text-[#C6F432]" />
+                          <span>{isStaged ? 'Review Pick' : '1. Pick & Stage'}</span>
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setActiveDispatchOrder(ord);
+                            setGatePassCode(null);
+                          }}
+                          className="px-2 py-1 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-sm text-[10px] transition-colors inline-flex items-center space-x-1"
+                        >
+                          <Truck className="w-3 h-3" />
+                          <span>2. Gate Pass</span>
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setActiveWeighbridgeOrder(ord);
+                            setIsWeighbridgeModalOpen(true);
+                          }}
+                          className="px-2 py-1 bg-emerald-950 hover:bg-black text-[#C6F432] font-bold rounded-sm text-[10px] transition-colors inline-flex items-center space-x-1 border border-emerald-700"
+                          title="Open Weighbridge Scale Terminal to log axle weight and scale ticket"
+                        >
+                          <Scale className="w-3 h-3" />
+                          <span>3. Weighbridge</span>
+                        </button>
+                      </td>
+                    </tr>
+                  );
+                })
               ) : (
                 <tr>
                   <td colSpan={6} className="text-center py-6 text-slate-500">
@@ -847,6 +1191,16 @@ export default function BranchAdminPage() {
           </table>
         </div>
       </div>
+    )}
+
+    {/* Model 19 (GRN) Archive Tab */}
+    {activeTab === 'grn' && (
+      <GrnArchiveView grnList={grnList} depotName={activeBranch.name} />
+    )}
+
+    {/* Warehouse Stock Movement Audit Ledger Tab */}
+    {activeTab === 'audit' && (
+      <MovementAuditView movements={auditMovements} depotName={activeBranch.name} />
     )}
 
     {/* Sales Agent & Client Portfolio Assignments Tab (SRS Section 2) */}
@@ -1095,14 +1449,29 @@ export default function BranchAdminPage() {
                   </div>
                   <p className="text-[11px] leading-relaxed">{scanResult.message}</p>
                   {scanResult.order && scanResult.order.status !== 'completed' && (
-                    <button
-                      type="button"
-                      onClick={() => handleCompleteOrderRelease(scanResult.order!)}
-                      className="w-full py-2 bg-emerald-700 hover:bg-emerald-800 text-white font-bold rounded-sm text-xs transition-colors flex items-center justify-center space-x-1.5 shadow-sm mt-1"
-                    >
-                      <CheckCircle2 className="w-4 h-4 text-emerald-200" />
-                      <span>Authorize Gate Exit & Complete Consignment</span>
-                    </button>
+                    <div className="space-y-1.5 pt-1">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setActiveWeighbridgeOrder(scanResult.order!);
+                          setIsWeighbridgeModalOpen(true);
+                          setIsScannerOpen(false);
+                        }}
+                        className="w-full py-2 bg-emerald-950 hover:bg-black text-[#C6F432] font-bold rounded-sm text-xs transition-colors flex items-center justify-center space-x-1.5 shadow-sm border border-emerald-700"
+                      >
+                        <Scale className="w-4 h-4 text-[#C6F432]" />
+                        <span>Perform Weighbridge Axle Scale Verification</span>
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => handleCompleteOrderRelease(scanResult.order!)}
+                        className="w-full py-2 bg-emerald-700 hover:bg-emerald-800 text-white font-bold rounded-sm text-xs transition-colors flex items-center justify-center space-x-1.5 shadow-sm"
+                      >
+                        <CheckCircle2 className="w-4 h-4 text-emerald-200" />
+                        <span>Authorize Gate Exit & Complete Consignment</span>
+                      </button>
+                    </div>
                   )}
                 </div>
               )}
@@ -1321,6 +1690,30 @@ export default function BranchAdminPage() {
             </div>
           </div>
         )}
+
+        {/* WMS Enterprise Modals */}
+        <GrnModal
+          isOpen={isGrnModalOpen}
+          onClose={() => setIsGrnModalOpen(false)}
+          targetItem={grnTargetItem}
+          depotId={activeBranch.id}
+          depotName={activeBranch.name}
+          onGrnIssued={handleGrnIssued}
+        />
+
+        <PickListModal
+          isOpen={isPickModalOpen}
+          onClose={() => setIsPickModalOpen(false)}
+          order={activePickOrder}
+          onConfirmPickAndStage={handleConfirmPickAndStage}
+        />
+
+        <WeighbridgeModal
+          isOpen={isWeighbridgeModalOpen}
+          onClose={() => setIsWeighbridgeModalOpen(false)}
+          order={activeWeighbridgeOrder}
+          onScaleConfirmed={handleWeighbridgeScaleConfirmed}
+        />
 
         {/* Restock Success Feedback Toast */}
         {restockSuccessNotice && (

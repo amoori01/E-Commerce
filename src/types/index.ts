@@ -171,6 +171,13 @@ export interface Order {
   dispatchedAt?: string;
   driverName?: string;
   truckPlate?: string;
+  pickingStatus?: 'pending' | 'picked' | 'staged';
+  stagingDock?: string;
+  stagedAt?: string;
+  pickedAt?: string;
+  pickedBy?: string;
+  batchAllocated?: string;
+  weighbridgeTicket?: WeighbridgeTicket;
   createdAt: string;
   items: OrderItem[];
 }
@@ -233,6 +240,64 @@ export interface Quote {
   messages: QuoteMessage[];
 }
 
+export interface WeighbridgeTicket {
+  ticketNumber: string;
+  orderNumber: string;
+  gatePassCode: string;
+  timestamp: string;
+  gateNumber: string;
+  truckPlate: string;
+  driverName: string;
+  tareWeightKg: number;
+  grossWeightKg: number;
+  netWeightKg: number;
+  declaredWeightKg: number;
+  weightVarianceKg: number;
+  isOverloaded: boolean;
+  weighmasterName: string;
+}
+
+export interface GoodsReceivedNote {
+  grnNumber: string;
+  date: string;
+  depotId: string;
+  depotName: string;
+  supplierName: string;
+  supplierWaybillNumber: string;
+  truckPlate: string;
+  driverName: string;
+  driverPhone?: string;
+  items: {
+    sku: string;
+    productName: string;
+    quantityReceived: number;
+    unit: string;
+    batchNumber: string;
+    mfgDate: string;
+    expiryDate?: string;
+    millTestCert?: string;
+  }[];
+  qualityInspectionPassed: boolean;
+  receivedBy: string;
+  notes?: string;
+}
+
+export interface StockMovementAudit {
+  id: string;
+  timestamp: string;
+  sku: string;
+  productName: string;
+  depotId: string;
+  depotName: string;
+  movementType: 'GRN_INTAKE' | 'DISPATCH_FULFILLMENT' | 'PICK_STAGING' | 'CYCLE_ADJUSTMENT' | 'DAMAGE_WRITE_OFF';
+  referenceNumber: string;
+  quantityChange: number;
+  balanceAfter: number;
+  performedBy: string;
+  notes?: string;
+  batchNumber?: string;
+}
+
 export interface InventoryItem {
   id: string;
   productId: string;
@@ -245,6 +310,11 @@ export interface InventoryItem {
   quantityReserved: number;
   safetyStockThreshold: number;
   updatedAt: string;
+  bayLocation?: string;
+  batchNumber?: string;
+  mfgDate?: string;
+  expiryDate?: string;
+  millTestCert?: string;
 }
 
 export interface ProformaInvoice {
