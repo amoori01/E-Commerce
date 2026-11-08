@@ -166,53 +166,66 @@ export default function SalesAgentPage() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-900 text-slate-200">
-      {/* 1. ENGINEERING BLUEPRINT THEME HEADER */}
-      <div className="bg-[#0B1528] border-b border-sky-950 px-4 sm:px-6 py-6 shadow-xl">
-        <div className="max-w-7xl mx-auto space-y-4">
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-            <div className="space-y-1">
-              <div className="flex items-center space-x-2">
-                <span className="px-2.5 py-0.5 bg-sky-600 text-white font-extrabold uppercase rounded-sm text-[10px] tracking-wider flex items-center space-x-1 shadow-sm">
-                  <Cpu className="w-3 h-3" />
-                  <span>Tier 2: Technical Engineering & Pricing Desk</span>
-                </span>
-                <span className="text-sky-400 font-mono text-[11px]">Stream B Inquiry Engine</span>
+    <div className="min-h-screen bg-[#FAFAFA] dark:bg-[#0B0B0C] text-[#0B0B0C] dark:text-[#E4E4E7] transition-colors pb-20">
+      {/* 1. EXECUTIVE THEME HERO BANNER */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 pt-6">
+        <div className="bg-gradient-to-br from-[#FCFCFD] via-white to-[#F4F6F8] dark:from-[#0B0B0C] dark:via-[#0E0E10] dark:to-[#0B0B0C] text-slate-900 dark:text-white rounded-3xl p-6 sm:p-8 border border-slate-200/90 dark:border-[#1A1A1D] shadow-[0_20px_50px_-15px_rgba(0,0,0,0.06)] dark:shadow-2xl relative overflow-hidden group hover:border-slate-300 dark:hover:border-[#C6F432]/30 transition-all duration-300">
+          {/* Ambient Lime & Sunlit Emerald Glows */}
+          <div className="absolute -top-32 -right-32 w-[28rem] h-[28rem] bg-gradient-to-bl from-[#C6F432]/30 via-emerald-300/20 to-transparent dark:from-[#C6F432]/10 dark:to-transparent rounded-full blur-3xl pointer-events-none group-hover:scale-105 transition-all duration-700" />
+          <div className="absolute -bottom-24 -left-24 w-64 h-64 bg-gradient-to-tr from-[#C6F432]/20 via-teal-200/15 to-transparent dark:from-[#C6F432]/5 dark:to-transparent rounded-full blur-2xl pointer-events-none" />
+
+          <div className="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+            <div className="space-y-3 max-w-3xl">
+              <div className="flex flex-wrap items-center gap-2">
+                <div className="inline-flex items-center space-x-2 px-3.5 py-1.5 bg-white/90 dark:bg-[#141416] border border-slate-200/90 dark:border-[#2A2A2E] rounded-full text-xs font-medium text-slate-900 dark:text-[#E4E4E7] shadow-xs backdrop-blur-md">
+                  <span className="w-2 h-2 rounded-full bg-[#16A34A] dark:bg-[#C6F432] inline-block shadow-[0_0_8px_rgba(22,163,74,0.6)] dark:shadow-[0_0_8px_#C6F432] animate-pulse" />
+                  <span className="font-semibold tracking-wide">Tier 2: Technical Engineering &amp; Pricing Desk</span>
+                  <span className="text-slate-300 dark:text-[#52525B]">|</span>
+                  <span className="px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-[#C6F432]/25 dark:bg-[#C6F432]/10 text-emerald-900 dark:text-[#C6F432] border border-[#C6F432]/40">Stream B Engine</span>
+                </div>
+                <div className="inline-flex items-center space-x-1.5 px-3 py-1 bg-white/80 dark:bg-[#141416] border border-slate-200/80 dark:border-[#2A2A2E] rounded-full text-[11px] text-slate-600 dark:text-[#A1A1AA] shadow-xs">
+                  <Cpu className="w-3.5 h-3.5 text-[#16A34A] dark:text-[#C6F432]" />
+                  <span>Dynamic Cost Matrix</span>
+                </div>
               </div>
-              <h1 className="text-2xl font-extrabold tracking-tight text-white">
-                Sales Engineer Quotation & Formulation Workspace
+
+              <h1 className="text-2xl sm:text-4xl font-serif font-black tracking-tight leading-tight text-slate-950 dark:text-white drop-shadow-xs">
+                Sales Engineer Quotation &amp; Formulation Workspace
               </h1>
-              <p className="text-xs text-slate-400 max-w-2xl">
+
+              <p className="text-xs sm:text-sm text-slate-600 dark:text-[#A1A1AA] font-sans leading-relaxed max-w-2xl font-normal">
                 Technical review desk for heavy structural PEB frameworks, Sinotruk commercial fleets, and bulk cryogenic gases. Formulate engineering bill of materials and price matrices.
               </p>
             </div>
 
-            {/* Assigned Engineer Badge */}
-            <div className="bg-slate-950 border border-sky-900/60 p-3 rounded-sm text-right shrink-0">
-              <div className="text-[10px] uppercase font-bold text-slate-400">Assigned Sales Engineer</div>
-              <div className="text-sm font-bold text-white mt-0.5">{currentUser.fullName}</div>
-              <div className="text-[11px] font-mono text-sky-400">
-                {currentUser.subsidiaryName || 'Heavy Steel & Transport Division'}
+            {/* Assigned Engineer Persona Card */}
+            <div className="flex items-center space-x-3 bg-white/90 dark:bg-[#141416]/90 p-3.5 rounded-2xl border border-slate-200 dark:border-[#2A2A2E] shadow-sm backdrop-blur-md shrink-0">
+              <div className="w-10 h-10 rounded-full bg-slate-950 dark:bg-[#1A1A1D] text-[#C6F432] font-bold flex items-center justify-center text-sm border border-slate-800 dark:border-[#2A2A2E] shadow-xs">
+                {currentUser.fullName[0]}
+              </div>
+              <div className="text-left text-xs">
+                <div className="text-[10px] uppercase font-bold text-slate-400">Assigned Engineer</div>
+                <div className="font-bold text-slate-950 dark:text-white leading-tight">{currentUser.fullName}</div>
+                <div className="text-[10px] text-emerald-900 dark:text-[#C6F432] font-semibold">
+                  {currentUser.subsidiaryName || 'Heavy Steel & Transport Division'}
+                </div>
               </div>
             </div>
           </div>
 
           {/* Role Boundary Notice */}
           {!isSalesAgent && (
-            <div className="bg-sky-950/80 border border-sky-600/60 p-3.5 rounded-sm flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-sky-200 text-xs">
-              <div className="flex items-start space-x-2.5">
-                <AlertTriangle className="w-4 h-4 text-sky-400 shrink-0 mt-0.5" />
-                <div>
-                  <strong className="text-white block">Role Boundary Notice:</strong>
-                  <span>
-                    Your active session is set to <strong>{currentUser.role}</strong>. Viewing sales engineer workspace in simulation mode.
-                  </span>
-                </div>
+            <div className="mt-6 pt-4 border-t border-slate-200/80 dark:border-[#1F1F24] flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-amber-900 dark:text-amber-200 text-xs">
+              <div className="flex items-center space-x-2.5">
+                <AlertTriangle className="w-4 h-4 text-amber-500 shrink-0" />
+                <span>
+                  Your active session is set to <strong>{currentUser.role}</strong>. Viewing sales engineer workspace in simulation mode.
+                </span>
               </div>
               <button
                 type="button"
                 onClick={() => switchRole('sales_agent')}
-                className="px-3 py-1.5 bg-sky-600 hover:bg-sky-700 text-white font-bold text-xs rounded-sm transition-colors shrink-0 flex items-center space-x-1"
+                className="px-3.5 py-1.5 bg-[#C6F432] hover:bg-[#D7F860] text-[#0B0B0C] font-bold text-xs rounded-full transition-all shrink-0 flex items-center space-x-1 shadow-sm"
               >
                 <span>Switch to Sales Agent Persona</span>
                 <ArrowRight className="w-3.5 h-3.5" />
@@ -220,56 +233,56 @@ export default function SalesAgentPage() {
             </div>
           )}
         </div>
-      </div>
+      </section>
 
       {/* 2. BODY CONTENT */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6 space-y-6 text-xs">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
           {/* Left Col: Pending RFQ Inquiries Queue */}
           <div className="lg:col-span-4 space-y-3">
-            <h2 className="text-xs font-bold uppercase tracking-wider text-slate-400 flex items-center justify-between">
+            <h2 className="text-xs font-bold uppercase tracking-wider text-[#71717A] dark:text-[#A1A1AA] flex items-center justify-between px-1">
               <span>Assigned RFQ Deals ({quotesList.length})</span>
-              <span className="font-mono text-sky-400">Escalated SLA</span>
+              <span className="font-mono text-emerald-600 dark:text-[#C6F432]">Escalated SLA</span>
             </h2>
 
-            <div className="space-y-2">
+            <div className="space-y-2.5">
               {quotesList.map((q) => {
                 const isSelected = q.id === selectedQuote.id;
                 return (
                   <div
                     key={q.id}
                     onClick={() => handleSelectQuote(q)}
-                    className={`p-4 border rounded-sm cursor-pointer transition-all ${
+                    className={`p-4 border rounded-2xl cursor-pointer transition-all ${
                       isSelected
-                        ? 'border-sky-500 bg-sky-950/70 shadow-sm'
-                        : 'border-slate-800 bg-slate-950 hover:border-slate-700'
+                        ? 'border-[#C6F432] bg-white dark:bg-[#1A1A1D] shadow-[0_4px_20px_rgba(198,244,50,0.15)] ring-1 ring-[#C6F432]'
+                        : 'border-slate-200 dark:border-[#222225] bg-white dark:bg-[#141416] hover:border-slate-400 dark:hover:border-[#2A2A2E]'
                     }`}
                   >
-                    <div className="flex justify-between items-start mb-1">
+                    <div className="flex justify-between items-start mb-1.5">
                       <div className="flex items-center space-x-1.5">
-                        <span className="font-mono font-bold text-sky-400 text-[11px]">
+                        <span className="font-mono font-bold text-[#0B0B0C] dark:text-[#C6F432] text-[11px]">
                           {q.quoteNumber}
                         </span>
-                        <span className="text-[9px] font-mono bg-slate-800 text-slate-300 px-1 py-0.2 rounded-sm">
+                        <span className="text-[9px] font-mono bg-slate-100 dark:bg-[#222225] text-slate-600 dark:text-[#A1A1AA] px-1.5 py-0.5 rounded-full font-bold">
                           v{q.currentVersion || 1}
                         </span>
                       </div>
-                      <span className="px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider rounded-sm bg-slate-800 text-slate-300">
+                      <span className="px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider rounded-full bg-slate-100 dark:bg-[#222225] text-slate-700 dark:text-[#E4E4E7] border border-slate-200 dark:border-[#2A2A2E]">
                         {q.status.replace(/_/g, ' ')}
                       </span>
                     </div>
 
-                    <h3 className="font-bold text-white line-clamp-1 text-xs">
+                    <h3 className="font-bold text-[#0B0B0C] dark:text-white line-clamp-1 text-xs">
                       {q.projectTitle}
                     </h3>
 
-                    <div className="text-[11px] text-slate-400 mt-1">
-                      Buyer: <strong className="text-slate-200">{q.customerCompany || q.customerName}</strong>
+                    <div className="text-[11px] text-slate-500 dark:text-[#A1A1AA] mt-1">
+                      Buyer: <strong className="text-slate-800 dark:text-white">{q.customerCompany || q.customerName}</strong>
                     </div>
 
-                    <div className="flex justify-between items-center pt-2 mt-2 border-t border-slate-800/80 font-mono text-[11px]">
-                      <span className="text-slate-500">Pipeline Est:</span>
-                      <span className="font-bold text-emerald-400">
+                    <div className="flex justify-between items-center pt-2.5 mt-2.5 border-t border-slate-100 dark:border-[#222225] font-mono text-[11px]">
+                      <span className="text-slate-400">Pipeline Est:</span>
+                      <span className="font-bold text-emerald-600 dark:text-[#C6F432]">
                         ETB {(q.finalQuotedTotalEtb || q.estimatedTotalEtb || 0).toLocaleString()}
                       </span>
                     </div>
@@ -282,18 +295,18 @@ export default function SalesAgentPage() {
           {/* Right Col: Active RFQ Quotation Form & Pricing Matrix */}
           <div className="lg:col-span-8 space-y-6">
             {/* Active RFQ Details Card */}
-            <div className="bg-slate-950 border border-slate-800 rounded-sm p-5 space-y-4">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-3 border-b border-slate-800 gap-2">
+            <div className="bg-white dark:bg-[#141416] border border-slate-200 dark:border-[#222225] rounded-3xl p-6 space-y-4 shadow-xs">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-3.5 border-b border-slate-100 dark:border-[#222225] gap-2">
                 <div>
                   <div className="flex items-center space-x-2">
-                    <span className="text-[10px] font-mono font-bold text-sky-400 uppercase tracking-wider block">
+                    <span className="text-[10px] font-mono font-bold text-emerald-700 dark:text-[#C6F432] uppercase tracking-wider block">
                       Technical Deal: {selectedQuote.quoteNumber}
                     </span>
-                    <span className="px-1.5 py-0.2 bg-sky-900/60 border border-sky-700/60 text-sky-300 font-mono text-[10px] font-bold rounded-sm">
+                    <span className="px-2 py-0.5 bg-[#C6F432]/10 border border-[#C6F432]/30 text-emerald-900 dark:text-[#C6F432] font-mono text-[10px] font-bold rounded-full">
                       Current Revision v{selectedQuote.currentVersion || 1}
                     </span>
                   </div>
-                  <h2 className="text-base font-extrabold text-white mt-0.5">
+                  <h2 className="text-base font-extrabold text-slate-950 dark:text-white mt-1">
                     {selectedQuote.projectTitle}
                   </h2>
                 </div>
@@ -304,51 +317,51 @@ export default function SalesAgentPage() {
                       setActiveProformaVersion(selectedQuote.currentVersion || 1);
                       setIsProformaOpen(true);
                     }}
-                    className="px-2.5 py-1 bg-slate-900 hover:bg-sky-900 border border-sky-800 text-sky-300 font-bold rounded-sm text-[11px] transition-colors flex items-center space-x-1 shadow-sm"
+                    className="px-3 py-1.5 bg-slate-900 hover:bg-slate-800 dark:bg-[#1A1A1D] dark:hover:bg-[#222225] border border-slate-700 dark:border-[#2A2A2E] text-white dark:text-[#C6F432] font-bold rounded-full text-[11px] transition-colors flex items-center space-x-1 shadow-sm"
                   >
                     <Printer className="w-3.5 h-3.5" />
                     <span>View Proforma (v{selectedQuote.currentVersion || 1})</span>
                   </button>
-                  <span className="px-2.5 py-1 bg-amber-950 border border-amber-700/60 text-amber-300 rounded-sm font-bold text-[10px] uppercase self-start sm:self-auto">
+                  <span className="px-3 py-1 bg-amber-500/10 border border-amber-500/30 text-amber-700 dark:text-amber-300 rounded-full font-bold text-[10px] uppercase self-start sm:self-auto">
                     {selectedQuote.status.replace(/_/g, ' ')}
                   </span>
                 </div>
               </div>
 
               {/* Requirements Box */}
-              <div className="space-y-1">
-                <span className="text-[10px] uppercase font-bold text-slate-400 tracking-wider">
-                  Customer Blueprint & Requirements Payload:
+              <div className="space-y-1.5">
+                <span className="text-[10px] uppercase font-bold text-slate-500 dark:text-[#A1A1AA] tracking-wider">
+                  Customer Blueprint &amp; Requirements Payload:
                 </span>
-                <div className="bg-slate-900 border border-slate-800 p-3 rounded-sm font-mono text-[11px] text-slate-300 whitespace-pre-line leading-relaxed">
+                <div className="bg-slate-50 dark:bg-[#0E0E10] border border-slate-200 dark:border-[#222225] p-4 rounded-2xl font-mono text-[11px] text-slate-800 dark:text-slate-300 whitespace-pre-line leading-relaxed">
                   {selectedQuote.customerRequirements}
                 </div>
               </div>
 
               {/* REVISION AUDIT TIMELINE */}
               {selectedQuote.revisions && selectedQuote.revisions.length > 0 && (
-                <div className="border border-slate-800 rounded-sm bg-slate-900/60 p-3 space-y-2">
-                  <div className="font-bold text-slate-400 uppercase tracking-wider text-[10px] flex items-center space-x-1.5">
-                    <History className="w-3.5 h-3.5 text-sky-400" />
+                <div className="border border-slate-200 dark:border-[#222225] rounded-2xl bg-slate-50/70 dark:bg-[#0E0E10]/60 p-4 space-y-2.5">
+                  <div className="font-bold text-slate-700 dark:text-[#E4E4E7] uppercase tracking-wider text-[10px] flex items-center space-x-1.5">
+                    <History className="w-3.5 h-3.5 text-emerald-600 dark:text-[#C6F432]" />
                     <span>Previous Revisions Audit Trail ({selectedQuote.revisions.length} Versions):</span>
                   </div>
-                  <div className="space-y-1.5">
+                  <div className="space-y-2">
                     {selectedQuote.revisions.map((rev) => (
                       <div
                         key={rev.version}
-                        className="bg-slate-950 border border-slate-800 p-2.5 rounded-sm flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-[11px]"
+                        className="bg-white dark:bg-[#141416] border border-slate-200 dark:border-[#222225] p-3 rounded-xl flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-[11px]"
                       >
                         <div>
-                          <div className="font-bold text-white font-mono flex items-center space-x-2">
+                          <div className="font-bold text-slate-900 dark:text-white font-mono flex items-center space-x-2">
                             <span>Revision v{rev.version}</span>
                             <span className="text-slate-500 font-normal">
                               ({new Date(rev.timestamp).toLocaleDateString()}) - {rev.changedBy}
                             </span>
                           </div>
-                          <p className="text-slate-400 text-[10px]">{rev.notes}</p>
+                          <p className="text-slate-500 dark:text-[#A1A1AA] text-[10px] mt-0.5">{rev.notes}</p>
                         </div>
                         <div className="flex items-center space-x-2.5 self-end sm:self-auto shrink-0">
-                          <span className="font-mono font-bold text-emerald-400">
+                          <span className="font-mono font-bold text-emerald-600 dark:text-[#C6F432]">
                             ETB {rev.quotedTotalEtb.toLocaleString('en-US', { minimumFractionDigits: 2 })}
                           </span>
                           <button
@@ -357,10 +370,10 @@ export default function SalesAgentPage() {
                               setActiveProformaVersion(rev.version);
                               setIsProformaOpen(true);
                             }}
-                            className="px-2 py-0.5 bg-slate-900 hover:bg-sky-900 border border-slate-700 hover:border-sky-600 text-sky-300 font-bold rounded-xs text-[10px] transition-colors flex items-center space-x-1"
+                            className="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 dark:bg-[#1A1A1D] dark:hover:bg-[#222225] border border-slate-300 dark:border-[#2A2A2E] text-slate-800 dark:text-white font-bold rounded-full text-[10px] transition-colors flex items-center space-x-1"
                             title={`Inspect official v${rev.version} Proforma with ERCA seal`}
                           >
-                            <Printer className="w-3 h-3" />
+                            <Printer className="w-3 h-3 text-emerald-600 dark:text-[#C6F432]" />
                             <span>v{rev.version} Proforma</span>
                           </button>
                         </div>
@@ -371,80 +384,80 @@ export default function SalesAgentPage() {
               )}
 
               {/* DYNAMIC PRICING MATRIX CALCULATOR (Interactive Tool) */}
-              <form onSubmit={handleSaveQuoteMatrix} className="border-t border-slate-800 pt-4 space-y-4">
+              <form onSubmit={handleSaveQuoteMatrix} className="border-t border-slate-100 dark:border-[#222225] pt-4 space-y-4">
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-                  <div className="flex items-center space-x-1.5 text-sky-400 font-bold text-xs uppercase tracking-wide">
+                  <div className="flex items-center space-x-1.5 text-emerald-700 dark:text-[#C6F432] font-bold text-xs uppercase tracking-wide">
                     <Calculator className="w-4 h-4" />
-                    <span>Engineering Cost Model & Dynamic Pricing Matrix</span>
+                    <span>Engineering Cost Model &amp; Dynamic Pricing Matrix</span>
                   </div>
-                  <div className="text-[10px] font-mono bg-sky-950 border border-sky-800/80 px-2 py-0.5 rounded-sm text-sky-300">
+                  <div className="text-[10px] font-mono bg-slate-100 dark:bg-[#1A1A1D] border border-slate-200 dark:border-[#2A2A2E] px-2.5 py-1 rounded-full text-slate-600 dark:text-[#A1A1AA]">
                     Formula: Raw Materials + (Machine Hours × Rate) + Coating + Freight + Margin %
                   </div>
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-4 gap-3 bg-slate-900/80 border border-slate-800 p-3.5 rounded-sm">
+                <div className="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-4 gap-3 bg-slate-50 dark:bg-[#0E0E10] border border-slate-200 dark:border-[#222225] p-4 rounded-2xl">
                   <div>
-                    <label className="block text-slate-400 text-[10px] font-bold uppercase mb-1">
+                    <label className="block text-slate-500 dark:text-[#A1A1AA] text-[10px] font-bold uppercase mb-1">
                       1. Raw Material Cost (ETB):
                     </label>
                     <input
                       type="number"
                       value={rawMaterialCost}
                       onChange={(e) => setRawMaterialCost(Number(e.target.value))}
-                      className="w-full bg-slate-950 border border-slate-700 px-2.5 py-1.5 rounded-sm font-mono text-white text-xs outline-none focus:border-sky-500"
+                      className="w-full bg-white dark:bg-[#141416] border border-slate-200 dark:border-[#2A2A2E] px-3 py-2 rounded-xl font-mono text-slate-900 dark:text-white text-xs outline-none focus:border-[#C6F432]"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-slate-400 text-[10px] font-bold uppercase mb-1">
+                    <label className="block text-slate-500 dark:text-[#A1A1AA] text-[10px] font-bold uppercase mb-1">
                       2. Machine Hours (hrs):
                     </label>
                     <input
                       type="number"
                       value={fabricationHours}
                       onChange={(e) => setFabricationHours(Number(e.target.value))}
-                      className="w-full bg-slate-950 border border-slate-700 px-2.5 py-1.5 rounded-sm font-mono text-white text-xs outline-none focus:border-sky-500"
+                      className="w-full bg-white dark:bg-[#141416] border border-slate-200 dark:border-[#2A2A2E] px-3 py-2 rounded-xl font-mono text-slate-900 dark:text-white text-xs outline-none focus:border-[#C6F432]"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-slate-400 text-[10px] font-bold uppercase mb-1">
+                    <label className="block text-slate-500 dark:text-[#A1A1AA] text-[10px] font-bold uppercase mb-1">
                       3. Machine Rate (ETB / hr):
                     </label>
                     <input
                       type="number"
                       value={hourlyMachineRate}
                       onChange={(e) => setHourlyMachineRate(Number(e.target.value))}
-                      className="w-full bg-slate-950 border border-slate-700 px-2.5 py-1.5 rounded-sm font-mono text-white text-xs outline-none focus:border-sky-500"
+                      className="w-full bg-white dark:bg-[#141416] border border-slate-200 dark:border-[#2A2A2E] px-3 py-2 rounded-xl font-mono text-slate-900 dark:text-white text-xs outline-none focus:border-[#C6F432]"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-slate-400 text-[10px] font-bold uppercase mb-1">
+                    <label className="block text-slate-500 dark:text-[#A1A1AA] text-[10px] font-bold uppercase mb-1">
                       4. Protective Coating (ETB):
                     </label>
                     <input
                       type="number"
                       value={coatingTariff}
                       onChange={(e) => setCoatingTariff(Number(e.target.value))}
-                      className="w-full bg-slate-950 border border-slate-700 px-2.5 py-1.5 rounded-sm font-mono text-white text-xs outline-none focus:border-sky-500"
+                      className="w-full bg-white dark:bg-[#141416] border border-slate-200 dark:border-[#2A2A2E] px-3 py-2 rounded-xl font-mono text-slate-900 dark:text-white text-xs outline-none focus:border-[#C6F432]"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-slate-400 text-[10px] font-bold uppercase mb-1">
+                    <label className="block text-slate-500 dark:text-[#A1A1AA] text-[10px] font-bold uppercase mb-1">
                       5. Freight Tariff (ETB):
                     </label>
                     <input
                       type="number"
                       value={freightTariff}
                       onChange={(e) => setFreightTariff(Number(e.target.value))}
-                      className="w-full bg-slate-950 border border-slate-700 px-2.5 py-1.5 rounded-sm font-mono text-white text-xs outline-none focus:border-sky-500"
+                      className="w-full bg-white dark:bg-[#141416] border border-slate-200 dark:border-[#2A2A2E] px-3 py-2 rounded-xl font-mono text-slate-900 dark:text-white text-xs outline-none focus:border-[#C6F432]"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-slate-400 text-[10px] font-bold uppercase mb-1">
+                    <label className="block text-slate-500 dark:text-[#A1A1AA] text-[10px] font-bold uppercase mb-1">
                       6. Target Margin (%):
                     </label>
                     <input
@@ -452,12 +465,12 @@ export default function SalesAgentPage() {
                       step="0.1"
                       value={marginPercent}
                       onChange={(e) => setMarginPercent(Number(e.target.value))}
-                      className="w-full bg-slate-950 border border-slate-700 px-2.5 py-1.5 rounded-sm font-mono text-white text-xs outline-none focus:border-sky-500"
+                      className="w-full bg-white dark:bg-[#141416] border border-slate-200 dark:border-[#2A2A2E] px-3 py-2 rounded-xl font-mono text-slate-900 dark:text-white text-xs outline-none focus:border-[#C6F432]"
                     />
                   </div>
 
                   <div className="sm:col-span-2">
-                    <label className="block text-slate-400 text-[10px] font-bold uppercase mb-1">
+                    <label className="block text-slate-500 dark:text-[#A1A1AA] text-[10px] font-bold uppercase mb-1">
                       7. Valid Guaranteed Until:
                     </label>
                     <input
@@ -465,77 +478,77 @@ export default function SalesAgentPage() {
                       required
                       value={validUntil}
                       onChange={(e) => setValidUntil(e.target.value)}
-                      className="w-full bg-slate-950 border border-slate-700 px-2.5 py-1.5 rounded-sm font-mono text-white text-xs outline-none focus:border-sky-500"
+                      className="w-full bg-white dark:bg-[#141416] border border-slate-200 dark:border-[#2A2A2E] px-3 py-2 rounded-xl font-mono text-slate-900 dark:text-white text-xs outline-none focus:border-[#C6F432]"
                     />
                   </div>
                 </div>
 
                 {/* Mathematical Formula Breakdown Card */}
-                <div className="bg-slate-950 border border-sky-900/60 rounded-sm p-3.5 space-y-2.5">
+                <div className="bg-slate-950 dark:bg-[#0E0E10] border border-[#2A2A2E] rounded-2xl p-4 space-y-3">
                   <div className="text-[10px] font-bold uppercase tracking-wider text-slate-400 flex items-center justify-between">
                     <span>Engineering Formula Breakdown</span>
-                    <span className="font-mono text-sky-400">Live Auto-Computed</span>
+                    <span className="font-mono text-[#C6F432]">Live Auto-Computed</span>
                   </div>
 
                   <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 font-mono text-[10px]">
-                    <div className="bg-slate-900/70 p-2 rounded-sm border border-slate-800">
-                      <div className="text-slate-500">Raw Materials</div>
+                    <div className="bg-[#141416] p-2.5 rounded-xl border border-[#222225]">
+                      <div className="text-slate-400">Raw Materials</div>
                       <div className="text-white font-bold mt-0.5">ETB {rawMaterialCost.toLocaleString()}</div>
                     </div>
-                    <div className="bg-slate-900/70 p-2 rounded-sm border border-slate-800">
-                      <div className="text-slate-500">Machining ({fabricationHours}h × {hourlyMachineRate})</div>
-                      <div className="text-sky-300 font-bold mt-0.5">ETB {subtotalFabrication.toLocaleString()}</div>
+                    <div className="bg-[#141416] p-2.5 rounded-xl border border-[#222225]">
+                      <div className="text-slate-400">Machining ({fabricationHours}h × {hourlyMachineRate})</div>
+                      <div className="text-[#C6F432] font-bold mt-0.5">ETB {subtotalFabrication.toLocaleString()}</div>
                     </div>
-                    <div className="bg-slate-900/70 p-2 rounded-sm border border-slate-800">
-                      <div className="text-slate-500">Protective Coating</div>
+                    <div className="bg-[#141416] p-2.5 rounded-xl border border-[#222225]">
+                      <div className="text-slate-400">Protective Coating</div>
                       <div className="text-white font-bold mt-0.5">ETB {coatingTariff.toLocaleString()}</div>
                     </div>
-                    <div className="bg-slate-900/70 p-2 rounded-sm border border-slate-800">
-                      <div className="text-slate-500">Freight Logistics</div>
+                    <div className="bg-[#141416] p-2.5 rounded-xl border border-[#222225]">
+                      <div className="text-slate-400">Freight Logistics</div>
                       <div className="text-white font-bold mt-0.5">ETB {freightTariff.toLocaleString()}</div>
                     </div>
                   </div>
 
                   {/* Live Formula Calculated Total Banner */}
-                  <div className="p-3 bg-sky-950/70 border border-sky-700/60 rounded-sm flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                  <div className="p-3.5 bg-[#141416] border border-[#C6F432]/30 rounded-xl flex flex-col sm:flex-row sm:items-center justify-between gap-2 shadow-xs">
                     <div>
-                      <span className="text-[10px] font-bold uppercase text-sky-400 block">
+                      <span className="text-[10px] font-bold uppercase text-[#C6F432] block">
                         Calculated Final Quoted Total (ETB)
                       </span>
-                      <span className="text-[11px] text-slate-300 font-mono">
-                        Base Production Cost ETB {baseProductionCost.toLocaleString()} + {marginPercent}% Margin (+ETB {Math.round(baseProductionCost * (marginPercent / 100)).toLocaleString()})
+                      <span className="text-[11px] text-slate-400 font-mono">
+                        Base Cost ETB {baseProductionCost.toLocaleString()} + {marginPercent}% Margin (+ETB {Math.round(baseProductionCost * (marginPercent / 100)).toLocaleString()})
                       </span>
                     </div>
-                    <div className="text-xl sm:text-2xl font-extrabold font-mono text-emerald-400">
+                    <div className="text-xl sm:text-2xl font-extrabold font-mono text-[#C6F432]">
                       ETB {calculatedQuotedTotal.toLocaleString('en-US', { minimumFractionDigits: 2 })}
                     </div>
                   </div>
                 </div>
 
                 <div>
-                  <label className="block text-slate-400 text-[10px] font-bold uppercase mb-1">
-                    Official Quotation Terms & Mill Delivery Schedule:
+                  <label className="block text-slate-500 dark:text-[#A1A1AA] text-[10px] font-bold uppercase mb-1">
+                    Official Quotation Terms &amp; Mill Delivery Schedule:
                   </label>
                   <textarea
                     rows={2}
                     value={agentNotes}
                     onChange={(e) => setAgentNotes(e.target.value)}
                     placeholder="Factory lead time, delivery tranches from Adama plant, inspection slots..."
-                    className="w-full bg-slate-950 border border-slate-700 px-3 py-2 text-white text-xs rounded-sm outline-none focus:border-sky-500"
+                    className="w-full bg-slate-50 dark:bg-[#0E0E10] border border-slate-200 dark:border-[#2A2A2E] px-3.5 py-2.5 text-slate-900 dark:text-white text-xs rounded-2xl outline-none focus:border-[#C6F432]"
                   />
                 </div>
 
                 <div className="flex items-center justify-between pt-1">
                   {isSaved ? (
-                    <span className="text-emerald-400 font-bold flex items-center space-x-1 text-xs">
+                    <span className="text-emerald-600 dark:text-[#C6F432] font-bold flex items-center space-x-1 text-xs">
                       <CheckCircle2 className="w-4 h-4" />
-                      <span>Official Revision Issued & Dispatched to Client!</span>
+                      <span>Official Revision Issued &amp; Dispatched to Client!</span>
                     </span>
                   ) : <span />}
 
                   <button
                     type="submit"
-                    className="px-5 py-2.5 bg-sky-600 hover:bg-sky-700 text-white font-bold text-xs rounded-sm transition-colors flex items-center space-x-1.5 shadow-sm"
+                    className="px-6 py-3 bg-[#C6F432] hover:bg-[#D7F860] text-[#0B0B0C] font-bold text-xs rounded-full transition-all flex items-center space-x-1.5 shadow-md hover:shadow-lg"
                   >
                     <FileText className="w-4 h-4" />
                     <span>Issue Revision v{(selectedQuote.currentVersion || 1) + 1} to Client</span>
@@ -545,15 +558,15 @@ export default function SalesAgentPage() {
             </div>
 
             {/* Live Client Collaboration Thread */}
-            <div className="bg-slate-950 border border-slate-800 rounded-sm p-5 space-y-4">
-              <div className="flex items-center justify-between pb-3 border-b border-slate-800">
+            <div className="bg-white dark:bg-[#141416] border border-slate-200 dark:border-[#222225] rounded-3xl p-6 space-y-4 shadow-xs">
+              <div className="flex items-center justify-between pb-3.5 border-b border-slate-100 dark:border-[#222225]">
                 <div className="flex items-center space-x-2">
-                  <MessageSquare className="w-4 h-4 text-sky-400" />
-                  <h3 className="text-xs font-bold uppercase tracking-wider text-white">
+                  <MessageSquare className="w-4 h-4 text-emerald-600 dark:text-[#C6F432]" />
+                  <h3 className="text-xs font-bold uppercase tracking-wider text-slate-950 dark:text-white">
                     Client Engineering Negotiation Thread
                   </h3>
                 </div>
-                <span className="text-[11px] text-slate-400 font-mono">
+                <span className="text-[11px] text-slate-500 dark:text-[#71717A] font-mono">
                   {selectedQuote.messages?.length || 0} Messages
                 </span>
               </div>
@@ -565,10 +578,10 @@ export default function SalesAgentPage() {
                     return (
                       <div
                         key={m.id}
-                        className={`p-3 rounded-sm border max-w-[85%] ${
+                        className={`p-3.5 rounded-2xl border max-w-[85%] ${
                           isAgent
-                            ? 'ml-auto bg-sky-950/80 border-sky-800 text-white'
-                            : 'mr-auto bg-slate-900 border-slate-800 text-slate-300'
+                            ? 'ml-auto bg-slate-950 text-white border-slate-800'
+                            : 'mr-auto bg-slate-50 dark:bg-[#0E0E10] border-slate-200 dark:border-[#222225] text-slate-800 dark:text-slate-300'
                         }`}
                       >
                         <div className="flex justify-between items-center text-[10px] font-semibold text-slate-400 mb-1">
@@ -580,24 +593,24 @@ export default function SalesAgentPage() {
                     );
                   })
                 ) : (
-                  <div className="text-center py-6 text-slate-500">
+                  <div className="text-center py-6 text-slate-400">
                     No active messages yet. Send a note to the client below.
                   </div>
                 )}
               </div>
 
               {/* Chat Input */}
-              <form onSubmit={handleSendMessage} className="flex gap-2 pt-2 border-t border-slate-800">
+              <form onSubmit={handleSendMessage} className="flex gap-2 pt-2 border-t border-slate-100 dark:border-[#222225]">
                 <input
                   type="text"
                   placeholder="Type engineering response to client..."
                   value={chatMessage}
                   onChange={(e) => setChatMessage(e.target.value)}
-                  className="flex-1 bg-slate-900 border border-slate-700 px-3 py-2 text-white text-xs rounded-sm outline-none focus:border-sky-500"
+                  className="flex-1 bg-slate-50 dark:bg-[#0E0E10] border border-slate-200 dark:border-[#222225] px-4 py-2 text-slate-900 dark:text-white text-xs rounded-full outline-none focus:border-[#C6F432]"
                 />
                 <button
                   type="submit"
-                  className="px-4 py-2 bg-sky-600 hover:bg-sky-700 text-white font-bold text-xs rounded-sm transition-colors flex items-center space-x-1"
+                  className="px-5 py-2 bg-[#C6F432] hover:bg-[#D7F860] text-[#0B0B0C] font-bold text-xs rounded-full transition-all flex items-center space-x-1 shadow-sm"
                 >
                   <Send className="w-3.5 h-3.5" />
                   <span>Send</span>

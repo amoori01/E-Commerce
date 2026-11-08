@@ -257,37 +257,38 @@ export default function CustomerPortalPage() {
   if (!isCustomer) {
     const dest = roleRedirectMap[activeRole] || { url: '/admin', title: 'Management Workspace' };
     return (
-      <div className="min-h-[75vh] flex items-center justify-center p-4 bg-slate-50">
-        <div className="max-w-md w-full bg-white border border-slate-300 rounded-sm p-6 shadow-modal text-center space-y-4">
-          <div className="w-12 h-12 bg-amber-100 border border-amber-300 text-amber-800 rounded-full flex items-center justify-center mx-auto">
-            <ShieldCheck className="w-6 h-6" />
+      <div className="min-h-[75vh] flex items-center justify-center p-4 bg-[#FAFAFA] dark:bg-[#0B0B0C]">
+        <div className="max-w-md w-full bg-white dark:bg-[#141416] border border-slate-200 dark:border-[#2A2A2E] rounded-3xl p-8 shadow-2xl text-center space-y-5">
+          <div className="w-14 h-14 bg-slate-950 dark:bg-[#1A1A1D] border border-slate-800 dark:border-[#2A2A2E] text-[#C6F432] rounded-2xl flex items-center justify-center mx-auto shadow-sm">
+            <ShieldCheck className="w-7 h-7" />
           </div>
-          <div className="space-y-1">
-            <h2 className="text-base font-bold text-slate-900">
+          <div className="space-y-1.5">
+            <h2 className="text-lg font-serif font-black tracking-tight text-slate-950 dark:text-white">
               Customer Orders Portal: Role Restricted
             </h2>
-            <p className="text-xs text-slate-600 leading-relaxed">
-              You are signed in as <strong className="text-slate-900 capitalize font-mono">{activeRole.replace('_', ' ')}</strong> ({currentUser.fullName}).
+            <p className="text-xs text-slate-600 dark:text-[#A1A1AA] leading-relaxed">
+              You are signed in as <strong className="text-slate-950 dark:text-white capitalize font-mono">{activeRole.replace('_', ' ')}</strong> ({currentUser.fullName}).
               Order placement, proforma review, and buying accounts are reserved for verified commercial customers.
             </p>
           </div>
 
-          <div className="bg-slate-50 border border-slate-200 p-3 rounded-sm text-xs text-slate-700 text-left space-y-1">
-            <div className="font-semibold text-slate-900 text-[11px] uppercase tracking-wider">
-              Management Access:
+          <div className="bg-slate-50 dark:bg-[#0E0E10] border border-slate-200 dark:border-[#222225] p-3.5 rounded-2xl text-xs text-slate-700 dark:text-slate-300 text-left space-y-1.5">
+            <div className="font-bold text-slate-900 dark:text-white text-[11px] uppercase tracking-wider flex items-center space-x-1.5">
+              <span className="w-1.5 h-1.5 rounded-full bg-[#C6F432]" />
+              <span>Management Access Directive:</span>
             </div>
-            <div className="text-[11px] text-slate-600">
+            <div className="text-[11px] text-slate-500 dark:text-[#A1A1AA]">
               • To manage fulfillment, inventory, or quotes, open your designated workspace below.
             </div>
-            <div className="text-[11px] text-slate-600">
+            <div className="text-[11px] text-slate-500 dark:text-[#A1A1AA]">
               • To test order placement and view proformas, switch to a Customer account.
             </div>
           </div>
 
-          <div className="pt-2 flex flex-col gap-2">
+          <div className="pt-2 flex flex-col gap-2.5">
             <Link
               href={dest.url}
-              className="w-full py-2 bg-amg-navy hover:bg-amg-navy-900 text-white font-bold rounded-sm text-xs transition-colors flex items-center justify-center space-x-1.5 shadow-sm"
+              className="w-full py-3 bg-[#C6F432] hover:bg-[#D7F860] text-[#0B0B0C] font-bold rounded-full text-xs transition-all flex items-center justify-center space-x-1.5 shadow-sm"
             >
               <span>Go to {dest.title}</span>
               <ArrowRight className="w-4 h-4" />
@@ -295,9 +296,9 @@ export default function CustomerPortalPage() {
             <button
               type="button"
               onClick={() => switchRole('customer')}
-              className="w-full py-2 bg-amber-600 hover:bg-amber-700 text-white font-bold rounded-sm text-xs transition-colors flex items-center justify-center space-x-1.5 shadow-sm"
+              className="w-full py-3 bg-white dark:bg-[#1A1A1D] hover:bg-slate-50 dark:hover:bg-[#222225] text-slate-900 dark:text-white border border-slate-300 dark:border-[#2A2A2E] font-bold rounded-full text-xs transition-colors flex items-center justify-center space-x-1.5 shadow-xs"
             >
-              <Building2 className="w-4 h-4" />
+              <Building2 className="w-4 h-4 text-[#C6F432]" />
               <span>Switch to Customer Persona (MIDROC Corporate)</span>
             </button>
           </div>
@@ -311,54 +312,70 @@ export default function CustomerPortalPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#FAFAFA] dark:bg-[#0B0B0C] text-[#0B0B0C] dark:text-white transition-colors">
-      {/* 1. CORPORATE PROCUREMENT THEME HEADER (AMG Heritage Navy & Crimson) */}
-      <div className="bg-[#0B0B0C] text-white px-4 sm:px-6 py-6 border-b border-[#1A1A1D] shadow-md">
-        <div className="max-w-7xl mx-auto space-y-4">
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-            <div className="space-y-1">
-              <div className="flex items-center space-x-2">
-                <span className="px-2.5 py-0.5 bg-amg-red text-white font-extrabold uppercase rounded-sm text-[10px] tracking-wider flex items-center space-x-1 shadow-sm">
-                  <Building2 className="w-3 h-3" />
-                  <span>Tier 1: Corporate B2B Procurement Desk</span>
-                </span>
-                <span className="text-slate-300 font-mono text-[11px]">
-                  TIN: {currentUser.tinNumber || '0019283746'}
-                </span>
+    <div className="min-h-screen bg-[#FAFAFA] dark:bg-[#0B0B0C] text-[#0B0B0C] dark:text-white transition-colors pb-20">
+      {/* 1. EXECUTIVE THEME HERO BANNER */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 pt-6">
+        <div className="bg-gradient-to-br from-[#FCFCFD] via-white to-[#F4F6F8] dark:from-[#0B0B0C] dark:via-[#0E0E10] dark:to-[#0B0B0C] text-slate-900 dark:text-white rounded-3xl p-6 sm:p-8 border border-slate-200/90 dark:border-[#1A1A1D] shadow-[0_20px_50px_-15px_rgba(0,0,0,0.06)] dark:shadow-2xl relative overflow-hidden group hover:border-slate-300 dark:hover:border-[#C6F432]/30 transition-all duration-300">
+          {/* Ambient Lime & Sunlit Emerald Glows */}
+          <div className="absolute -top-32 -right-32 w-[28rem] h-[28rem] bg-gradient-to-bl from-[#C6F432]/30 via-emerald-300/20 to-transparent dark:from-[#C6F432]/10 dark:to-transparent rounded-full blur-3xl pointer-events-none group-hover:scale-105 transition-all duration-700" />
+          <div className="absolute -bottom-24 -left-24 w-64 h-64 bg-gradient-to-tr from-[#C6F432]/20 via-teal-200/15 to-transparent dark:from-[#C6F432]/5 dark:to-transparent rounded-full blur-2xl pointer-events-none" />
+
+          <div className="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+            <div className="space-y-3 max-w-3xl">
+              <div className="flex flex-wrap items-center gap-2">
+                <div className="inline-flex items-center space-x-2 px-3.5 py-1.5 bg-white/90 dark:bg-[#141416] border border-slate-200/90 dark:border-[#2A2A2E] rounded-full text-xs font-medium text-slate-900 dark:text-[#E4E4E7] shadow-xs backdrop-blur-md">
+                  <span className="w-2 h-2 rounded-full bg-[#16A34A] dark:bg-[#C6F432] inline-block shadow-[0_0_8px_rgba(22,163,74,0.6)] dark:shadow-[0_0_8px_#C6F432] animate-pulse" />
+                  <span className="font-semibold tracking-wide">Tier 1: Corporate B2B Procurement Desk</span>
+                  <span className="text-slate-300 dark:text-[#52525B]">|</span>
+                  <span className="px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-[#C6F432]/25 dark:bg-[#C6F432]/10 text-emerald-900 dark:text-[#C6F432] border border-[#C6F432]/40">
+                    TIN: {currentUser.tinNumber || '0019283746'}
+                  </span>
+                </div>
+                <div className="inline-flex items-center space-x-1.5 px-3 py-1 bg-white/80 dark:bg-[#141416] border border-slate-200/80 dark:border-[#2A2A2E] rounded-full text-[11px] text-slate-600 dark:text-[#A1A1AA] shadow-xs">
+                  <Building2 className="w-3.5 h-3.5 text-[#16A34A] dark:text-[#C6F432]" />
+                  <span>ERCA Verified Commercial Buyer</span>
+                </div>
               </div>
-              <h1 className="text-2xl font-extrabold tracking-tight text-white">
-                Buyer Procurement & Quotation Review Desk
+
+              <h1 className="text-2xl sm:text-4xl font-serif font-black tracking-tight leading-tight text-slate-950 dark:text-white drop-shadow-xs">
+                Buyer Procurement &amp; Quotation Review Desk
               </h1>
-              <p className="text-xs text-slate-300 max-w-2xl">
+
+              <p className="text-xs sm:text-sm text-slate-600 dark:text-[#A1A1AA] font-sans leading-relaxed max-w-2xl font-normal">
                 Authorized purchasing portal for <strong>{currentUser.companyName || currentUser.fullName}</strong>. Review formal engineering quotations, inspect revision versioning, track delivery progress, and generate bank-grade proforma invoices.
               </p>
             </div>
 
-            {/* Corporate Entity Card */}
-            <div className="bg-amg-navy-900/90 border border-amg-navy-700 p-3 rounded-sm text-right shrink-0">
-              <div className="text-[10px] uppercase font-bold text-slate-400">Procuring Entity</div>
-              <div className="text-sm font-bold text-white mt-0.5">
-                {currentUser.companyName || currentUser.fullName}
+            {/* Corporate Entity Persona Card */}
+            <div className="flex items-center space-x-3 bg-white/90 dark:bg-[#141416]/90 p-3.5 rounded-2xl border border-slate-200 dark:border-[#2A2A2E] shadow-sm backdrop-blur-md shrink-0">
+              <div className="w-10 h-10 rounded-full bg-slate-950 dark:bg-[#1A1A1D] text-[#C6F432] font-bold flex items-center justify-center text-sm border border-slate-800 dark:border-[#2A2A2E] shadow-xs">
+                {currentUser.fullName[0]}
               </div>
-              <div className="text-[11px] text-emerald-400 font-mono mt-0.5">
-                ERCA Tax Compliant • Corporate Credit Tier A
+              <div className="text-left text-xs">
+                <div className="text-[10px] uppercase font-bold text-slate-400">Procuring Entity</div>
+                <div className="font-bold text-slate-950 dark:text-white leading-tight">
+                  {currentUser.companyName || currentUser.fullName}
+                </div>
+                <div className="text-[10px] text-emerald-900 dark:text-[#C6F432] font-semibold mt-0.5">
+                  ERCA Tax Compliant • Credit Tier A
+                </div>
               </div>
             </div>
           </div>
 
           {/* Role Boundary Notice */}
           {!isCustomer && (
-            <div className="bg-blue-950/70 border border-blue-600/60 p-3 rounded-sm flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-blue-200 text-xs">
-              <div className="flex items-start space-x-2">
-                <AlertCircle className="w-4 h-4 text-blue-300 shrink-0 mt-0.5" />
-                <div>
+            <div className="mt-6 pt-4 border-t border-slate-200/80 dark:border-[#1F1F24] flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-blue-900 dark:text-blue-200 text-xs">
+              <div className="flex items-center space-x-2">
+                <AlertCircle className="w-4 h-4 text-blue-500 shrink-0" />
+                <span>
                   <strong>Role Perspective Notice:</strong> Viewing buyer procurement workspace as <strong>{currentUser.role}</strong>.
-                </div>
+                </span>
               </div>
               <button
                 type="button"
                 onClick={() => switchRole('customer')}
-                className="px-3 py-1.5 bg-amg-red hover:bg-red-800 text-white font-bold text-xs rounded-sm transition-colors shrink-0 flex items-center space-x-1"
+                className="px-3.5 py-1.5 bg-[#C6F432] hover:bg-[#D7F860] text-[#0B0B0C] font-bold text-xs rounded-full transition-all shrink-0 flex items-center space-x-1 shadow-sm"
               >
                 <span>Switch to Corporate Buyer Persona</span>
                 <ArrowRight className="w-3.5 h-3.5" />
@@ -366,69 +383,42 @@ export default function CustomerPortalPage() {
             </div>
           )}
         </div>
-      </div>
+      </section>
 
       {/* 2. BODY CONTENT */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6 space-y-6 text-xs">
         {approvalMessage && (
-          <div className="bg-emerald-50 border border-emerald-300 text-emerald-800 p-3.5 rounded-sm flex items-center space-x-2 font-semibold text-xs shadow-sm">
-            <CheckCircle className="w-4 h-4 text-emerald-600 shrink-0" />
+          <div className="bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-300 dark:border-emerald-700/60 text-emerald-800 dark:text-emerald-200 p-4 rounded-2xl flex items-center space-x-2 font-semibold text-xs shadow-xs">
+            <CheckCircle className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
             <span>{approvalMessage}</span>
           </div>
         )}
 
-        {/* Tabs */}
-        <div className="flex border-b border-[#E4E4E7] dark:border-[#222225] space-x-2 overflow-x-auto">
-          <button
-            onClick={() => setActiveTab('quotes')}
-            className={`px-4 py-2.5 font-bold transition-all border-b-2 -mb-px text-xs shrink-0 rounded-t-xl ${
-              activeTab === 'quotes'
-                ? 'border-[#0B0B0C] dark:border-[#C6F432] text-[#0B0B0C] dark:text-[#C6F432] bg-white dark:bg-[#141416]'
-                : 'border-transparent text-[#71717A] dark:text-[#A1A1AA] hover:text-[#0B0B0C] dark:hover:text-white'
-            }`}
-          >
-            My Engineering RFQ Inquiries ({myQuotes.length})
-          </button>
-          <button
-            onClick={() => setActiveTab('orders')}
-            className={`px-4 py-2.5 font-bold transition-all border-b-2 -mb-px text-xs shrink-0 rounded-t-xl ${
-              activeTab === 'orders'
-                ? 'border-[#0B0B0C] dark:border-[#C6F432] text-[#0B0B0C] dark:text-[#C6F432] bg-white dark:bg-[#141416]'
-                : 'border-transparent text-[#71717A] dark:text-[#A1A1AA] hover:text-[#0B0B0C] dark:hover:text-white'
-            }`}
-          >
-            Direct Purchase Orders ({myOrders.length})
-          </button>
-          <button
-            onClick={() => setActiveTab('wishlist')}
-            className={`px-4 py-2.5 font-bold transition-all border-b-2 -mb-px text-xs shrink-0 ${
-              activeTab === 'wishlist'
-                ? 'border-amg-red text-amg-red bg-white'
-                : 'border-transparent text-slate-500 hover:text-slate-800'
-            }`}
-          >
-            Saved Wishlist ({wishlistProducts.length})
-          </button>
-          <button
-            onClick={() => setActiveTab('addresses')}
-            className={`px-4 py-2.5 font-bold transition-all border-b-2 -mb-px text-xs shrink-0 ${
-              activeTab === 'addresses'
-                ? 'border-amg-red text-amg-red bg-white'
-                : 'border-transparent text-slate-500 hover:text-slate-800'
-            }`}
-          >
-            Delivery Site Addresses ({addresses.length})
-          </button>
-          <button
-            onClick={() => setActiveTab('profile')}
-            className={`px-4 py-2.5 font-bold transition-all border-b-2 -mb-px text-xs shrink-0 ${
-              activeTab === 'profile'
-                ? 'border-amg-red text-amg-red bg-white'
-                : 'border-transparent text-slate-500 hover:text-slate-800'
-            }`}
-          >
-            Tax & Legal TIN Credentials
-          </button>
+        {/* Navigation Tabs (Super Admin Pill Style) */}
+        <div className="flex items-center space-x-2 overflow-x-auto pb-2 scrollbar-none">
+          {[
+            { id: 'quotes', label: `My Engineering RFQs (${myQuotes.length})` },
+            { id: 'orders', label: `Direct Purchase Orders (${myOrders.length})` },
+            { id: 'wishlist', label: `Saved Wishlist (${wishlistProducts.length})` },
+            { id: 'addresses', label: `Delivery Site Addresses (${addresses.length})` },
+            { id: 'profile', label: 'Tax & Legal TIN Credentials' },
+          ].map((tab) => {
+            const isActive = activeTab === tab.id;
+            return (
+              <button
+                key={tab.id}
+                onClick={() => setActiveTab(tab.id as any)}
+                className={`px-4 py-2 font-semibold transition-all rounded-full whitespace-nowrap text-xs flex items-center space-x-1.5 ${
+                  isActive
+                    ? 'bg-[#C6F432] text-[#0B0B0C] font-bold shadow-[0_0_12px_rgba(198,244,50,0.25)] border border-[#C6F432]'
+                    : 'bg-white dark:bg-[#141416] text-[#71717A] dark:text-[#A1A1AA] border border-[#E4E4E7] dark:border-[#2A2A2E] hover:text-[#0B0B0C] dark:hover:text-white hover:border-[#C6F432]/50'
+                }`}
+              >
+                {isActive && <span className="w-1.5 h-1.5 rounded-full bg-[#0B0B0C]" />}
+                <span>{tab.label}</span>
+              </button>
+            );
+          })}
         </div>
 
         {/* TAB 1: QUOTES */}

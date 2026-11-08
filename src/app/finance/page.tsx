@@ -313,66 +313,80 @@ export default function FinanceDashboardPage() {
 
   return (
     <div className="min-h-screen bg-[#FAFAFA] dark:bg-[#0B0B0C] text-[#0B0B0C] dark:text-white pb-20 transition-colors">
-      {/* 1. TOP HEADER & METRICS */}
-      <section className="bg-[#0B0B0C] text-white border-b border-[#1A1A1D] py-8 px-4 sm:px-6">
-        <div className="max-w-7xl mx-auto space-y-6">
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-            <div className="space-y-1.5">
-              <div className="inline-flex items-center space-x-2 px-3 py-1 bg-[#1A1A1D] border border-[#2A2A2E] rounded-full text-xs font-semibold text-[#E4E4E7]">
-                <span className="w-2 h-2 rounded-full bg-[#C6F432] inline-block shadow-[0_0_8px_#C6F432]" />
-                <span>Architecture Module 7: Payment &amp; Ledger Verification</span>
+      {/* 1. EXECUTIVE THEME HERO BANNER */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 pt-6">
+        <div className="bg-gradient-to-br from-[#FCFCFD] via-white to-[#F4F6F8] dark:from-[#0B0B0C] dark:via-[#0E0E10] dark:to-[#0B0B0C] text-slate-900 dark:text-white rounded-3xl p-6 sm:p-8 border border-slate-200/90 dark:border-[#1A1A1D] shadow-[0_20px_50px_-15px_rgba(0,0,0,0.06)] dark:shadow-2xl relative overflow-hidden group hover:border-slate-300 dark:hover:border-[#C6F432]/30 transition-all duration-300">
+          {/* Ambient Lime & Sunlit Emerald Glows */}
+          <div className="absolute -top-32 -right-32 w-[28rem] h-[28rem] bg-gradient-to-bl from-[#C6F432]/30 via-emerald-300/20 to-transparent dark:from-[#C6F432]/10 dark:to-transparent rounded-full blur-3xl pointer-events-none group-hover:scale-105 transition-all duration-700" />
+          <div className="absolute -bottom-24 -left-24 w-64 h-64 bg-gradient-to-tr from-[#C6F432]/20 via-teal-200/15 to-transparent dark:from-[#C6F432]/5 dark:to-transparent rounded-full blur-2xl pointer-events-none" />
+
+          <div className="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+            <div className="space-y-3 max-w-3xl">
+              <div className="flex flex-wrap items-center gap-2">
+                <div className="inline-flex items-center space-x-2 px-3.5 py-1.5 bg-white/90 dark:bg-[#141416] border border-slate-200/90 dark:border-[#2A2A2E] rounded-full text-xs font-medium text-slate-900 dark:text-[#E4E4E7] shadow-xs backdrop-blur-md">
+                  <span className="w-2 h-2 rounded-full bg-[#16A34A] dark:bg-[#C6F432] inline-block shadow-[0_0_8px_rgba(22,163,74,0.6)] dark:shadow-[0_0_8px_#C6F432] animate-pulse" />
+                  <span className="font-semibold tracking-wide">Module 7: Payment &amp; Ledger Verification</span>
+                  <span className="text-slate-300 dark:text-[#52525B]">|</span>
+                  <span className="px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-[#C6F432]/25 dark:bg-[#C6F432]/10 text-emerald-900 dark:text-[#C6F432] border border-[#C6F432]/40">CBE Bank Rail</span>
+                </div>
+                <div className="inline-flex items-center space-x-1.5 px-3 py-1 bg-white/80 dark:bg-[#141416] border border-slate-200/80 dark:border-[#2A2A2E] rounded-full text-[11px] text-slate-600 dark:text-[#A1A1AA] shadow-xs">
+                  <ShieldCheck className="w-3.5 h-3.5 text-[#16A34A] dark:text-[#C6F432]" />
+                  <span>Audit Grade Settlement</span>
+                </div>
               </div>
-              <h1 className="text-2xl sm:text-3xl font-serif font-black tracking-tight text-white">
+
+              <h1 className="text-2xl sm:text-4xl font-serif font-black tracking-tight leading-tight text-slate-950 dark:text-white drop-shadow-xs">
                 Finance &amp; CBE Reconciliation Console
               </h1>
-              <p className="text-xs text-[#A1A1AA] max-w-2xl font-sans">
+
+              <p className="text-xs sm:text-sm text-slate-600 dark:text-[#A1A1AA] font-sans leading-relaxed max-w-2xl font-normal">
                 Review and audit Commercial Bank of Ethiopia (CBE) bank transfer reference codes (FT numbers) submitted by clients. Verified payments release reserved stock into branch depot fulfillment.
               </p>
             </div>
 
-            {/* Role switch / verification badge */}
-            <div className="flex items-center space-x-3 bg-[#141416] p-3 rounded-2xl border border-[#222225] shrink-0">
-              <div className="w-10 h-10 rounded-full bg-[#1A1A1D] text-[#C6F432] font-bold flex items-center justify-center text-sm border border-[#2A2A2E]">
+            {/* Persona Card */}
+            <div className="flex items-center space-x-3 bg-white/90 dark:bg-[#141416]/90 p-3.5 rounded-2xl border border-slate-200 dark:border-[#2A2A2E] shadow-sm backdrop-blur-md shrink-0">
+              <div className="w-10 h-10 rounded-full bg-slate-950 dark:bg-[#1A1A1D] text-[#C6F432] font-bold flex items-center justify-center text-sm border border-slate-800 dark:border-[#2A2A2E] shadow-xs">
                 {currentUser.fullName[0]}
               </div>
               <div className="text-left text-xs">
-                <div className="font-bold text-white leading-tight">{currentUser.fullName}</div>
-                <div className="text-[10px] text-[#C6F432] font-semibold">Corporate Finance Lead</div>
-                <div className="text-[10px] text-[#71717A]">CBE Bank Ledger Audit</div>
+                <div className="font-bold text-slate-950 dark:text-white leading-tight">{currentUser.fullName}</div>
+                <div className="text-[10px] text-emerald-900 dark:text-[#C6F432] font-semibold">Corporate Finance Lead</div>
+                <div className="text-[10px] text-slate-500 dark:text-[#71717A]">CBE Bank Ledger Audit</div>
               </div>
             </div>
           </div>
 
           {/* Quick Metrics Bento Row */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-2">
-            <div className="bg-[#141416] border border-[#222225] rounded-2xl p-5 space-y-1">
-              <span className="text-[11px] font-semibold uppercase tracking-wider text-[#A1A1AA]">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-6 border-t border-slate-200/80 dark:border-[#1F1F24] mt-6">
+            <div className="bg-white/80 dark:bg-[#141416]/70 border border-slate-200/80 dark:border-[#222225] rounded-2xl p-4 sm:p-5 space-y-1 shadow-xs">
+              <span className="text-[11px] font-semibold uppercase tracking-wider text-slate-500 dark:text-[#A1A1AA]">
                 Pending CBE FT Verifications
               </span>
-              <div className="text-2xl sm:text-3xl font-bold font-mono text-[#C6F432]">
+              <div className="text-2xl sm:text-3xl font-bold font-mono text-[#16A34A] dark:text-[#C6F432]">
                 {pendingVerificationCount}
               </div>
-              <p className="text-[11px] text-[#71717A]">Orders awaiting manual statement audit</p>
+              <p className="text-[11px] text-slate-500 dark:text-[#71717A]">Orders awaiting statement audit</p>
             </div>
 
-            <div className="bg-[#141416] border border-[#222225] rounded-2xl p-5 space-y-1">
-              <span className="text-[11px] font-semibold uppercase tracking-wider text-[#A1A1AA]">
+            <div className="bg-white/80 dark:bg-[#141416]/70 border border-slate-200/80 dark:border-[#222225] rounded-2xl p-4 sm:p-5 space-y-1 shadow-xs">
+              <span className="text-[11px] font-semibold uppercase tracking-wider text-slate-500 dark:text-[#A1A1AA]">
                 Total Verified Ledger Volume
               </span>
-              <div className="text-2xl sm:text-3xl font-bold font-mono text-white">
+              <div className="text-2xl sm:text-3xl font-bold font-mono text-slate-950 dark:text-white">
                 ETB {totalVerifiedAmount.toLocaleString('en-US', { minimumFractionDigits: 2 })}
               </div>
-              <p className="text-[11px] text-[#71717A]">15% Ethiopian VAT accounted &amp; locked</p>
+              <p className="text-[11px] text-slate-500 dark:text-[#71717A]">15% Ethiopian VAT accounted &amp; locked</p>
             </div>
 
-            <div className="bg-[#141416] border border-[#222225] rounded-2xl p-5 space-y-1">
-              <span className="text-[11px] font-semibold uppercase tracking-wider text-[#A1A1AA]">
+            <div className="bg-white/80 dark:bg-[#141416]/70 border border-slate-200/80 dark:border-[#222225] rounded-2xl p-4 sm:p-5 space-y-1 shadow-xs">
+              <span className="text-[11px] font-semibold uppercase tracking-wider text-slate-500 dark:text-[#A1A1AA]">
                 CBE Official Settlement Account
               </span>
-              <div className="text-xl sm:text-2xl font-bold font-mono text-white">
+              <div className="text-xl sm:text-2xl font-bold font-mono text-slate-950 dark:text-white">
                 1000192837461
               </div>
-              <p className="text-[11px] text-[#C6F432] font-semibold">AMG Holdings Central Corporate</p>
+              <p className="text-[11px] text-emerald-800 dark:text-[#C6F432] font-semibold">AMG Holdings Central Corporate</p>
             </div>
           </div>
         </div>
