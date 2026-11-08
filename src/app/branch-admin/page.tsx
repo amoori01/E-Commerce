@@ -669,50 +669,50 @@ export default function BranchAdminPage() {
     <div className="min-h-screen bg-[#FAFAFA] dark:bg-[#0B0B0C] text-[#0B0B0C] dark:text-[#E4E4E7] transition-colors duration-200 pb-20">
       {/* 1. EXECUTIVE THEME HERO BANNER (Flagship Obsidian & Lime Luxury Authority) */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 pt-6">
-        <div className="bg-white dark:bg-[#0B0B0C] text-[#0B0B0C] dark:text-white rounded-3xl p-6 sm:p-8 border border-[#E4E4E7] dark:border-[#1A1A1D] shadow-xl dark:shadow-2xl relative overflow-hidden group hover:border-[#0B0B0C]/30 dark:hover:border-[#C6F432]/30 transition-all duration-300">
-          {/* Ambient Lime Glows */}
-          <div className="absolute -top-32 -right-32 w-[24rem] h-[24rem] bg-lime-400/10 dark:bg-[#C6F432]/10 rounded-full blur-3xl pointer-events-none group-hover:bg-lime-400/20 dark:group-hover:bg-[#C6F432]/15 transition-all duration-700" />
-          <div className="absolute -bottom-24 -left-24 w-56 h-56 bg-lime-400/5 dark:bg-[#C6F432]/5 rounded-full blur-2xl pointer-events-none" />
+        <div className="bg-gradient-to-br from-[#FCFCFD] via-white to-[#F4F6F8] dark:from-[#0B0B0C] dark:via-[#0E0E10] dark:to-[#0B0B0C] text-slate-900 dark:text-white rounded-3xl p-6 sm:p-8 border border-slate-200/90 dark:border-[#1A1A1D] shadow-[0_20px_50px_-15px_rgba(0,0,0,0.06)] dark:shadow-2xl relative overflow-hidden group hover:border-slate-300 dark:hover:border-[#C6F432]/30 transition-all duration-300">
+          {/* Ambient Lime & Sunlit Emerald Glows */}
+          <div className="absolute -top-32 -right-32 w-[28rem] h-[28rem] bg-gradient-to-bl from-[#C6F432]/30 via-emerald-300/20 to-transparent dark:from-[#C6F432]/10 dark:to-transparent rounded-full blur-3xl pointer-events-none group-hover:scale-105 transition-all duration-700" />
+          <div className="absolute -bottom-24 -left-24 w-64 h-64 bg-gradient-to-tr from-[#C6F432]/20 via-teal-200/15 to-transparent dark:from-[#C6F432]/5 dark:to-transparent rounded-full blur-2xl pointer-events-none" />
 
           <div className="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-6">
             <div className="space-y-3 max-w-3xl">
               <div className="flex flex-wrap items-center gap-2">
-                <div className="inline-flex items-center space-x-2 px-3.5 py-1.5 bg-[#F4F4F5] dark:bg-[#141416] border border-[#E4E4E7] dark:border-[#2A2A2E] rounded-full text-xs font-medium text-[#18181B] dark:text-[#E4E4E7]">
-                  <span className="w-2 h-2 rounded-full bg-[#8FB80D] dark:bg-[#C6F432] inline-block shadow-[0_0_8px_rgba(143,184,13,0.5)] dark:shadow-[0_0_8px_#C6F432]" />
+                <div className="inline-flex items-center space-x-2 px-3.5 py-1.5 bg-white/90 dark:bg-[#141416] border border-slate-200/90 dark:border-[#2A2A2E] rounded-full text-xs font-medium text-slate-900 dark:text-[#E4E4E7] shadow-xs backdrop-blur-md">
+                  <span className="w-2 h-2 rounded-full bg-[#16A34A] dark:bg-[#C6F432] inline-block shadow-[0_0_8px_rgba(22,163,74,0.6)] dark:shadow-[0_0_8px_#C6F432] animate-pulse" />
                   <span className="font-semibold tracking-wide">Tier 3: Regional Depot &amp; Mill Operations</span>
-                  <span className="text-[#A1A1AA] dark:text-[#52525B]">|</span>
-                  <span className="text-[#4D6300] dark:text-[#C6F432] font-mono text-[11px] font-semibold">{activeBranch.code}</span>
+                  <span className="text-slate-300 dark:text-[#52525B]">|</span>
+                  <span className="px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-[#C6F432]/25 dark:bg-[#C6F432]/10 text-emerald-900 dark:text-[#C6F432] border border-[#C6F432]/40">{activeBranch.code}</span>
                 </div>
-                <div className="inline-flex items-center space-x-1.5 px-3 py-1 bg-[#F4F4F5] dark:bg-[#141416] border border-[#E4E4E7] dark:border-[#2A2A2E] rounded-full text-[11px] text-[#52525B] dark:text-[#A1A1AA]">
-                  <Truck className="w-3.5 h-3.5 text-[#4D6300] dark:text-[#C6F432]" />
+                <div className="inline-flex items-center space-x-1.5 px-3 py-1 bg-white/80 dark:bg-[#141416] border border-slate-200/80 dark:border-[#2A2A2E] rounded-full text-[11px] text-slate-600 dark:text-[#A1A1AA] shadow-xs">
+                  <Truck className="w-3.5 h-3.5 text-[#16A34A] dark:text-[#C6F432]" />
                   <span>{activeBranch.city} Central Depot</span>
                 </div>
               </div>
 
-              <h1 className="text-2xl sm:text-4xl font-serif font-black tracking-tight leading-tight text-[#0B0B0C] dark:text-white">
+              <h1 className="text-2xl sm:text-4xl font-serif font-black tracking-tight leading-tight text-slate-950 dark:text-white drop-shadow-xs">
                 Regional Branch &amp; Warehouse Logistics Portal
               </h1>
 
-              <p className="text-xs sm:text-sm text-[#52525B] dark:text-[#A1A1AA] font-sans leading-relaxed max-w-2xl">
+              <p className="text-xs sm:text-sm text-slate-600 dark:text-[#A1A1AA] font-sans leading-relaxed max-w-2xl font-normal">
                 Operating scope assigned to regional mill facilities. Stock threshold alarms, factory mill intake, yard dispatch, and physical gate pass verification under verified enterprise standards.
               </p>
             </div>
 
             {/* Operating Branch Scope Selector */}
             <div className="shrink-0 flex items-center lg:self-center">
-              <div className="bg-[#F4F4F5] dark:bg-[#141416]/90 border border-[#E4E4E7] dark:border-[#2A2A2E] hover:border-[#0B0B0C]/40 dark:hover:border-[#C6F432]/40 rounded-xl px-3 py-2 shadow-sm transition-all sm:w-72 w-full">
-                <div className="flex items-center justify-between text-[10px] uppercase font-bold text-[#71717A] tracking-wider mb-1.5 px-0.5">
+              <div className="bg-white/90 dark:bg-[#141416]/90 border border-slate-200 dark:border-[#2A2A2E] hover:border-slate-400 dark:hover:border-[#C6F432]/40 rounded-2xl px-3.5 py-2.5 shadow-sm backdrop-blur-md transition-all sm:w-72 w-full">
+                <div className="flex items-center justify-between text-[10px] uppercase font-bold text-slate-500 dark:text-[#71717A] tracking-wider mb-1.5 px-0.5">
                   <span className="flex items-center gap-1.5">
-                    <span className="w-1.5 h-1.5 rounded-full bg-[#8FB80D] dark:bg-[#C6F432] shadow-[0_0_6px_#C6F432]" />
+                    <span className="w-1.5 h-1.5 rounded-full bg-[#16A34A] dark:bg-[#C6F432] shadow-[0_0_6px_#C6F432]" />
                     Depot Scope
                   </span>
-                  <span className="text-[#4D6300] dark:text-[#C6F432] font-mono text-[10px] font-semibold">{activeBranch.code}</span>
+                  <span className="text-emerald-900 dark:text-[#C6F432] font-mono text-[10px] font-bold">{activeBranch.code}</span>
                 </div>
                 <div className="relative">
                   <select
                     value={selectedBranchId}
                     onChange={(e) => setSelectedBranchId(e.target.value)}
-                    className="w-full appearance-none bg-white dark:bg-[#0E0E10] border border-[#E4E4E7] dark:border-[#2A2A2E] hover:border-[#A1A1AA] dark:hover:border-[#3E3E44] focus:border-[#0B0B0C] dark:focus:border-[#C6F432] text-[#0B0B0C] dark:text-white font-medium pl-2.5 pr-7 py-1.5 rounded-lg text-xs outline-none transition-colors cursor-pointer"
+                    className="w-full appearance-none bg-slate-50 dark:bg-[#0E0E10] border border-slate-300 dark:border-[#2A2A2E] hover:border-slate-500 dark:hover:border-[#3E3E44] focus:border-slate-900 dark:focus:border-[#C6F432] text-slate-900 dark:text-white font-semibold pl-2.5 pr-7 py-1.5 rounded-xl text-xs outline-none transition-colors cursor-pointer"
                   >
                     <option value="all">All Regional Depots ({ordersList.length} orders)</option>
                     {BRANCHES.map((b) => {
@@ -724,10 +724,10 @@ export default function BranchAdminPage() {
                       );
                     })}
                   </select>
-                  <ChevronDown className="w-3.5 h-3.5 text-[#71717A] dark:text-[#A1A1AA] pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2" />
+                  <ChevronDown className="w-3.5 h-3.5 text-slate-500 dark:text-[#A1A1AA] pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2" />
                 </div>
-                <div className="text-[10px] text-[#71717A] mt-1 px-0.5 flex items-center space-x-1 font-mono">
-                  <MapPin className="w-2.5 h-2.5 text-[#4D6300] dark:text-[#C6F432] shrink-0" />
+                <div className="text-[10px] text-slate-500 dark:text-[#71717A] mt-1.5 px-0.5 flex items-center space-x-1 font-mono">
+                  <MapPin className="w-2.5 h-2.5 text-[#16A34A] dark:text-[#C6F432] shrink-0" />
                   <span className="truncate">{activeBranch.address}</span>
                 </div>
               </div>

@@ -134,24 +134,26 @@ function HomePageContent() {
 
       {/* 1. STREAMLINED ENTERPRISE HERO */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 pt-6">
-        <div className="bg-white dark:bg-[#0B0B0C] text-[#0B0B0C] dark:text-white rounded-3xl p-8 sm:p-12 border border-[#E4E4E7] dark:border-[#1A1A1D] shadow-xl dark:shadow-2xl relative overflow-hidden group hover:border-[#0B0B0C]/30 dark:hover:border-[#C6F432]/30 transition-all duration-300">
-          {/* Subtle Ambient Lime Glow */}
-          <div className="absolute -top-32 -right-32 w-[28rem] h-[28rem] bg-lime-400/10 dark:bg-[#C6F432]/10 rounded-full blur-3xl pointer-events-none group-hover:bg-lime-400/20 dark:group-hover:bg-[#C6F432]/15 transition-all duration-700" />
-          <div className="absolute -bottom-24 -left-24 w-64 h-64 bg-lime-400/5 dark:bg-[#C6F432]/5 rounded-full blur-2xl pointer-events-none" />
+        <div className="bg-gradient-to-br from-[#FCFCFD] via-white to-[#F4F6F8] dark:from-[#0B0B0C] dark:via-[#0E0E10] dark:to-[#0B0B0C] text-slate-900 dark:text-white rounded-3xl p-8 sm:p-12 border border-slate-200/90 dark:border-[#1A1A1D] shadow-[0_20px_50px_-15px_rgba(0,0,0,0.06),0_0_0_1px_rgba(0,0,0,0.02)] dark:shadow-2xl relative overflow-hidden group hover:border-slate-300 dark:hover:border-[#C6F432]/30 transition-all duration-300">
+          {/* Subtle Ambient Lime & Sunlit Emerald Glow */}
+          <div className="absolute -top-32 -right-32 w-[32rem] h-[32rem] bg-gradient-to-bl from-[#C6F432]/30 via-emerald-300/20 to-transparent dark:from-[#C6F432]/12 dark:to-transparent rounded-full blur-3xl pointer-events-none group-hover:scale-105 transition-all duration-700" />
+          <div className="absolute -bottom-24 -left-24 w-72 h-72 bg-gradient-to-tr from-[#C6F432]/20 via-teal-200/15 to-transparent dark:from-[#C6F432]/5 dark:to-transparent rounded-full blur-2xl pointer-events-none" />
 
           <div className="relative z-10 max-w-3xl space-y-5">
-            <div className="inline-flex items-center space-x-2 px-3.5 py-1.5 bg-[#F4F4F5] dark:bg-[#141416] border border-[#E4E4E7] dark:border-[#2A2A2E] rounded-full text-xs font-medium text-[#18181B] dark:text-[#E4E4E7]">
-              <span className="w-2 h-2 rounded-full bg-[#8FB80D] dark:bg-[#C6F432] inline-block shadow-[0_0_8px_rgba(143,184,13,0.5)] dark:shadow-[0_0_8px_#C6F432]" />
+            <div className="inline-flex items-center space-x-2 px-3.5 py-1.5 bg-white/90 dark:bg-[#141416] border border-slate-200/90 dark:border-[#2A2A2E] rounded-full text-xs font-medium text-slate-900 dark:text-[#E4E4E7] shadow-xs backdrop-blur-md">
+              <span className="w-2 h-2 rounded-full bg-[#16A34A] dark:bg-[#C6F432] inline-block shadow-[0_0_8px_rgba(22,163,74,0.6)] dark:shadow-[0_0_8px_#C6F432] animate-pulse" />
               <span className="font-semibold tracking-wide">AMG Holdings Consortium</span>
-              <span className="text-[#A1A1AA] dark:text-[#52525B]">|</span>
-              <span className="text-[#4D6300] dark:text-[#C6F432] font-semibold">CBE Bank Verified Rail</span>
+              <span className="text-slate-300 dark:text-[#52525B]">|</span>
+              <span className="px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-[#C6F432]/25 dark:bg-[#C6F432]/10 text-emerald-900 dark:text-[#C6F432] border border-[#C6F432]/40">
+                CBE Bank Verified Rail
+              </span>
             </div>
 
-            <h1 className="text-3xl sm:text-5xl lg:text-6xl font-serif font-black tracking-tight leading-[1.12] text-[#0B0B0C] dark:text-white">
+            <h1 className="text-3xl sm:text-5xl lg:text-6xl font-serif font-black tracking-tight leading-[1.12] text-slate-950 dark:text-white drop-shadow-xs">
               Industrial &amp; Commercial Supplies, Delivered with Precision.
             </h1>
 
-            <p className="text-sm sm:text-base text-[#52525B] dark:text-[#A1A1AA] font-sans leading-relaxed max-w-2xl">
+            <p className="text-sm sm:text-base text-slate-600 dark:text-[#A1A1AA] font-sans leading-relaxed max-w-2xl font-normal">
               Procure certified structural steel, roofing systems, heavy fleet logistics, industrial cryogenic gases, and export Arabica coffee. Instant order reserve or sales engineering quotes under verified CBE bank transfer.
             </p>
 
@@ -164,7 +166,7 @@ function HomePageContent() {
                   const el = document.getElementById('catalog-section');
                   el?.scrollIntoView({ behavior: 'smooth' });
                 }}
-                className="px-6 py-3.5 bg-[#0B0B0C] hover:bg-[#202028] dark:bg-[#C6F432] dark:hover:bg-[#D7F860] text-white dark:text-[#0B0B0C] font-bold text-xs rounded-full transition-all flex items-center space-x-2 shadow-lg hover:shadow-md"
+                className="px-6 py-3.5 bg-slate-950 hover:bg-slate-900 dark:bg-[#C6F432] dark:hover:bg-[#D7F860] text-white dark:text-[#0B0B0C] font-bold text-xs rounded-full transition-all flex items-center space-x-2 shadow-xl hover:shadow-2xl hover:-translate-y-0.5 active:translate-y-0"
               >
                 <ShoppingCart className="w-4 h-4 text-[#C6F432] dark:text-[#0B0B0C]" />
                 <span>Shop Stream A (Direct Buy)</span>
@@ -173,43 +175,43 @@ function HomePageContent() {
               <button
                 type="button"
                 onClick={() => openRfq()}
-                className="px-6 py-3.5 bg-[#F4F4F5] hover:bg-[#E4E4E7] dark:bg-[#141416] dark:hover:bg-[#1A1A1D] text-[#0B0B0C] dark:text-white border border-[#E4E4E7] dark:border-[#2A2A2E] hover:border-[#0B0B0C]/40 dark:hover:border-[#C6F432]/40 font-semibold text-xs rounded-full transition-all flex items-center space-x-2 shadow-xs"
+                className="px-6 py-3.5 bg-white/90 hover:bg-slate-50 dark:bg-[#141416] dark:hover:bg-[#1A1A1D] text-slate-900 dark:text-white border border-slate-300 dark:border-[#2A2A2E] hover:border-slate-900 dark:hover:border-[#C6F432]/40 font-semibold text-xs rounded-full transition-all flex items-center space-x-2 shadow-xs hover:shadow-sm hover:-translate-y-0.5 active:translate-y-0"
               >
-                <FileText className="w-4 h-4 text-[#4D6300] dark:text-[#C6F432]" />
+                <FileText className="w-4 h-4 text-slate-950 dark:text-[#C6F432]" />
                 <span>Request Custom Quote (RFQ)</span>
               </button>
             </div>
           </div>
 
           {/* Integrated Trust & Operations Bar */}
-          <div className="mt-10 pt-6 border-t border-[#E4E4E7] dark:border-[#1F1F24] grid grid-cols-1 sm:grid-cols-3 gap-5 text-xs text-[#52525B] dark:text-[#A1A1AA] relative z-10">
-            <div className="flex items-center space-x-3">
-              <div className="w-9 h-9 rounded-xl bg-[#F4F4F5] dark:bg-[#141416] border border-[#E4E4E7] dark:border-[#2A2A2E] flex items-center justify-center text-[#4D6300] dark:text-[#C6F432] shrink-0">
+          <div className="mt-10 pt-6 border-t border-slate-200/80 dark:border-[#1F1F24] grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs text-slate-600 dark:text-[#A1A1AA] relative z-10">
+            <div className="p-3 sm:p-3.5 rounded-2xl bg-white/80 dark:bg-[#141416]/50 border border-slate-200/70 dark:border-[#2A2A2E]/50 shadow-xs flex items-center space-x-3.5 hover:border-slate-300 dark:hover:border-[#C6F432]/30 transition-all">
+              <div className="w-9 h-9 rounded-xl bg-slate-950 dark:bg-[#141416] border border-slate-800 dark:border-[#2A2A2E] flex items-center justify-center text-[#C6F432] shadow-xs shrink-0">
                 <CheckCircle2 className="w-4 h-4" />
               </div>
               <div>
-                <span className="font-semibold text-[#0B0B0C] dark:text-white block">Stream A: Direct Buy</span>
-                <span className="text-[11px] text-[#71717A] dark:text-[#71717A]">Immediate inventory reserve &amp; CBE checkout</span>
+                <span className="font-bold text-slate-950 dark:text-white block text-xs">Stream A: Direct Buy</span>
+                <span className="text-[11px] text-slate-500 dark:text-[#71717A] leading-tight">Immediate inventory reserve &amp; CBE checkout</span>
               </div>
             </div>
 
-            <div className="flex items-center space-x-3">
-              <div className="w-9 h-9 rounded-xl bg-[#F4F4F5] dark:bg-[#141416] border border-[#E4E4E7] dark:border-[#2A2A2E] flex items-center justify-center text-[#4D6300] dark:text-[#C6F432] shrink-0">
+            <div className="p-3 sm:p-3.5 rounded-2xl bg-white/80 dark:bg-[#141416]/50 border border-slate-200/70 dark:border-[#2A2A2E]/50 shadow-xs flex items-center space-x-3.5 hover:border-slate-300 dark:hover:border-[#C6F432]/30 transition-all">
+              <div className="w-9 h-9 rounded-xl bg-slate-950 dark:bg-[#141416] border border-slate-800 dark:border-[#2A2A2E] flex items-center justify-center text-[#C6F432] shadow-xs shrink-0">
                 <FileText className="w-4 h-4" />
               </div>
               <div>
-                <span className="font-semibold text-[#0B0B0C] dark:text-white block">Stream B: Engineering RFQ</span>
-                <span className="text-[11px] text-[#71717A] dark:text-[#71717A]">Custom fabrication &amp; proforma quotations</span>
+                <span className="font-bold text-slate-950 dark:text-white block text-xs">Stream B: Engineering RFQ</span>
+                <span className="text-[11px] text-slate-500 dark:text-[#71717A] leading-tight">Custom fabrication &amp; proforma quotations</span>
               </div>
             </div>
 
-            <div className="flex items-center space-x-3">
-              <div className="w-9 h-9 rounded-xl bg-[#F4F4F5] dark:bg-[#141416] border border-[#E4E4E7] dark:border-[#2A2A2E] flex items-center justify-center text-[#4D6300] dark:text-[#C6F432] shrink-0">
+            <div className="p-3 sm:p-3.5 rounded-2xl bg-white/80 dark:bg-[#141416]/50 border border-slate-200/70 dark:border-[#2A2A2E]/50 shadow-xs flex items-center space-x-3.5 hover:border-slate-300 dark:hover:border-[#C6F432]/30 transition-all">
+              <div className="w-9 h-9 rounded-xl bg-slate-950 dark:bg-[#141416] border border-slate-800 dark:border-[#2A2A2E] flex items-center justify-center text-[#C6F432] shadow-xs shrink-0">
                 <Truck className="w-4 h-4" />
               </div>
               <div>
-                <span className="font-semibold text-[#0B0B0C] dark:text-white block">4 Regional Depots</span>
-                <span className="text-[11px] text-[#71717A] dark:text-[#71717A]">Addis Ababa, Adama, Hawassa &amp; Dire Dawa</span>
+                <span className="font-bold text-slate-950 dark:text-white block text-xs">4 Regional Depots</span>
+                <span className="text-[11px] text-slate-500 dark:text-[#71717A] leading-tight">Addis Ababa, Adama, Hawassa &amp; Dire Dawa</span>
               </div>
             </div>
           </div>
