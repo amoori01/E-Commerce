@@ -33,7 +33,23 @@ export async function PATCH(req: NextRequest) {
     }
 
     const body = await req.json();
-    const { fullName, phone, companyName, tinNumber, mfaCode, mfaSessionToken } = body;
+    const {
+      fullName,
+      phone,
+      companyName,
+      tinNumber,
+      vatNumber,
+      tradeLicense,
+      branchId,
+      branchName,
+      creditTier,
+      twoFactorEnabled,
+      notifySms,
+      notifyEmail,
+      notifyGatePass,
+      mfaCode,
+      mfaSessionToken,
+    } = body;
 
     const user = SEEDED_USERS.find((u) => u.id === auth.user?.sub);
     if (!user) {
@@ -71,6 +87,15 @@ export async function PATCH(req: NextRequest) {
     if (phone) user.phone = phone.trim();
     if (companyName !== undefined) user.companyName = companyName?.trim();
     if (tinNumber !== undefined) user.tinNumber = tinNumber?.trim();
+    if (vatNumber !== undefined) user.vatNumber = vatNumber?.trim();
+    if (tradeLicense !== undefined) user.tradeLicense = tradeLicense?.trim();
+    if (branchId !== undefined) user.branchId = branchId;
+    if (branchName !== undefined) user.branchName = branchName;
+    if (creditTier !== undefined) user.creditTier = creditTier;
+    if (twoFactorEnabled !== undefined) user.twoFactorEnabled = Boolean(twoFactorEnabled);
+    if (notifySms !== undefined) user.notifySms = Boolean(notifySms);
+    if (notifyEmail !== undefined) user.notifyEmail = Boolean(notifyEmail);
+    if (notifyGatePass !== undefined) user.notifyGatePass = Boolean(notifyGatePass);
 
     return NextResponse.json({
       success: true,

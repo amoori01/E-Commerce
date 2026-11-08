@@ -71,6 +71,14 @@ export interface UserProfile {
   isActive?: boolean;
   clientPortfolio?: string;
   specialization?: string;
+  vatNumber?: string;
+  tradeLicense?: string;
+  creditTier?: string;
+  creditLimitEtb?: number;
+  twoFactorEnabled?: boolean;
+  notifySms?: boolean;
+  notifyEmail?: boolean;
+  notifyGatePass?: boolean;
 }
 
 export interface Category {

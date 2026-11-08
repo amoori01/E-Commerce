@@ -8,6 +8,7 @@ import { INITIAL_ORDERS, INITIAL_QUOTES } from '@/lib/constants';
 import { Order, Quote } from '@/types';
 import { ProformaInvoiceModal } from '@/components/modals/ProformaInvoiceModal';
 import { QrCodeView } from '@/components/ui/QrCodeView';
+import UserProfileView from '@/components/profile/UserProfileView';
 import {
   Building2,
   FileText,
@@ -72,13 +73,24 @@ export default function CustomerPortalPage() {
   };
 
   useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      const tabParam = params.get('tab');
+      if (tabParam && ['quotes', 'orders', 'wishlist', 'addresses', 'profile'].includes(tabParam)) {
+        setActiveTab(tabParam as any);
+      }
+    }
+  }, []);
+
+  useEffect(() => {
+    if (activeTab === 'profile') return;
     if (!isCustomer && roleRedirectMap[activeRole]) {
       const timer = setTimeout(() => {
         router.push(roleRedirectMap[activeRole].url);
       }, 2500);
       return () => clearTimeout(timer);
     }
-  }, [isCustomer, activeRole, router]);
+  }, [isCustomer, activeRole, router, activeTab]);
 
   const [portalOrders, setPortalOrders] = useState<Order[]>(INITIAL_ORDERS);
 
@@ -254,7 +266,7 @@ export default function CustomerPortalPage() {
     }
   };
 
-  if (!isCustomer) {
+  if (!isCustomer && activeTab !== 'profile') {
     const dest = roleRedirectMap[activeRole] || { url: '/admin', title: 'Management Workspace' };
     return (
       <div className="min-h-[75vh] flex items-center justify-center p-4 bg-[#FAFAFA] dark:bg-[#0B0B0C]">
@@ -281,7 +293,7 @@ export default function CustomerPortalPage() {
               • To manage fulfillment, inventory, or quotes, open your designated workspace below.
             </div>
             <div className="text-[11px] text-slate-500 dark:text-[#A1A1AA]">
-              • To test order placement and view proformas, switch to a Customer account.
+              • To edit your personal profile, tax TIN, or security credentials, open Corporate Profile.
             </div>
           </div>
 
@@ -295,11 +307,18 @@ export default function CustomerPortalPage() {
             </Link>
             <button
               type="button"
-              onClick={() => switchRole('customer')}
+              onClick={() => setActiveTab('profile')}
               className="w-full py-3 bg-white dark:bg-[#1A1A1D] hover:bg-slate-50 dark:hover:bg-[#222225] text-slate-900 dark:text-white border border-slate-300 dark:border-[#2A2A2E] font-bold rounded-full text-xs transition-colors flex items-center justify-center space-x-1.5 shadow-xs"
             >
               <Building2 className="w-4 h-4 text-[#C6F432]" />
-              <span>Switch to Customer Persona (MIDROC Corporate)</span>
+              <span>Open Corporate Profile & Tax Credentials</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => switchRole('customer')}
+              className="w-full py-2.5 text-slate-600 dark:text-[#A1A1AA] hover:text-slate-900 dark:hover:text-white text-[11px] font-semibold transition-colors"
+            >
+              Switch to Customer Persona (MIDROC Corporate)
             </button>
           </div>
 
@@ -401,7 +420,7 @@ export default function CustomerPortalPage() {
             { id: 'orders', label: `Direct Purchase Orders (${myOrders.length})` },
             { id: 'wishlist', label: `Saved Wishlist (${wishlistProducts.length})` },
             { id: 'addresses', label: `Delivery Site Addresses (${addresses.length})` },
-            { id: 'profile', label: 'Tax & Legal TIN Credentials' },
+            { id: 'profile', label: 'Corporate Profile & Tax Credentials' },
           ].map((tab) => {
             const isActive = activeTab === tab.id;
             return (
@@ -997,51 +1016,7 @@ export default function CustomerPortalPage() {
         )}
 
         {/* TAB 3: PROFILE */}
-        {activeTab === 'profile' && (
-          <div className="bg-white border border-slate-300 rounded-sm shadow-crisp p-5 space-y-4 max-w-2xl">
-            <h3 className="text-sm font-bold text-slate-900 uppercase tracking-wider">
-              Corporate Taxpayer Identification (ERCA Compliant)
-            </h3>
-
-            <div className="space-y-3 text-xs">
-              <div>
-                <label className="block text-[10px] font-bold uppercase text-slate-500 mb-1">
-                  Registered Corporate Legal Entity:
-                </label>
-                <input
-                  type="text"
-                  readOnly
-                  value={currentUser.companyName || 'MIDROC Construction Ethiopia PLC'}
-                  className="w-full border border-slate-300 bg-slate-50 px-3 py-2 rounded-sm font-semibold"
-                />
-              </div>
-
-              <div>
-                <label className="block text-[10px] font-bold uppercase text-slate-500 mb-1">
-                  Tax Identification Number (TIN):
-                </label>
-                <input
-                  type="text"
-                  readOnly
-                  value={currentUser.tinNumber || '0019283746'}
-                  className="w-full border border-slate-300 bg-slate-50 px-3 py-2 rounded-sm font-mono font-bold"
-                />
-              </div>
-
-              <div>
-                <label className="block text-[10px] font-bold uppercase text-slate-500 mb-1">
-                  Authorized Procurement Officer:
-                </label>
-                <input
-                  type="text"
-                  readOnly
-                  value={`${currentUser.fullName} (${currentUser.email})`}
-                  className="w-full border border-slate-300 bg-slate-50 px-3 py-2 rounded-sm"
-                />
-              </div>
-            </div>
-          </div>
-        )}
+        {activeTab === 'profile' && <UserProfileView />}
 
         {/* Modal: Request Technical Revision */}
         {revisionQuoteId && (
