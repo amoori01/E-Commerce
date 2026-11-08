@@ -216,17 +216,6 @@ export const SEEDED_USERS: UserProfile[] = [
     isVerified: true,
   },
   {
-    id: 'e5555555-5555-5555-5555-555555555555',
-    email: 'abebe.kebede@gmail.com',
-    fullName: 'Abebe Kebede',
-    phone: '+251 91 560 0005',
-    role: 'customer',
-    customerType: 'b2b',
-    companyName: 'Kebede General Trade',
-    tinNumber: '0088219456',
-    isVerified: true,
-  },
-  {
     id: 'e9999999-9999-9999-9999-999999999999',
     email: 'ahmed@gmail.com',
     fullName: 'Ahmed',
