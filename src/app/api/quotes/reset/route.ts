@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { getLiveQuotes } from '@/lib/quotes-store';
+import { clearServerOrders } from '@/lib/server-orders';
 
 export async function POST() {
   if (global.__amg_live_quotes) {
@@ -8,8 +8,9 @@ export async function POST() {
   if ((global as any).__amg_chat_store) {
     (global as any).__amg_chat_store = {};
   }
+  clearServerOrders();
   return NextResponse.json({
     success: true,
-    message: 'All RFQ deals and inquiries have been cleared. Ready for fresh customer testing.',
+    message: 'All RFQ deals, inquiries, chat messages, and converted orders have been cleared. Ready for fresh customer testing.',
   });
 }

@@ -62,10 +62,10 @@ export default function SalesAgentPage() {
         // 2. Fetch from client localStorage
         if (typeof window !== 'undefined') {
           // Auto-purge stale demo data on first load of clean testing environment
-          if (localStorage.getItem('amg_data_version') !== 'v2') {
+          if (localStorage.getItem('amg_data_version') !== 'v3') {
             localStorage.removeItem('amg_live_quotes');
             localStorage.removeItem('amg_live_orders');
-            localStorage.setItem('amg_data_version', 'v2');
+            localStorage.setItem('amg_data_version', 'v3');
           }
 
           const local = localStorage.getItem('amg_live_quotes');
