@@ -77,6 +77,9 @@ export interface UserProfile {
   creditTier?: string;
   creditLimitEtb?: number;
   twoFactorEnabled?: boolean;
+  deliveryCity?: string;
+  deliveryAddress?: string;
+  subcity?: string;
   notifySms?: boolean;
   notifyEmail?: boolean;
   notifyGatePass?: boolean;

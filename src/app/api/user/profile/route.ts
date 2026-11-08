@@ -47,6 +47,9 @@ export async function PATCH(req: NextRequest) {
       notifySms,
       notifyEmail,
       notifyGatePass,
+      deliveryCity,
+      deliveryAddress,
+      subcity,
       mfaCode,
       mfaSessionToken,
     } = body;
@@ -96,6 +99,9 @@ export async function PATCH(req: NextRequest) {
     if (notifySms !== undefined) user.notifySms = Boolean(notifySms);
     if (notifyEmail !== undefined) user.notifyEmail = Boolean(notifyEmail);
     if (notifyGatePass !== undefined) user.notifyGatePass = Boolean(notifyGatePass);
+    if (deliveryCity !== undefined) user.deliveryCity = deliveryCity?.trim();
+    if (deliveryAddress !== undefined) user.deliveryAddress = deliveryAddress?.trim();
+    if (subcity !== undefined) user.subcity = subcity?.trim();
 
     return NextResponse.json({
       success: true,
