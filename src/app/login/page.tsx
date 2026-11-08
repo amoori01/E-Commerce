@@ -3,11 +3,13 @@
 import React, { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
+import Image from 'next/image';
 import { useAuth } from '@/lib/auth-context';
 import { SEEDED_USERS } from '@/lib/constants';
 import { UserProfile, UserRole } from '@/types';
 import {
   Shield,
+  ShieldCheck,
   Lock,
   Mail,
   Phone,
@@ -20,7 +22,17 @@ import {
   Users,
   UserPlus,
   Briefcase,
-  User
+  User,
+  Eye,
+  EyeOff,
+  Layers,
+  ArrowLeft,
+  Truck,
+  Check,
+  CreditCard,
+  FileText,
+  BadgeCheck,
+  HelpCircle,
 } from 'lucide-react';
 
 function LoginContent() {
@@ -31,6 +43,7 @@ function LoginContent() {
   const [activeTab, setActiveTab] = useState<'standard' | 'register' | 'demo'>('standard');
   const [identifier, setIdentifier] = useState('');
   const [password, setPassword] = useState('Password123!');
+  const [showPassword, setShowPassword] = useState(false);
   const [mfaCode, setMfaCode] = useState('');
   const [mfaRequired, setMfaRequired] = useState(false);
   const [mfaPromptMessage, setMfaPromptMessage] = useState('');
@@ -46,6 +59,7 @@ function LoginContent() {
   const [regTinNumber, setRegTinNumber] = useState('');
   const [regPassword, setRegPassword] = useState('');
   const [regConfirmPassword, setRegConfirmPassword] = useState('');
+  const [showRegPassword, setShowRegPassword] = useState(false);
   const [regSuccessNotice, setRegSuccessNotice] = useState<string | null>(null);
 
   useEffect(() => {
@@ -106,7 +120,7 @@ function LoginContent() {
         router.push(targetUrl);
       }
     } catch (err: unknown) {
-      setErrorMsg(err instanceof Error ? err.message : 'Login failed. Please try again.');
+      setErrorMsg(err instanceof Error ? err.message : 'Login failed. Please verify your credentials.');
     } finally {
       setLoading(false);
     }
@@ -157,7 +171,7 @@ function LoginContent() {
         throw new Error(data.error || 'Registration failed');
       }
 
-      setRegSuccessNotice('Account successfully created! Logging in to your Customer Portal...');
+      setRegSuccessNotice('Account successfully registered! Redirecting to your Customer Portal...');
       if (data.user) {
         setUser(data.user);
         setTimeout(() => {
@@ -178,427 +192,595 @@ function LoginContent() {
   };
 
   return (
-    <div className="min-h-[calc(100vh-140px)] bg-slate-900 flex items-center justify-center p-4 sm:p-6 lg:p-8">
-      <div className="max-w-xl w-full space-y-6">
-        {/* Brand Header */}
-        <div className="text-center space-y-2">
-          <div className="inline-flex items-center justify-center w-14 h-14 rounded bg-white p-1 shadow-md border border-slate-700 mx-auto">
-            <img src="/logo.png" alt="AMG Holdings" className="max-h-full max-w-full object-contain" />
-          </div>
-          <h1 className="text-2xl font-black tracking-tight text-white uppercase">
-            AMG Holdings Enterprise Access
-          </h1>
-          <p className="text-xs text-slate-400 max-w-md mx-auto">
-            Multi-subsidiary procurement, engineering quotation, branch inventory, and corporate governance.
-          </p>
+    <div className="min-h-screen bg-[#080809] text-white flex flex-col justify-between selection:bg-[#C6F432] selection:text-[#080809]">
+      {/* Top subtle bar */}
+      <div className="border-b border-[#1E1E22] bg-[#0E0E10]/80 backdrop-blur-md px-4 sm:px-8 py-3.5 flex items-center justify-between">
+        <Link
+          href="/"
+          className="flex items-center space-x-2 text-xs font-semibold text-[#A1A1AA] hover:text-white transition-colors group"
+        >
+          <ArrowLeft className="w-3.5 h-3.5 group-hover:-translate-x-1 transition-transform" />
+          <span>Return to Storefront Catalog</span>
+        </Link>
+
+        <div className="flex items-center space-x-3 text-[11px] font-mono text-[#71717A]">
+          <span className="hidden sm:inline-flex items-center space-x-1.5 px-2.5 py-0.5 rounded-full bg-[#18181B] border border-[#27272A] text-slate-300">
+            <span className="w-1.5 h-1.5 rounded-full bg-[#C6F432] animate-pulse" />
+            <span>Gateway Online • Addis Ababa GMT+3</span>
+          </span>
+          <span className="hidden md:inline text-slate-600">|</span>
+          <span className="text-slate-400">SRS 4.2 Compliant</span>
         </div>
+      </div>
 
-        {/* Card Container */}
-        <div className="bg-slate-950 border border-slate-800 rounded-sm shadow-2xl overflow-hidden">
-          {/* Tab Selector */}
-          <div className="grid grid-cols-3 border-b border-slate-800 text-xs font-bold text-center">
-            <button
-              type="button"
-              onClick={() => {
-                setActiveTab('standard');
-                setErrorMsg(null);
-              }}
-              className={`py-3.5 transition-all flex items-center justify-center space-x-1.5 ${
-                activeTab === 'standard'
-                  ? 'bg-slate-900 text-white border-b-2 border-amg-red font-black'
-                  : 'bg-slate-950 text-slate-400 hover:text-slate-200'
-              }`}
-            >
-              <KeyRound className="w-3.5 h-3.5 text-amg-red" />
-              <span>Sign In</span>
-            </button>
-            <button
-              type="button"
-              onClick={() => {
-                setActiveTab('register');
-                setErrorMsg(null);
-              }}
-              className={`py-3.5 transition-all flex items-center justify-center space-x-1.5 ${
-                activeTab === 'register'
-                  ? 'bg-slate-900 text-white border-b-2 border-amg-red font-black'
-                  : 'bg-slate-950 text-slate-400 hover:text-slate-200'
-              }`}
-            >
-              <UserPlus className="w-3.5 h-3.5 text-emerald-400" />
-              <span>Register</span>
-            </button>
-            <button
-              type="button"
-              onClick={() => {
-                setActiveTab('demo');
-                setErrorMsg(null);
-              }}
-              className={`py-3.5 transition-all flex items-center justify-center space-x-1.5 ${
-                activeTab === 'demo'
-                  ? 'bg-slate-900 text-white border-b-2 border-amg-red font-black'
-                  : 'bg-slate-950 text-slate-400 hover:text-slate-200'
-              }`}
-            >
-              <Users className="w-3.5 h-3.5 text-sky-400" />
-              <span>1-Click Demo</span>
-            </button>
-          </div>
-
-          <div className="p-6">
-            {errorMsg && (
-              <div className="mb-4 p-3 bg-rose-950/70 border border-rose-700/60 rounded-sm text-rose-200 text-xs flex items-start space-x-2">
-                <AlertCircle className="w-4 h-4 text-rose-400 shrink-0 mt-0.5" />
-                <span>{errorMsg}</span>
+      {/* Main Container: Split on LG */}
+      <div className="flex-1 max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-8 lg:py-12 flex items-center">
+        <div className="w-full grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
+          
+          {/* LEFT COLUMN: Executive Consortium Showcase (LG screens) */}
+          <div className="lg:col-span-6 space-y-8 pr-0 lg:pr-4">
+            {/* Header Badge & Brand */}
+            <div className="space-y-4">
+              <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-[#C6F432]/10 border border-[#C6F432]/30 text-[#C6F432] text-xs font-bold uppercase tracking-wider">
+                <ShieldCheck className="w-3.5 h-3.5" />
+                <span>AMG Holdings Enterprise Access</span>
               </div>
-            )}
 
-            {regSuccessNotice && (
-              <div className="mb-4 p-3 bg-emerald-950/70 border border-emerald-600 rounded-sm text-emerald-200 text-xs flex items-center space-x-2">
-                <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
-                <span>{regSuccessNotice}</span>
-              </div>
-            )}
-
-            {/* TAB 1: STANDARD SIGN IN */}
-            {activeTab === 'standard' && (
-              <form onSubmit={handleStandardLogin} className="space-y-4">
-                {/* Identifier Input */}
-                <div className="space-y-1">
-                  <label className="text-[11px] font-bold uppercase tracking-wider text-slate-300 block">
-                    Corporate Email or Phone Number
-                  </label>
-                  <div className="relative">
-                    <input
-                      type="text"
-                      required
-                      value={identifier}
-                      onChange={(e) => setIdentifier(e.target.value)}
-                      placeholder="e.g., procurement@midroc-corp.et or +251 91 123 4567"
-                      className="w-full bg-slate-900 border border-slate-700 text-white rounded-sm px-3.5 py-2.5 text-xs focus:outline-none focus:border-amg-red font-mono"
-                    />
-                  </div>
-                  <p className="text-[10px] text-slate-500">
-                    Supports registered corporate email or phone with Ethiopian country code (+251).
+              <div className="flex items-center space-x-4">
+                <div className="w-14 h-14 rounded-2xl bg-[#141416] p-2 border border-[#2A2A2E] shadow-xl flex items-center justify-center shrink-0">
+                  <img src="/logo.png" alt="AMG Holdings" className="max-h-full max-w-full object-contain" />
+                </div>
+                <div>
+                  <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-white leading-tight">
+                    Unified Industrial Procurement
+                  </h1>
+                  <p className="text-xs text-slate-400 font-medium">
+                    Corporate Governance & Commercial Trade Infrastructure
                   </p>
                 </div>
+              </div>
 
-                {/* Password Input */}
-                <div className="space-y-1">
-                  <div className="flex justify-between items-center">
-                    <label className="text-[11px] font-bold uppercase tracking-wider text-slate-300 block">
-                      Account Password
-                    </label>
-                  </div>
-                  <input
-                    type="password"
-                    required
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    className="w-full bg-slate-900 border border-slate-700 text-white rounded-sm px-3.5 py-2.5 text-xs focus:outline-none focus:border-amg-red font-mono"
-                  />
+              <p className="text-sm text-[#A1A1AA] leading-relaxed max-w-lg">
+                Direct access for commercial B2B contractors, individual retail buyers, licensed sales engineers, branch depot managers, and corporate treasury.
+              </p>
+            </div>
+
+            {/* Core Capability Cards */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div className="p-4 rounded-2xl bg-[#121214] border border-[#222226] hover:border-[#C6F432]/40 transition-colors">
+                <div className="w-8 h-8 rounded-xl bg-[#C6F432]/10 border border-[#C6F432]/20 flex items-center justify-center text-[#C6F432] mb-3">
+                  <CreditCard className="w-4 h-4" />
                 </div>
+                <h2 className="text-xs font-bold text-white mb-1">Dual-Stream Engine</h2>
+                <p className="text-[11px] text-[#71717A] leading-normal">
+                  Stream A direct inventory buy & Stream B custom PEB & roofing engineering RFQs.
+                </p>
+              </div>
 
-                {/* MFA OTP Step-Up Input (Appears for privileged accounts) */}
-                {mfaRequired && (
-                  <div className="p-4 bg-sky-950/60 border border-sky-600/60 rounded-sm space-y-3">
-                    <div className="flex items-center space-x-2 text-sky-300 text-xs font-bold">
-                      <Shield className="w-4 h-4 text-sky-400" />
-                      <span>Two-Factor Authentication (MFA) Required</span>
-                    </div>
-                    <p className="text-[11px] text-slate-300">
-                      {mfaPromptMessage}
-                    </p>
-                    <div className="space-y-1">
-                      <label className="text-[10px] uppercase font-bold text-slate-400">
-                        Enter 6-Digit OTP Code:
-                      </label>
-                      <input
-                        type="text"
-                        maxLength={6}
-                        value={mfaCode}
-                        onChange={(e) => setMfaCode(e.target.value)}
-                        placeholder="123456"
-                        className="w-full bg-slate-900 border border-sky-500 text-white font-mono text-center tracking-widest text-lg py-2 rounded-sm outline-none"
-                      />
-                    </div>
-                  </div>
-                )}
+              <div className="p-4 rounded-2xl bg-[#121214] border border-[#222226] hover:border-[#C6F432]/40 transition-colors">
+                <div className="w-8 h-8 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400 mb-3">
+                  <Building2 className="w-4 h-4" />
+                </div>
+                <h2 className="text-xs font-bold text-white mb-1">Ethiopian Banking Rails</h2>
+                <p className="text-[11px] text-[#71717A] leading-normal">
+                  Instant CBE Birr FT reconciliation, Telebirr API integration, and branch cash slips.
+                </p>
+              </div>
 
+              <div className="p-4 rounded-2xl bg-[#121214] border border-[#222226] hover:border-[#C6F432]/40 transition-colors">
+                <div className="w-8 h-8 rounded-xl bg-sky-500/10 border border-sky-500/20 flex items-center justify-center text-sky-400 mb-3">
+                  <FileText className="w-4 h-4" />
+                </div>
+                <h2 className="text-xs font-bold text-white mb-1">ERCA Tax & Invoicing</h2>
+                <p className="text-[11px] text-[#71717A] leading-normal">
+                  Automated Ethiopian TIN validation, 15% VAT invoicing, and withholding declarations.
+                </p>
+              </div>
+
+              <div className="p-4 rounded-2xl bg-[#121214] border border-[#222226] hover:border-[#C6F432]/40 transition-colors">
+                <div className="w-8 h-8 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400 mb-3">
+                  <Truck className="w-4 h-4" />
+                </div>
+                <h2 className="text-xs font-bold text-white mb-1">Regional Branch Depots</h2>
+                <p className="text-[11px] text-[#71717A] leading-normal">
+                  Addis Ababa Central Hub, Adama FTZ, Hawassa Regional Depot & Dire Dawa Hub.
+                </p>
+              </div>
+            </div>
+
+            {/* Subsidiary Pills */}
+            <div className="pt-2 border-t border-[#1E1E22]">
+              <div className="text-[11px] font-bold uppercase tracking-wider text-[#71717A] mb-2.5">
+                5 Operating Subsidiaries
+              </div>
+              <div className="flex flex-wrap gap-1.5 text-[11px]">
+                <span className="px-2.5 py-1 rounded-full bg-[#18181B] border border-[#27272A] text-slate-300">
+                  Heavy Structural Steel
+                </span>
+                <span className="px-2.5 py-1 rounded-full bg-[#18181B] border border-[#27272A] text-slate-300">
+                  Ethio & Adama Roofing
+                </span>
+                <span className="px-2.5 py-1 rounded-full bg-[#18181B] border border-[#27272A] text-slate-300">
+                  Commercial Fleet Logistics
+                </span>
+                <span className="px-2.5 py-1 rounded-full bg-[#18181B] border border-[#27272A] text-slate-300">
+                  Industrial Cryogenic Gases
+                </span>
+                <span className="px-2.5 py-1 rounded-full bg-[#18181B] border border-[#27272A] text-slate-300">
+                  Specialty Coffee Export
+                </span>
+              </div>
+            </div>
+          </div>
+
+          {/* RIGHT COLUMN: The Authentication Box */}
+          <div className="lg:col-span-6">
+            <div className="bg-[#121214] border border-[#242428] rounded-3xl shadow-2xl p-6 sm:p-8 backdrop-blur-xl relative overflow-hidden">
+              {/* Subtle top lime glow line */}
+              <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-[#C6F432]/60 to-transparent" />
+
+              {/* Segmented Pill Tabs */}
+              <div className="p-1 rounded-2xl bg-[#0A0A0C] border border-[#1E1E22] grid grid-cols-3 gap-1 mb-6 text-xs font-bold">
                 <button
-                  type="submit"
-                  disabled={loading}
-                  className="w-full py-2.5 px-4 bg-amg-red hover:bg-red-700 text-white font-bold text-xs rounded-sm shadow-md transition-colors flex items-center justify-center space-x-2 disabled:opacity-60"
+                  type="button"
+                  onClick={() => {
+                    setActiveTab('standard');
+                    setErrorMsg(null);
+                  }}
+                  className={`py-2.5 rounded-xl transition-all flex items-center justify-center space-x-1.5 ${
+                    activeTab === 'standard'
+                      ? 'bg-[#C6F432] text-[#080809] shadow-md font-bold'
+                      : 'text-[#A1A1AA] hover:text-white hover:bg-[#18181B]'
+                  }`}
                 >
-                  {loading ? (
-                    <span>Authenticating...</span>
-                  ) : (
-                    <>
-                      <span>{mfaRequired ? 'Verify OTP & Complete Sign In' : 'Sign In to Portal'}</span>
-                      <ArrowRight className="w-4 h-4" />
-                    </>
-                  )}
+                  <KeyRound className="w-3.5 h-3.5" />
+                  <span>Sign In</span>
                 </button>
 
-                <div className="pt-2 text-center text-xs text-slate-400">
-                  <span>Don't have a commercial account? </span>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setActiveTab('register');
-                      setErrorMsg(null);
-                    }}
-                    className="text-emerald-400 hover:underline font-bold"
-                  >
-                    Create Customer Account
-                  </button>
-                </div>
-              </form>
-            )}
+                <button
+                  type="button"
+                  onClick={() => {
+                    setActiveTab('register');
+                    setErrorMsg(null);
+                  }}
+                  className={`py-2.5 rounded-xl transition-all flex items-center justify-center space-x-1.5 ${
+                    activeTab === 'register'
+                      ? 'bg-[#C6F432] text-[#080809] shadow-md font-bold'
+                      : 'text-[#A1A1AA] hover:text-white hover:bg-[#18181B]'
+                  }`}
+                >
+                  <UserPlus className="w-3.5 h-3.5" />
+                  <span>Register</span>
+                </button>
 
-            {/* TAB 2: REGISTER CUSTOMER ACCOUNT */}
-            {activeTab === 'register' && (
-              <form onSubmit={handleRegister} className="space-y-3.5">
-                {/* Account Type Selection */}
-                <div>
-                  <label className="text-[11px] font-bold uppercase tracking-wider text-slate-300 block mb-1.5">
-                    Customer Account Classification:
-                  </label>
-                  <div className="grid grid-cols-2 gap-2">
-                    <button
-                      type="button"
-                      onClick={() => setRegAccountType('b2b')}
-                      className={`p-2.5 border rounded-sm text-left flex items-start space-x-2 transition-all ${
-                        regAccountType === 'b2b'
-                          ? 'border-emerald-500 bg-emerald-950/40 text-white'
-                          : 'border-slate-800 bg-slate-900/60 text-slate-400 hover:border-slate-700'
-                      }`}
-                    >
-                      <Building2 className={`w-4 h-4 shrink-0 mt-0.5 ${regAccountType === 'b2b' ? 'text-emerald-400' : 'text-slate-500'}`} />
-                      <div>
-                        <div className="font-bold text-xs">Commercial B2B</div>
-                        <div className="text-[10px] text-slate-400">Corporate, builder, or fleet operator</div>
-                      </div>
-                    </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setActiveTab('demo');
+                    setErrorMsg(null);
+                  }}
+                  className={`py-2.5 rounded-xl transition-all flex items-center justify-center space-x-1.5 ${
+                    activeTab === 'demo'
+                      ? 'bg-[#C6F432] text-[#080809] shadow-md font-bold'
+                      : 'text-[#A1A1AA] hover:text-white hover:bg-[#18181B]'
+                  }`}
+                >
+                  <Sparkles className="w-3.5 h-3.5" />
+                  <span>1-Click Demo</span>
+                </button>
+              </div>
 
-                    <button
-                      type="button"
-                      onClick={() => setRegAccountType('b2c')}
-                      className={`p-2.5 border rounded-sm text-left flex items-start space-x-2 transition-all ${
-                        regAccountType === 'b2c'
-                          ? 'border-emerald-500 bg-emerald-950/40 text-white'
-                          : 'border-slate-800 bg-slate-900/60 text-slate-400 hover:border-slate-700'
-                      }`}
-                    >
-                      <User className={`w-4 h-4 shrink-0 mt-0.5 ${regAccountType === 'b2c' ? 'text-emerald-400' : 'text-slate-500'}`} />
-                      <div>
-                        <div className="font-bold text-xs">Retail / Individual</div>
-                        <div className="text-[10px] text-slate-400">Personal direct shopping</div>
-                      </div>
-                    </button>
+              {/* Alert / Error Message */}
+              {errorMsg && (
+                <div className="mb-5 p-3.5 bg-rose-950/60 border border-rose-800/80 rounded-2xl text-rose-200 text-xs flex items-start space-x-2.5 animate-in fade-in">
+                  <AlertCircle className="w-4 h-4 text-rose-400 shrink-0 mt-0.5" />
+                  <div className="flex-1">
+                    <div className="font-semibold">{errorMsg}</div>
                   </div>
                 </div>
+              )}
 
-                {/* Full Name */}
-                <div className="space-y-1">
-                  <label className="text-[11px] font-bold uppercase tracking-wider text-slate-300 block">
-                    Full Representative Name *
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    value={regFullName}
-                    onChange={(e) => setRegFullName(e.target.value)}
-                    placeholder="e.g., Eng. Dawit Kebede"
-                    className="w-full bg-slate-900 border border-slate-700 text-white rounded-sm px-3.5 py-2 text-xs focus:outline-none focus:border-emerald-500"
-                  />
+              {/* Success Notification */}
+              {regSuccessNotice && (
+                <div className="mb-5 p-3.5 bg-emerald-950/60 border border-emerald-700/80 rounded-2xl text-emerald-200 text-xs flex items-center space-x-2.5 animate-in fade-in">
+                  <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+                  <span className="font-medium">{regSuccessNotice}</span>
                 </div>
+              )}
 
-                {/* Company & TIN (Conditional for B2B) */}
-                {regAccountType === 'b2b' && (
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-                    <div className="space-y-1">
-                      <label className="text-[11px] font-bold uppercase tracking-wider text-slate-300 block">
-                        Company Name *
-                      </label>
-                      <input
-                        type="text"
-                        required={regAccountType === 'b2b'}
-                        value={regCompanyName}
-                        onChange={(e) => setRegCompanyName(e.target.value)}
-                        placeholder="e.g., Sunshine Construction PLC"
-                        className="w-full bg-slate-900 border border-slate-700 text-white rounded-sm px-3 py-2 text-xs focus:outline-none focus:border-emerald-500"
-                      />
-                    </div>
-                    <div className="space-y-1">
-                      <label className="text-[11px] font-bold uppercase tracking-wider text-slate-300 block">
-                        Ethiopian TIN Number
-                      </label>
-                      <input
-                        type="text"
-                        value={regTinNumber}
-                        onChange={(e) => setRegTinNumber(e.target.value)}
-                        placeholder="10-digit TIN (e.g. 0019283746)"
-                        className="w-full bg-slate-900 border border-slate-700 text-white rounded-sm px-3 py-2 text-xs focus:outline-none focus:border-emerald-500 font-mono"
-                      />
-                    </div>
-                  </div>
-                )}
-
-                {/* Contact Email & Ethiopian Phone */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-                  <div className="space-y-1">
-                    <label className="text-[11px] font-bold uppercase tracking-wider text-slate-300 block">
-                      Email Address
+              {/* TAB 1: STANDARD SIGN IN */}
+              {activeTab === 'standard' && (
+                <form onSubmit={handleStandardLogin} className="space-y-4">
+                  <div className="space-y-1.5">
+                    <label className="text-[11px] font-bold uppercase tracking-wider text-[#D4D4D8] block">
+                      Corporate Email or Ethiopian Phone Number
                     </label>
-                    <input
-                      type="email"
-                      value={regEmail}
-                      onChange={(e) => setRegEmail(e.target.value)}
-                      placeholder="procurement@company.et"
-                      className="w-full bg-slate-900 border border-slate-700 text-white rounded-sm px-3 py-2 text-xs focus:outline-none focus:border-emerald-500 font-mono"
-                    />
+                    <div className="relative">
+                      <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-[#71717A]">
+                        <Mail className="w-4 h-4" />
+                      </div>
+                      <input
+                        type="text"
+                        required
+                        value={identifier}
+                        onChange={(e) => setIdentifier(e.target.value)}
+                        placeholder="procurement@company.et or +251 91 123 4567"
+                        className="w-full bg-[#18181B] border border-[#2E2E34] hover:border-[#42424A] focus:border-[#C6F432] focus:ring-4 focus:ring-[#C6F432]/10 text-white rounded-xl pl-10 pr-4 py-3 text-xs outline-none transition-all placeholder-[#71717A]"
+                      />
+                    </div>
+                    <p className="text-[10px] text-[#71717A]">
+                      Use your registered corporate domain email or Ethiopian mobile (+251).
+                    </p>
                   </div>
+
+                  <div className="space-y-1.5">
+                    <div className="flex items-center justify-between">
+                      <label className="text-[11px] font-bold uppercase tracking-wider text-[#D4D4D8] block">
+                        Account Password
+                      </label>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setActiveTab('demo');
+                          setErrorMsg(null);
+                        }}
+                        className="text-[10px] text-[#C6F432] hover:underline font-semibold"
+                      >
+                        Forgot password? Try Demo
+                      </button>
+                    </div>
+                    <div className="relative">
+                      <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-[#71717A]">
+                        <Lock className="w-4 h-4" />
+                      </div>
+                      <input
+                        type={showPassword ? 'text' : 'password'}
+                        required
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        className="w-full bg-[#18181B] border border-[#2E2E34] hover:border-[#42424A] focus:border-[#C6F432] focus:ring-4 focus:ring-[#C6F432]/10 text-white rounded-xl pl-10 pr-11 py-3 text-xs outline-none transition-all placeholder-[#71717A] font-mono"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowPassword(!showPassword)}
+                        className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-[#71717A] hover:text-white transition-colors"
+                      >
+                        {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* MFA OTP Step-Up Input (Appears when required for privileged users) */}
+                  {mfaRequired && (
+                    <div className="p-4 bg-[#141E28] border border-sky-500/50 rounded-2xl space-y-3 animate-in fade-in">
+                      <div className="flex items-center space-x-2 text-sky-400 text-xs font-bold">
+                        <Shield className="w-4 h-4" />
+                        <span>Two-Factor Authentication (MFA OTP Required)</span>
+                      </div>
+                      <p className="text-[11px] text-slate-300 leading-relaxed">
+                        {mfaPromptMessage}
+                      </p>
+                      <div className="space-y-1">
+                        <label className="text-[10px] uppercase font-bold text-slate-400">
+                          Enter 6-Digit OTP Code (Simulated Test Code: <span className="text-[#C6F432] font-mono">123456</span>):
+                        </label>
+                        <input
+                          type="text"
+                          maxLength={6}
+                          value={mfaCode}
+                          onChange={(e) => setMfaCode(e.target.value)}
+                          placeholder="123456"
+                          className="w-full bg-[#0A0A0C] border border-sky-400 focus:ring-4 focus:ring-sky-400/20 text-white font-mono text-center tracking-[0.35em] text-xl py-2.5 rounded-xl outline-none"
+                        />
+                      </div>
+                    </div>
+                  )}
+
+                  <button
+                    type="submit"
+                    disabled={loading}
+                    className="w-full py-3.5 px-4 bg-[#C6F432] hover:bg-[#D7F860] active:scale-[0.99] text-[#080809] font-extrabold text-xs rounded-xl shadow-lg shadow-[#C6F432]/15 transition-all flex items-center justify-center space-x-2 disabled:opacity-60 cursor-pointer"
+                  >
+                    {loading ? (
+                      <span className="flex items-center space-x-2">
+                        <span className="w-3.5 h-3.5 border-2 border-[#080809] border-t-transparent rounded-full animate-spin" />
+                        <span>Verifying Credentials...</span>
+                      </span>
+                    ) : (
+                      <>
+                        <span>{mfaRequired ? 'Verify OTP & Complete Authentication' : 'Sign In to Portal'}</span>
+                        <ArrowRight className="w-4 h-4" />
+                      </>
+                    )}
+                  </button>
+
+                  <div className="pt-2 text-center text-xs text-[#71717A]">
+                    <span>Don't have an enterprise account? </span>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setActiveTab('register');
+                        setErrorMsg(null);
+                      }}
+                      className="text-[#C6F432] hover:underline font-bold"
+                    >
+                      Create Customer Account
+                    </button>
+                  </div>
+                </form>
+              )}
+
+              {/* TAB 2: REGISTER CUSTOMER ACCOUNT */}
+              {activeTab === 'register' && (
+                <form onSubmit={handleRegister} className="space-y-3.5">
+                  {/* Account Classification */}
+                  <div>
+                    <label className="text-[11px] font-bold uppercase tracking-wider text-[#D4D4D8] block mb-2">
+                      Customer Classification
+                    </label>
+                    <div className="grid grid-cols-2 gap-2">
+                      <button
+                        type="button"
+                        onClick={() => setRegAccountType('b2b')}
+                        className={`p-3 rounded-2xl border text-left flex items-start space-x-2.5 transition-all ${
+                          regAccountType === 'b2b'
+                            ? 'border-[#C6F432] bg-[#C6F432]/10 text-white'
+                            : 'border-[#27272A] bg-[#18181B] text-[#A1A1AA] hover:border-[#3F3F46]'
+                        }`}
+                      >
+                        <Building2 className={`w-4 h-4 shrink-0 mt-0.5 ${regAccountType === 'b2b' ? 'text-[#C6F432]' : 'text-[#71717A]'}`} />
+                        <div>
+                          <div className="font-bold text-xs text-white">Commercial B2B</div>
+                          <div className="text-[10px] text-[#A1A1AA]">Corporate, builder, or fleet</div>
+                        </div>
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => setRegAccountType('b2c')}
+                        className={`p-3 rounded-2xl border text-left flex items-start space-x-2.5 transition-all ${
+                          regAccountType === 'b2c'
+                            ? 'border-[#C6F432] bg-[#C6F432]/10 text-white'
+                            : 'border-[#27272A] bg-[#18181B] text-[#A1A1AA] hover:border-[#3F3F46]'
+                        }`}
+                      >
+                        <User className={`w-4 h-4 shrink-0 mt-0.5 ${regAccountType === 'b2c' ? 'text-[#C6F432]' : 'text-[#71717A]'}`} />
+                        <div>
+                          <div className="font-bold text-xs text-white">Retail / Individual</div>
+                          <div className="text-[10px] text-[#A1A1AA]">Direct personal shopping</div>
+                        </div>
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Representative Full Name */}
                   <div className="space-y-1">
-                    <label className="text-[11px] font-bold uppercase tracking-wider text-slate-300 block">
-                      Mobile Phone (Telebirr/CBE)
+                    <label className="text-[11px] font-bold uppercase tracking-wider text-[#D4D4D8] block">
+                      Full Representative Name *
                     </label>
                     <input
                       type="text"
-                      value={regPhone}
-                      onChange={(e) => setRegPhone(e.target.value)}
-                      placeholder="+251 91 123 4567"
-                      className="w-full bg-slate-900 border border-slate-700 text-white rounded-sm px-3 py-2 text-xs focus:outline-none focus:border-emerald-500 font-mono"
-                    />
-                  </div>
-                </div>
-
-                {/* Password & Confirm */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-                  <div className="space-y-1">
-                    <label className="text-[11px] font-bold uppercase tracking-wider text-slate-300 block">
-                      Create Password *
-                    </label>
-                    <input
-                      type="password"
                       required
-                      minLength={8}
-                      value={regPassword}
-                      onChange={(e) => setRegPassword(e.target.value)}
-                      placeholder="Min 8 characters"
-                      className="w-full bg-slate-900 border border-slate-700 text-white rounded-sm px-3 py-2 text-xs focus:outline-none focus:border-emerald-500 font-mono"
+                      value={regFullName}
+                      onChange={(e) => setRegFullName(e.target.value)}
+                      placeholder="e.g., Eng. Dawit Kebede or Ahmed Mohammed"
+                      className="w-full bg-[#18181B] border border-[#2E2E34] focus:border-[#C6F432] focus:ring-4 focus:ring-[#C6F432]/10 text-white rounded-xl px-3.5 py-2.5 text-xs outline-none transition-all placeholder-[#71717A]"
                     />
                   </div>
-                  <div className="space-y-1">
-                    <label className="text-[11px] font-bold uppercase tracking-wider text-slate-300 block">
-                      Confirm Password *
-                    </label>
-                    <input
-                      type="password"
-                      required
-                      minLength={8}
-                      value={regConfirmPassword}
-                      onChange={(e) => setRegConfirmPassword(e.target.value)}
-                      placeholder="Repeat password"
-                      className="w-full bg-slate-900 border border-slate-700 text-white rounded-sm px-3 py-2 text-xs focus:outline-none focus:border-emerald-500 font-mono"
-                    />
-                  </div>
-                </div>
 
-                <button
-                  type="submit"
-                  disabled={loading}
-                  className="w-full py-2.5 px-4 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-sm shadow-md transition-colors flex items-center justify-center space-x-2 disabled:opacity-60"
-                >
-                  {loading ? (
-                    <span>Registering Account...</span>
-                  ) : (
-                    <>
-                      <UserPlus className="w-4 h-4" />
-                      <span>Create Customer Account & Access Portal</span>
-                    </>
-                  )}
-                </button>
-
-                <div className="pt-2 text-center text-xs text-slate-400">
-                  <span>Already registered? </span>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setActiveTab('standard');
-                      setErrorMsg(null);
-                    }}
-                    className="text-amg-red hover:underline font-bold"
-                  >
-                    Sign In to Portal
-                  </button>
-                </div>
-              </form>
-            )}
-
-            {/* TAB 3: 1-CLICK DEMO ACCOUNTS */}
-            {activeTab === 'demo' && (
-              <div className="space-y-3">
-                <p className="text-[11px] text-slate-400">
-                  Select any seeded stakeholder account below to authenticate and enter their specific portal:
-                </p>
-
-                <div className="space-y-2">
-                  {SEEDED_USERS.map((u) => {
-                    const badgeStyles: Record<UserRole, { bg: string; text: string; label: string; portal: string }> = {
-                      super_admin: { bg: 'bg-purple-900/60 border-purple-700', text: 'text-purple-300', label: 'Super Admin', portal: '/admin' },
-                      finance: { bg: 'bg-[#1A1A1D] border-[#C6F432]/60', text: 'text-[#C6F432]', label: 'Finance Lead', portal: '/finance' },
-                      branch_admin: { bg: 'bg-emerald-900/60 border-emerald-700', text: 'text-emerald-300', label: 'Branch Admin', portal: '/branch-admin' },
-                      sales_agent: { bg: 'bg-blue-900/60 border-blue-700', text: 'text-blue-300', label: 'Sales Agent', portal: '/agent' },
-                      customer: { bg: 'bg-amber-900/60 border-amber-700', text: 'text-amber-300', label: 'Customer', portal: '/portal' },
-                    };
-                    const roleInfo = badgeStyles[u.role];
-                    const isB2C = u.customerType === 'b2c';
-                    const badgeLabel = isB2C ? 'Individual (B2C)' : roleInfo.label;
-                    const badgeBg = isB2C ? 'bg-teal-950/80 border-teal-600' : roleInfo.bg;
-                    const badgeText = isB2C ? 'text-teal-300' : roleInfo.text;
-
-                    return (
-                      <div
-                        key={u.id}
-                        onClick={() => handle1ClickLogin(u)}
-                        className="p-3 bg-slate-900 border border-slate-800 hover:border-slate-600 rounded-sm cursor-pointer transition-all flex items-center justify-between group"
-                      >
-                        <div className="space-y-0.5">
-                          <div className="flex items-center space-x-2">
-                            <span className="text-xs font-bold text-white group-hover:text-sky-300 transition-colors">
-                              {u.fullName}
-                            </span>
-                            <span className={`px-1.5 py-0.2 rounded-sm text-[9px] font-bold uppercase border ${badgeBg} ${badgeText}`}>
-                              {badgeLabel}
-                            </span>
-                          </div>
-                          <div className="text-[11px] text-slate-400 font-mono">
-                            {u.email}
-                          </div>
-                          {u.companyName && (
-                            <div className="text-[10px] text-slate-500">
-                              {u.companyName}
-                            </div>
-                          )}
-                        </div>
-
-                        <div className="flex items-center space-x-1 text-slate-400 group-hover:text-white text-xs font-bold shrink-0 pl-3">
-                          <span className="hidden sm:inline">Enter Portal</span>
-                          <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
-                        </div>
+                  {/* Company Name & TIN (Conditional for B2B) */}
+                  {regAccountType === 'b2b' && (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 animate-in fade-in">
+                      <div className="space-y-1">
+                        <label className="text-[11px] font-bold uppercase tracking-wider text-[#D4D4D8] block">
+                          Company Legal Name *
+                        </label>
+                        <input
+                          type="text"
+                          required={regAccountType === 'b2b'}
+                          value={regCompanyName}
+                          onChange={(e) => setRegCompanyName(e.target.value)}
+                          placeholder="e.g., Sunshine Construction PLC"
+                          className="w-full bg-[#18181B] border border-[#2E2E34] focus:border-[#C6F432] text-white rounded-xl px-3 py-2.5 text-xs outline-none transition-all placeholder-[#71717A]"
+                        />
                       </div>
-                    );
-                  })}
+                      <div className="space-y-1">
+                        <label className="text-[11px] font-bold uppercase tracking-wider text-[#D4D4D8] block">
+                          Ethiopian TIN (10-Digit)
+                        </label>
+                        <input
+                          type="text"
+                          value={regTinNumber}
+                          onChange={(e) => setRegTinNumber(e.target.value)}
+                          placeholder="0019283746"
+                          className="w-full bg-[#18181B] border border-[#2E2E34] focus:border-[#C6F432] text-white rounded-xl px-3 py-2.5 text-xs outline-none transition-all placeholder-[#71717A] font-mono"
+                        />
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Email & Ethiopian Mobile */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                    <div className="space-y-1">
+                      <label className="text-[11px] font-bold uppercase tracking-wider text-[#D4D4D8] block">
+                        Email Address
+                      </label>
+                      <input
+                        type="email"
+                        value={regEmail}
+                        onChange={(e) => setRegEmail(e.target.value)}
+                        placeholder="procurement@company.et"
+                        className="w-full bg-[#18181B] border border-[#2E2E34] focus:border-[#C6F432] text-white rounded-xl px-3 py-2.5 text-xs outline-none transition-all placeholder-[#71717A] font-mono"
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <label className="text-[11px] font-bold uppercase tracking-wider text-[#D4D4D8] block">
+                        Mobile Phone (CBE/Telebirr)
+                      </label>
+                      <input
+                        type="text"
+                        value={regPhone}
+                        onChange={(e) => setRegPhone(e.target.value)}
+                        placeholder="+251 91 123 4567"
+                        className="w-full bg-[#18181B] border border-[#2E2E34] focus:border-[#C6F432] text-white rounded-xl px-3 py-2.5 text-xs outline-none transition-all placeholder-[#71717A] font-mono"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Passwords */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                    <div className="space-y-1">
+                      <label className="text-[11px] font-bold uppercase tracking-wider text-[#D4D4D8] block">
+                        Create Password *
+                      </label>
+                      <div className="relative">
+                        <input
+                          type={showRegPassword ? 'text' : 'password'}
+                          required
+                          minLength={8}
+                          value={regPassword}
+                          onChange={(e) => setRegPassword(e.target.value)}
+                          placeholder="Min 8 characters"
+                          className="w-full bg-[#18181B] border border-[#2E2E34] focus:border-[#C6F432] text-white rounded-xl pl-3 pr-9 py-2.5 text-xs outline-none transition-all placeholder-[#71717A] font-mono"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setShowRegPassword(!showRegPassword)}
+                          className="absolute inset-y-0 right-0 pr-2.5 flex items-center text-[#71717A] hover:text-white"
+                        >
+                          {showRegPassword ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
+                        </button>
+                      </div>
+                    </div>
+
+                    <div className="space-y-1">
+                      <label className="text-[11px] font-bold uppercase tracking-wider text-[#D4D4D8] block">
+                        Confirm Password *
+                      </label>
+                      <input
+                        type={showRegPassword ? 'text' : 'password'}
+                        required
+                        minLength={8}
+                        value={regConfirmPassword}
+                        onChange={(e) => setRegConfirmPassword(e.target.value)}
+                        placeholder="Repeat password"
+                        className="w-full bg-[#18181B] border border-[#2E2E34] focus:border-[#C6F432] text-white rounded-xl px-3 py-2.5 text-xs outline-none transition-all placeholder-[#71717A] font-mono"
+                      />
+                    </div>
+                  </div>
+
+                  <button
+                    type="submit"
+                    disabled={loading}
+                    className="w-full py-3.5 px-4 bg-[#C6F432] hover:bg-[#D7F860] active:scale-[0.99] text-[#080809] font-extrabold text-xs rounded-xl shadow-lg shadow-[#C6F432]/15 transition-all flex items-center justify-center space-x-2 disabled:opacity-60 cursor-pointer mt-2"
+                  >
+                    {loading ? (
+                      <span className="flex items-center space-x-2">
+                        <span className="w-3.5 h-3.5 border-2 border-[#080809] border-t-transparent rounded-full animate-spin" />
+                        <span>Registering Customer Profile...</span>
+                      </span>
+                    ) : (
+                      <>
+                        <UserPlus className="w-4 h-4" />
+                        <span>Register & Enter Customer Portal</span>
+                      </>
+                    )}
+                  </button>
+
+                  <div className="pt-1 text-center text-xs text-[#71717A]">
+                    <span>Already have an account? </span>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setActiveTab('standard');
+                        setErrorMsg(null);
+                      }}
+                      className="text-[#C6F432] hover:underline font-bold"
+                    >
+                      Sign In here
+                    </button>
+                  </div>
+                </form>
+              )}
+
+              {/* TAB 3: 1-CLICK DEMO ACCOUNTS */}
+              {activeTab === 'demo' && (
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between text-xs text-[#71717A]">
+                    <span>Instant demo authentication:</span>
+                    <span className="font-mono text-[10px] text-[#C6F432]">6 Personas Configured</span>
+                  </div>
+
+                  <div className="space-y-2 max-h-[380px] overflow-y-auto pr-1 scrollbar-none">
+                    {SEEDED_USERS.map((u) => {
+                      const badgeStyles: Record<UserRole, { bg: string; text: string; label: string; portal: string }> = {
+                        super_admin: { bg: 'bg-purple-950/80 border-purple-500/40', text: 'text-purple-300', label: 'Super Admin', portal: '/admin' },
+                        finance: { bg: 'bg-[#C6F432]/10 border-[#C6F432]/30', text: 'text-[#C6F432]', label: 'Finance Lead', portal: '/finance' },
+                        branch_admin: { bg: 'bg-emerald-950/80 border-emerald-500/40', text: 'text-emerald-300', label: 'Branch Admin', portal: '/branch-admin' },
+                        sales_agent: { bg: 'bg-sky-950/80 border-sky-500/40', text: 'text-sky-300', label: 'Sales Agent', portal: '/agent' },
+                        customer: { bg: 'bg-amber-950/80 border-amber-500/40', text: 'text-amber-300', label: 'B2B Customer', portal: '/portal' },
+                      };
+
+                      const roleInfo = badgeStyles[u.role];
+                      const isB2C = u.customerType === 'b2c';
+                      const badgeLabel = isB2C ? 'Individual (B2C)' : roleInfo.label;
+                      const badgeBg = isB2C ? 'bg-teal-950/80 border-teal-500/40' : roleInfo.bg;
+                      const badgeText = isB2C ? 'text-teal-300' : roleInfo.text;
+
+                      return (
+                        <div
+                          key={u.id}
+                          onClick={() => handle1ClickLogin(u)}
+                          className="p-3 bg-[#18181B] hover:bg-[#202025] border border-[#27272A] hover:border-[#C6F432]/60 rounded-2xl cursor-pointer transition-all flex items-center justify-between group"
+                        >
+                          <div className="space-y-1">
+                            <div className="flex items-center space-x-2">
+                              <span className="text-xs font-bold text-white group-hover:text-[#C6F432] transition-colors">
+                                {u.fullName}
+                              </span>
+                              <span className={`px-2 py-0.5 rounded-full text-[9px] font-extrabold uppercase border ${badgeBg} ${badgeText}`}>
+                                {badgeLabel}
+                              </span>
+                            </div>
+                            <div className="text-[11px] text-[#A1A1AA] font-mono">
+                              {u.email}
+                            </div>
+                            {(u.companyName || u.branchName) && (
+                              <div className="text-[10px] text-[#71717A]">
+                                {u.companyName || u.branchName}
+                              </div>
+                            )}
+                          </div>
+
+                          <div className="flex items-center space-x-1.5 text-xs font-bold text-[#A1A1AA] group-hover:text-[#C6F432] transition-colors pl-3 shrink-0">
+                            <span className="hidden sm:inline">Enter Portal</span>
+                            <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
                 </div>
-              </div>
-            )}
+              )}
+            </div>
           </div>
 
-          <div className="bg-slate-900/80 px-6 py-3 border-t border-slate-800 text-center text-[11px] text-slate-400">
-            <span>Need procurement assistance? </span>
-            <Link href="/" className="text-sky-400 hover:underline font-semibold">
-              Browse Enterprise Catalog
-            </Link>
+        </div>
+      </div>
+
+      {/* Bottom Footer bar */}
+      <div className="border-t border-[#1E1E22] bg-[#0E0E10]/80 py-4 px-4 sm:px-8 text-center text-xs text-[#71717A]">
+        <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-2">
+          <div>
+            &copy; {new Date().getFullYear()} AMG Holdings Group. All corporate rights reserved.
+          </div>
+          <div className="flex items-center space-x-4 text-[11px]">
+            <span className="flex items-center space-x-1 text-slate-400">
+              <ShieldCheck className="w-3.5 h-3.5 text-[#C6F432]" />
+              <span>TLS 256-Bit SSL Secured</span>
+            </span>
+            <span className="text-slate-600">•</span>
+            <span className="text-slate-400">ERCA Registered Group</span>
           </div>
         </div>
       </div>
@@ -608,7 +790,13 @@ function LoginContent() {
 
 export default function LoginPage() {
   return (
-    <Suspense fallback={<div className="min-h-screen bg-slate-900 flex items-center justify-center text-slate-400 font-mono text-xs">Loading Enterprise Access...</div>}>
+    <Suspense
+      fallback={
+        <div className="min-h-screen bg-[#080809] flex items-center justify-center text-[#A1A1AA] font-mono text-xs">
+          Loading AMG Enterprise Gateway...
+        </div>
+      }
+    >
       <LoginContent />
     </Suspense>
   );
