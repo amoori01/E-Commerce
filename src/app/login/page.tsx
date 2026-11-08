@@ -33,6 +33,7 @@ import {
   FileText,
   BadgeCheck,
   HelpCircle,
+  MapPin,
 } from 'lucide-react';
 
 function LoginContent() {
@@ -204,97 +205,116 @@ function LoginContent() {
       <div className="flex-1 max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-8 lg:py-12 flex items-center">
         <div className="w-full grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
           
-          {/* LEFT COLUMN: Executive Consortium Showcase (LG screens) */}
-          <div className="lg:col-span-6 space-y-8 pr-0 lg:pr-4">
-            {/* Header Badge & Brand */}
-            <div className="space-y-4">
-              <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-emerald-50 dark:bg-[#C6F432]/10 border border-emerald-200 dark:border-[#C6F432]/30 text-emerald-800 dark:text-[#C6F432] text-xs font-bold uppercase tracking-wider">
+          {/* LEFT COLUMN: Gelan Mega Logistics Hub & Industrial Infrastructure */}
+          <div className="lg:col-span-6 space-y-5 pr-0 lg:pr-2">
+            {/* Top Brand Identity & Badge */}
+            <div className="space-y-3">
+              <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-emerald-50 dark:bg-[#C6F432]/10 border border-emerald-200 dark:border-[#C6F432]/30 text-emerald-800 dark:text-[#C6F432] text-xs font-bold uppercase tracking-wider shadow-xs">
                 <ShieldCheck className="w-3.5 h-3.5" />
-                <span>AMG Holdings Enterprise Access</span>
+                <span>AMG Holdings Enterprise Gateway</span>
               </div>
 
-              <div className="flex items-center space-x-4">
-                <div className="w-14 h-14 rounded-2xl bg-white dark:bg-[#141416] p-2 border border-slate-200 dark:border-[#2A2A2E] shadow-sm dark:shadow-xl flex items-center justify-center shrink-0">
+              <div className="flex items-center space-x-3.5">
+                <div className="w-12 h-12 rounded-2xl bg-white dark:bg-[#141416] p-2 border border-slate-200 dark:border-[#2A2A2E] shadow-sm dark:shadow-xl flex items-center justify-center shrink-0">
                   <img src="/logo.png" alt="AMG Holdings" className="max-h-full max-w-full object-contain" />
                 </div>
                 <div>
-                  <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white leading-tight">
-                    Unified Industrial Procurement
+                  <h1 className="text-xl sm:text-2xl font-black tracking-tight text-slate-900 dark:text-white leading-tight">
+                    Industrial Procurement Platform
                   </h1>
-                  <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">
-                    Corporate Governance &amp; Commercial Trade Infrastructure
+                  <p className="text-xs text-slate-500 dark:text-[#A1A1AA] font-medium">
+                    National Distribution, Heavy Manufacturing &amp; Trade Infrastructure
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* HERO CARD: Gelan Industrial Mega Warehouse & Logistics Hub */}
+            <div className="relative rounded-3xl overflow-hidden border border-slate-200 dark:border-[#242428] shadow-lg dark:shadow-2xl bg-slate-900 group">
+              {/* Warehouse Exterior Image */}
+              <div className="relative h-64 sm:h-72 w-full overflow-hidden">
+                <img
+                  src="/amg-gelan-warehouse-exterior.jpg"
+                  alt="AMG Holdings Gelan Logistics Warehouse Facility"
+                  className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-700 ease-out"
+                />
+                {/* Gradient Overlays for High Contrast Text */}
+                <div className="absolute inset-0 bg-gradient-to-t from-[#080809] via-[#080809]/40 to-transparent" />
+                <div className="absolute inset-0 bg-gradient-to-r from-[#080809]/70 via-transparent to-transparent" />
+
+                {/* Top Facility Live Badge */}
+                <div className="absolute top-4 left-4 right-4 flex items-center justify-between">
+                  <span className="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-black/60 backdrop-blur-md border border-white/20 text-white text-[11px] font-bold font-mono shadow-sm">
+                    <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse shadow-[0_0_8px_#34D399]" />
+                    <span>AMG GELAN LOGISTICS HUB</span>
+                  </span>
+
+                  <span className="px-2.5 py-0.5 rounded-full bg-[#C6F432] text-[#080809] text-[10px] font-extrabold uppercase shadow-sm">
+                    45,000 m² Depot
+                  </span>
+                </div>
+
+                {/* Bottom Overlay Info on the Image */}
+                <div className="absolute bottom-4 left-4 right-4 text-white space-y-1">
+                  <div className="flex items-center space-x-1.5 text-xs text-emerald-300 font-semibold">
+                    <MapPin className="w-3.5 h-3.5 text-[#C6F432]" />
+                    <span>Oromia Special Zone • Gelan Industrial Corridor, Ethiopia</span>
+                  </div>
+                  <h3 className="text-base sm:text-lg font-bold text-white tracking-tight leading-snug">
+                    AMG Central Distribution Depot &amp; Staging Yard
+                  </h3>
+                  <p className="text-[11px] text-slate-300 leading-normal line-clamp-2">
+                    Primary multi-subsidiary storage terminal handling heavy structural steel, roofing profiles, and commercial fleet consignments.
                   </p>
                 </div>
               </div>
 
-              <p className="text-sm text-slate-600 dark:text-[#A1A1AA] leading-relaxed max-w-lg">
-                Direct access for commercial B2B contractors, individual retail buyers, licensed sales engineers, branch depot managers, and corporate treasury.
-              </p>
-            </div>
-
-            {/* Core Capability Cards */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              <div className="p-4 rounded-2xl bg-white dark:bg-[#121214] border border-slate-200 dark:border-[#222226] hover:border-emerald-500/40 dark:hover:border-[#C6F432]/40 shadow-xs transition-colors">
-                <div className="w-8 h-8 rounded-xl bg-lime-500/10 dark:bg-[#C6F432]/10 border border-lime-500/20 dark:border-[#C6F432]/20 flex items-center justify-center text-emerald-600 dark:text-[#C6F432] mb-3">
-                  <CreditCard className="w-4 h-4" />
+              {/* Facility Metrics Strip (Dashboard Strip) */}
+              <div className="bg-slate-900/95 dark:bg-[#101014] border-t border-white/10 px-4 py-3 grid grid-cols-3 gap-2 text-center">
+                <div className="space-y-0.5">
+                  <div className="text-[10px] text-slate-400 uppercase font-bold tracking-wider">Storage Capacity</div>
+                  <div className="text-xs sm:text-sm font-black text-white font-mono">25,000 MT</div>
+                  <div className="text-[9px] text-emerald-400">Steel &amp; Roofing</div>
                 </div>
-                <h2 className="text-xs font-bold text-slate-900 dark:text-white mb-1">Dual-Stream Engine</h2>
-                <p className="text-[11px] text-slate-500 dark:text-[#71717A] leading-normal">
-                  Stream A direct inventory buy &amp; Stream B custom PEB &amp; roofing engineering RFQs.
-                </p>
-              </div>
-
-              <div className="p-4 rounded-2xl bg-white dark:bg-[#121214] border border-slate-200 dark:border-[#222226] hover:border-emerald-500/40 dark:hover:border-[#C6F432]/40 shadow-xs transition-colors">
-                <div className="w-8 h-8 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-600 dark:text-emerald-400 mb-3">
-                  <Building2 className="w-4 h-4" />
+                <div className="space-y-0.5 border-x border-white/10 px-1">
+                  <div className="text-[10px] text-slate-400 uppercase font-bold tracking-wider">Fleet Despatch</div>
+                  <div className="text-xs sm:text-sm font-black text-[#C6F432] font-mono">120+ Trucks</div>
+                  <div className="text-[9px] text-slate-400">Daily Regional Run</div>
                 </div>
-                <h2 className="text-xs font-bold text-slate-900 dark:text-white mb-1">Ethiopian Banking Rails</h2>
-                <p className="text-[11px] text-slate-500 dark:text-[#71717A] leading-normal">
-                  Instant CBE Birr FT reconciliation, Telebirr API integration, and branch cash slips.
-                </p>
-              </div>
-
-              <div className="p-4 rounded-2xl bg-white dark:bg-[#121214] border border-slate-200 dark:border-[#222226] hover:border-emerald-500/40 dark:hover:border-[#C6F432]/40 shadow-xs transition-colors">
-                <div className="w-8 h-8 rounded-xl bg-sky-500/10 border border-sky-500/20 flex items-center justify-center text-sky-600 dark:text-sky-400 mb-3">
-                  <FileText className="w-4 h-4" />
+                <div className="space-y-0.5">
+                  <div className="text-[10px] text-slate-400 uppercase font-bold tracking-wider">Logistics Rail</div>
+                  <div className="text-xs sm:text-sm font-black text-white font-mono">Expressway Link</div>
+                  <div className="text-[9px] text-emerald-400">Direct Port Rail Gate</div>
                 </div>
-                <h2 className="text-xs font-bold text-slate-900 dark:text-white mb-1">ERCA Tax &amp; Invoicing</h2>
-                <p className="text-[11px] text-slate-500 dark:text-[#71717A] leading-normal">
-                  Automated Ethiopian TIN validation, 15% VAT invoicing, and withholding declarations.
-                </p>
-              </div>
-
-              <div className="p-4 rounded-2xl bg-white dark:bg-[#121214] border border-slate-200 dark:border-[#222226] hover:border-emerald-500/40 dark:hover:border-[#C6F432]/40 shadow-xs transition-colors">
-                <div className="w-8 h-8 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-600 dark:text-amber-400 mb-3">
-                  <Truck className="w-4 h-4" />
-                </div>
-                <h2 className="text-xs font-bold text-slate-900 dark:text-white mb-1">Regional Branch Depots</h2>
-                <p className="text-[11px] text-slate-500 dark:text-[#71717A] leading-normal">
-                  Addis Ababa Central Hub, Adama FTZ, Hawassa Regional Depot &amp; Dire Dawa Hub.
-                </p>
               </div>
             </div>
 
-            {/* Subsidiary Pills */}
-            <div className="pt-2 border-t border-slate-200 dark:border-[#1E1E22]">
-              <div className="text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-[#71717A] mb-2.5">
-                5 Operating Subsidiaries
+            {/* Regional Hubs & Operational Network Badges */}
+            <div className="space-y-2 pt-1">
+              <div className="flex items-center justify-between text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-[#71717A]">
+                <span>Integrated Depot Network</span>
+                <span className="text-emerald-700 dark:text-[#C6F432] font-mono text-[10px]">Real-Time ERP Sync</span>
               </div>
               <div className="flex flex-wrap gap-1.5 text-[11px]">
-                <span className="px-2.5 py-1 rounded-full bg-white dark:bg-[#18181B] border border-slate-200 dark:border-[#27272A] text-slate-700 dark:text-slate-300 shadow-xs">
-                  Heavy Structural Steel
+                <span className="inline-flex items-center space-x-1.5 px-2.5 py-1 rounded-xl bg-white dark:bg-[#18181B] border border-slate-200 dark:border-[#27272A] text-slate-800 dark:text-slate-200 shadow-xs font-medium">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                  <span>Gelan Central Mega Hub</span>
                 </span>
-                <span className="px-2.5 py-1 rounded-full bg-white dark:bg-[#18181B] border border-slate-200 dark:border-[#27272A] text-slate-700 dark:text-slate-300 shadow-xs">
-                  Ethio &amp; Adama Roofing
+                <span className="inline-flex items-center space-x-1.5 px-2.5 py-1 rounded-xl bg-white dark:bg-[#18181B] border border-slate-200 dark:border-[#27272A] text-slate-800 dark:text-slate-200 shadow-xs font-medium">
+                  <span className="w-1.5 h-1.5 rounded-full bg-sky-500" />
+                  <span>Adama FTZ Plant</span>
                 </span>
-                <span className="px-2.5 py-1 rounded-full bg-white dark:bg-[#18181B] border border-slate-200 dark:border-[#27272A] text-slate-700 dark:text-slate-300 shadow-xs">
-                  Commercial Fleet Logistics
+                <span className="inline-flex items-center space-x-1.5 px-2.5 py-1 rounded-xl bg-white dark:bg-[#18181B] border border-slate-200 dark:border-[#27272A] text-slate-800 dark:text-slate-200 shadow-xs font-medium">
+                  <span className="w-1.5 h-1.5 rounded-full bg-amber-500" />
+                  <span>Hawassa Depot</span>
                 </span>
-                <span className="px-2.5 py-1 rounded-full bg-white dark:bg-[#18181B] border border-slate-200 dark:border-[#27272A] text-slate-700 dark:text-slate-300 shadow-xs">
-                  Industrial Cryogenic Gases
+                <span className="inline-flex items-center space-x-1.5 px-2.5 py-1 rounded-xl bg-white dark:bg-[#18181B] border border-slate-200 dark:border-[#27272A] text-slate-800 dark:text-slate-200 shadow-xs font-medium">
+                  <span className="w-1.5 h-1.5 rounded-full bg-purple-500" />
+                  <span>Dire Dawa Port Hub</span>
                 </span>
-                <span className="px-2.5 py-1 rounded-full bg-white dark:bg-[#18181B] border border-slate-200 dark:border-[#27272A] text-slate-700 dark:text-slate-300 shadow-xs">
-                  Specialty Coffee Export
+                <span className="inline-flex items-center space-x-1.5 px-2.5 py-1 rounded-xl bg-white dark:bg-[#18181B] border border-slate-200 dark:border-[#27272A] text-slate-800 dark:text-slate-200 shadow-xs font-medium">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                  <span>Addis Ababa Central Hub</span>
                 </span>
               </div>
             </div>
