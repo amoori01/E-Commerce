@@ -34,16 +34,16 @@ export const GrnArchiveView: React.FC<GrnArchiveViewProps> = ({
   };
 
   return (
-    <div className="bg-white border border-slate-300 rounded-sm shadow-crisp p-5 space-y-4">
+    <div className="bg-white dark:bg-[#141416] border border-[#E4E4E7] dark:border-[#1F1F24] rounded-2xl shadow-xs p-6 space-y-4">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-3 border-b border-slate-200 gap-3">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-3 border-b border-[#E4E4E7] dark:border-[#1F1F24] gap-3">
         <div className="flex items-center space-x-2">
-          <FileText className="w-5 h-5 text-emerald-700" />
+          <FileText className="w-5 h-5 text-[#C6F432]" />
           <div>
-            <h3 className="text-sm font-bold text-slate-900 uppercase tracking-wider">
+            <h3 className="text-sm font-bold text-slate-900 dark:text-white uppercase tracking-wider font-serif">
               Goods Received Notes Registry (ሞዴል 19 Archive)
             </h3>
-            <p className="text-xs text-slate-500">
+            <p className="text-xs text-[#71717A] dark:text-[#A1A1AA]">
               Official custody vouchers and supplier waybill receipts ({depotName})
             </p>
           </div>
@@ -52,20 +52,20 @@ export const GrnArchiveView: React.FC<GrnArchiveViewProps> = ({
 
       {/* Search Bar */}
       <div className="relative">
-        <Search className="w-4 h-4 text-slate-400 absolute left-3 top-2.5" />
+        <Search className="w-4 h-4 text-[#71717A] dark:text-[#A1A1AA] absolute left-3 top-2.5" />
         <input
           type="text"
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
           placeholder="Search by GRN Number, Supplier Waybill, Carrier Truck Plate, or Driver..."
-          className="w-full pl-9 pr-3 py-1.5 border border-slate-300 rounded-sm text-xs bg-white focus:outline-none focus:ring-1 focus:ring-emerald-600"
+          className="w-full pl-9 pr-3 py-2 border border-[#E4E4E7] dark:border-[#2A2A2E] rounded-xl text-xs bg-[#F4F4F5] dark:bg-[#0E0E10] text-slate-900 dark:text-white focus:outline-none focus:border-[#C6F432]"
         />
       </div>
 
       {/* List */}
-      <div className="overflow-x-auto border border-slate-200 rounded-sm">
+      <div className="overflow-x-auto rounded-xl border border-[#E4E4E7] dark:border-[#1F1F24]">
         <table className="w-full text-left text-xs">
-          <thead className="bg-emerald-50 text-emerald-950 font-semibold border-b border-emerald-200">
+          <thead className="bg-[#F4F4F5] dark:bg-[#0E0E10] text-[#71717A] dark:text-[#A1A1AA] font-semibold border-b border-[#E4E4E7] dark:border-[#222225]">
             <tr>
               <th className="py-2.5 px-3">GRN Number</th>
               <th className="py-2.5 px-3">Date</th>
@@ -77,31 +77,31 @@ export const GrnArchiveView: React.FC<GrnArchiveViewProps> = ({
               <th className="py-2.5 px-3 text-center">Action</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-slate-200">
+          <tbody className="divide-y divide-[#E4E4E7] dark:divide-[#1F1F24] text-slate-700 dark:text-slate-300">
             {filtered.length > 0 ? (
               filtered.map((grn) => (
-                <tr key={grn.grnNumber} className="hover:bg-slate-50">
-                  <td className="py-2.5 px-3 font-mono font-bold text-emerald-900">
+                <tr key={grn.grnNumber} className="hover:bg-[#F9FAFB] dark:hover:bg-[#18181B]/60 transition-colors">
+                  <td className="py-2.5 px-3 font-mono font-bold text-[#0B0B0C] dark:text-[#C6F432]">
                     {grn.grnNumber}
                   </td>
-                  <td className="py-2.5 px-3 text-slate-500 font-mono text-[11px] whitespace-nowrap">
+                  <td className="py-2.5 px-3 text-[#71717A] dark:text-[#A1A1AA] font-mono text-[11px] whitespace-nowrap">
                     {new Date(grn.date).toLocaleDateString()}
                   </td>
-                  <td className="py-2.5 px-3 font-medium text-slate-900">
+                  <td className="py-2.5 px-3 font-medium text-slate-900 dark:text-white">
                     {grn.supplierName}
                   </td>
-                  <td className="py-2.5 px-3 font-mono font-bold text-slate-700">
+                  <td className="py-2.5 px-3 font-mono font-bold text-slate-800 dark:text-slate-200">
                     {grn.supplierWaybillNumber}
                   </td>
-                  <td className="py-2.5 px-3 text-slate-700">
-                    <span className="font-mono font-bold">{grn.truckPlate}</span>
-                    <span className="text-slate-500 block text-[10px]">{grn.driverName}</span>
+                  <td className="py-2.5 px-3 text-slate-700 dark:text-slate-300">
+                    <span className="font-mono font-bold text-slate-900 dark:text-white">{grn.truckPlate}</span>
+                    <span className="text-[#71717A] dark:text-[#A1A1AA] block text-[10px]">{grn.driverName}</span>
                   </td>
-                  <td className="py-2.5 px-3 text-right font-mono font-bold text-slate-900">
+                  <td className="py-2.5 px-3 text-right font-mono font-bold text-slate-900 dark:text-white">
                     {grn.items.reduce((acc, it) => acc + it.quantityReceived, 0)} {grn.items[0]?.unit || 'Units'}
                   </td>
                   <td className="py-2.5 px-3 text-center">
-                    <span className="px-2 py-0.5 bg-emerald-100 text-emerald-800 rounded font-bold text-[10px]">
+                    <span className="px-2.5 py-0.5 bg-emerald-100 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-800/60 rounded-full font-bold text-[10px]">
                       PASS (100%)
                     </span>
                   </td>
@@ -109,7 +109,7 @@ export const GrnArchiveView: React.FC<GrnArchiveViewProps> = ({
                     <button
                       type="button"
                       onClick={() => setSelectedGrn(grn)}
-                      className="px-2.5 py-1 bg-emerald-800 hover:bg-emerald-900 text-white rounded text-[11px] font-bold shadow-sm transition-colors"
+                      className="px-3 py-1.5 bg-[#C6F432] hover:bg-[#D7F860] text-[#0B0B0C] rounded-xl text-[11px] font-bold shadow-xs transition-all"
                     >
                       View Model 19 Voucher
                     </button>
@@ -118,7 +118,7 @@ export const GrnArchiveView: React.FC<GrnArchiveViewProps> = ({
               ))
             ) : (
               <tr>
-                <td colSpan={8} className="text-center py-8 text-slate-400">
+                <td colSpan={8} className="text-center py-8 text-[#71717A] dark:text-[#A1A1AA]">
                   No Goods Received Notes found.
                 </td>
               </tr>

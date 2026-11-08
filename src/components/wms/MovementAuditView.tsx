@@ -73,17 +73,17 @@ export const MovementAuditView: React.FC<MovementAuditViewProps> = ({
   };
 
   return (
-    <div className="bg-white border border-slate-300 rounded-sm shadow-crisp p-5 space-y-4">
+    <div className="bg-white dark:bg-[#141416] border border-[#E4E4E7] dark:border-[#1F1F24] rounded-2xl shadow-xs p-6 space-y-4">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-3 border-b border-slate-200 gap-3">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-3 border-b border-[#E4E4E7] dark:border-[#1F1F24] gap-3">
         <div className="flex items-center space-x-2">
-          <History className="w-5 h-5 text-emerald-700" />
+          <History className="w-5 h-5 text-[#C6F432]" />
           <div>
-            <h3 className="text-sm font-bold text-slate-900 uppercase tracking-wider">
+            <h3 className="text-sm font-bold text-slate-900 dark:text-white uppercase tracking-wider font-serif">
               Warehouse Stock Movement Audit Ledger
             </h3>
-            <p className="text-xs text-slate-500">
-              Chronological ledger of factory intakes, dock stagings, gate clearances & inventory adjustments ({depotName})
+            <p className="text-xs text-[#71717A] dark:text-[#A1A1AA]">
+              Chronological ledger of factory intakes, dock stagings, gate clearances &amp; inventory adjustments ({depotName})
             </p>
           </div>
         </div>
@@ -91,7 +91,7 @@ export const MovementAuditView: React.FC<MovementAuditViewProps> = ({
           <button
             type="button"
             onClick={handlePrint}
-            className="px-3 py-1.5 border border-slate-300 hover:bg-slate-50 text-slate-700 font-bold rounded-sm text-xs transition-colors flex items-center space-x-1.5 shadow-sm"
+            className="px-3.5 py-1.5 border border-[#E4E4E7] dark:border-[#2A2A2E] bg-[#F4F4F5] dark:bg-[#1A1A1D] hover:bg-slate-200 dark:hover:bg-[#222225] text-slate-800 dark:text-white font-bold rounded-xl text-xs transition-all flex items-center space-x-1.5 shadow-xs"
           >
             <Printer className="w-3.5 h-3.5" />
             <span>Print Ledger</span>
@@ -102,20 +102,20 @@ export const MovementAuditView: React.FC<MovementAuditViewProps> = ({
       {/* Search & Filters */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
         <div className="relative col-span-2">
-          <Search className="w-4 h-4 text-slate-400 absolute left-3 top-2.5" />
+          <Search className="w-4 h-4 text-[#71717A] dark:text-[#A1A1AA] absolute left-3 top-2.5" />
           <input
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Search by SKU, Product Name, Reference Number (GRN/ORD), or Batch #..."
-            className="w-full pl-9 pr-3 py-1.5 border border-slate-300 rounded-sm text-xs bg-white focus:outline-none focus:ring-1 focus:ring-emerald-600"
+            className="w-full pl-9 pr-3 py-2 border border-[#E4E4E7] dark:border-[#2A2A2E] rounded-xl text-xs bg-[#F4F4F5] dark:bg-[#0E0E10] text-slate-900 dark:text-white focus:outline-none focus:border-[#C6F432]"
           />
         </div>
         <div>
           <select
             value={filterType}
             onChange={(e) => setFilterType(e.target.value)}
-            className="w-full border border-slate-300 rounded-sm px-2.5 py-1.5 text-xs bg-white text-slate-700 focus:outline-none focus:ring-1 focus:ring-emerald-600 font-medium"
+            className="w-full border border-[#E4E4E7] dark:border-[#2A2A2E] rounded-xl px-3 py-2 text-xs bg-[#F4F4F5] dark:bg-[#0E0E10] text-slate-900 dark:text-white focus:outline-none focus:border-[#C6F432] font-medium"
           >
             <option value="all">All Movement Categories ({movements.length})</option>
             <option value="GRN_INTAKE">GRN Factory Intakes (ሞዴል 19)</option>
@@ -128,11 +128,11 @@ export const MovementAuditView: React.FC<MovementAuditViewProps> = ({
       </div>
 
       {/* Ledger Table */}
-      <div className="overflow-x-auto border border-slate-200 rounded-sm">
+      <div className="overflow-x-auto rounded-xl border border-[#E4E4E7] dark:border-[#1F1F24]">
         <table className="w-full text-left text-xs">
-          <thead className="bg-emerald-50 text-emerald-950 font-semibold border-b border-emerald-200">
+          <thead className="bg-[#F4F4F5] dark:bg-[#0E0E10] text-[#71717A] dark:text-[#A1A1AA] font-semibold border-b border-[#E4E4E7] dark:border-[#222225]">
             <tr>
-              <th className="py-2.5 px-3">Date & Time</th>
+              <th className="py-2.5 px-3">Date &amp; Time</th>
               <th className="py-2.5 px-3">Movement Type</th>
               <th className="py-2.5 px-3">Product / SKU</th>
               <th className="py-2.5 px-3">Reference Document</th>
@@ -142,37 +142,37 @@ export const MovementAuditView: React.FC<MovementAuditViewProps> = ({
               <th className="py-2.5 px-3">Audit Notes</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-slate-200">
+          <tbody className="divide-y divide-[#E4E4E7] dark:divide-[#1F1F24] text-slate-700 dark:text-slate-300">
             {filteredMovements.length > 0 ? (
               filteredMovements.map((mv) => {
                 const isPositive = mv.quantityChange > 0;
                 return (
-                  <tr key={mv.id} className="hover:bg-slate-50">
-                    <td className="py-2.5 px-3 whitespace-nowrap text-slate-500 font-mono text-[11px]">
+                  <tr key={mv.id} className="hover:bg-[#F9FAFB] dark:hover:bg-[#18181B]/60 transition-colors">
+                    <td className="py-2.5 px-3 whitespace-nowrap text-[#71717A] dark:text-[#A1A1AA] font-mono text-[11px]">
                       {new Date(mv.timestamp).toLocaleDateString()} {new Date(mv.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                     </td>
                     <td className="py-2.5 px-3 whitespace-nowrap">{getMovementBadge(mv.movementType)}</td>
                     <td className="py-2.5 px-3">
-                      <div className="font-bold text-slate-900">{mv.productName}</div>
-                      <div className="text-[10px] font-mono text-emerald-800">
+                      <div className="font-bold text-slate-900 dark:text-white">{mv.productName}</div>
+                      <div className="text-[10px] font-mono text-[#0B0B0C] dark:text-[#C6F432]">
                         {mv.sku} {mv.batchNumber ? `• ${mv.batchNumber}` : ''}
                       </div>
                     </td>
-                    <td className="py-2.5 px-3 whitespace-nowrap font-mono font-bold text-slate-800">
+                    <td className="py-2.5 px-3 whitespace-nowrap font-mono font-bold text-slate-800 dark:text-slate-200">
                       {mv.referenceNumber}
                     </td>
                     <td className="py-2.5 px-3 text-right font-mono font-bold text-sm whitespace-nowrap">
-                      <span className={isPositive ? 'text-emerald-700' : 'text-slate-900'}>
+                      <span className={isPositive ? 'text-emerald-600 dark:text-emerald-400' : 'text-slate-900 dark:text-white'}>
                         {isPositive ? `+${mv.quantityChange}` : mv.quantityChange}
                       </span>
                     </td>
-                    <td className="py-2.5 px-3 text-right font-mono font-bold text-slate-600 whitespace-nowrap">
+                    <td className="py-2.5 px-3 text-right font-mono font-bold text-[#71717A] dark:text-[#A1A1AA] whitespace-nowrap">
                       {mv.balanceAfter.toLocaleString()}
                     </td>
-                    <td className="py-2.5 px-3 whitespace-nowrap text-slate-700 font-medium">
+                    <td className="py-2.5 px-3 whitespace-nowrap text-slate-800 dark:text-slate-200 font-medium">
                       {mv.performedBy}
                     </td>
-                    <td className="py-2.5 px-3 text-slate-500 text-[11px] max-w-xs truncate" title={mv.notes}>
+                    <td className="py-2.5 px-3 text-[#71717A] dark:text-[#A1A1AA] text-[11px] max-w-xs truncate" title={mv.notes}>
                       {mv.notes || '—'}
                     </td>
                   </tr>
@@ -180,7 +180,7 @@ export const MovementAuditView: React.FC<MovementAuditViewProps> = ({
               })
             ) : (
               <tr>
-                <td colSpan={8} className="text-center py-8 text-slate-400">
+                <td colSpan={8} className="text-center py-8 text-[#71717A] dark:text-[#A1A1AA]">
                   No stock movements match the selected filter.
                 </td>
               </tr>
