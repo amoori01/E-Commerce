@@ -25,7 +25,8 @@ import {
   History,
   Printer,
   Search,
-  RotateCcw
+  RotateCcw,
+  Tag
 } from 'lucide-react';
 
 export default function SalesAgentPage() {
@@ -131,11 +132,54 @@ export default function SalesAgentPage() {
       if (!selectedQuote || !myAgentQuotes.some((q) => q.id === selectedQuote?.id)) {
         setSelectedQuote(myAgentQuotes[0]);
         handleSelectQuote(myAgentQuotes[0]);
+      } else {
+        // Also keep selectedQuote updated with any changes in quotesList (e.g. counter-offer, status)
+        const latest = myAgentQuotes.find((q) => q.id === selectedQuote.id);
+        if (latest) {
+          const hasChanged =
+            latest.status !== selectedQuote.status ||
+            latest.currentVersion !== selectedQuote.currentVersion ||
+            JSON.stringify(latest.pendingCounterOffer) !== JSON.stringify(selectedQuote.pendingCounterOffer);
+          if (hasChanged) {
+            setSelectedQuote(latest);
+          }
+        }
       }
     } else {
       setSelectedQuote(null);
     }
-  }, [currentUser.id, filterTab, searchQuery, quotesList.length]);
+  }, [currentUser.id, filterTab, searchQuery, quotesList]);
+
+  // Real-time Chat & Negotiation Live Polling for Selected Quote (every 2.5s)
+  useEffect(() => {
+    if (!selectedQuote) return;
+    const interval = setInterval(async () => {
+      try {
+        const res = await fetch(`/api/chat?quoteId=${encodeURIComponent(selectedQuote.id)}`);
+        if (res.ok) {
+          const data = await res.json();
+          if (data.success && Array.isArray(data.messages)) {
+            setSelectedQuote((prev) => {
+              if (!prev) return null;
+              if ((prev.messages || []).length !== data.messages.length) {
+                return { ...prev, messages: data.messages };
+              }
+              return prev;
+            });
+            setQuotesList((prev) =>
+              prev.map((q) =>
+                q.id === selectedQuote.id || q.quoteNumber === selectedQuote.quoteNumber
+                  ? { ...q, messages: data.messages }
+                  : q
+              )
+            );
+          }
+        }
+      } catch (err) {}
+    }, 2500);
+
+    return () => clearInterval(interval);
+  }, [selectedQuote?.id, selectedQuote?.quoteNumber]);
 
   // Pricing Matrix Parameters
   const [rawMaterialCost, setRawMaterialCost] = useState<number>(6500000);
@@ -268,6 +312,18 @@ export default function SalesAgentPage() {
       changedBy: `${currentUser.fullName} (Sales Engineer)`,
     };
 
+    const auditMsg = {
+      id: `msg-${Date.now()}`,
+      quoteId: selectedQuote.id,
+      senderId: currentUser.id,
+      senderName: currentUser.fullName,
+      senderRole: currentUser.role,
+      message: `📋 [OFFICIAL QUOTATION FORMULATED]: Revision v${nextVersion} issued at ETB ${calculatedQuotedTotal.toLocaleString()}. Price lock guaranteed through ${validUntil}.`,
+      createdAt: new Date().toISOString(),
+    };
+
+    const updatedMessages = [...(selectedQuote.messages || []), auditMsg];
+
     setQuotesList((prev) =>
       prev.map((q) =>
         q.id === selectedQuote.id
@@ -279,6 +335,7 @@ export default function SalesAgentPage() {
               quoteValidUntil: validUntil,
               agentQuotationNotes: agentNotes,
               revisions: [...(q.revisions || []), newRevision],
+              messages: updatedMessages,
             }
           : q
       )
@@ -295,6 +352,7 @@ export default function SalesAgentPage() {
             quoteValidUntil: validUntil,
             agentQuotationNotes: agentNotes,
             revisions: [...(prev.revisions || []), newRevision],
+            messages: updatedMessages,
           }
     );
 
@@ -314,6 +372,19 @@ export default function SalesAgentPage() {
           validUntil: validUntil,
         }),
       });
+
+      // Post audit message to chat
+      await fetch('/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          quoteId: selectedQuote.id,
+          senderId: currentUser.id,
+          senderName: currentUser.fullName,
+          senderRole: currentUser.role,
+          message: auditMsg.message,
+        }),
+      });
     } catch (err) {
       console.warn('Quote state machine sync warning:', err);
     }
@@ -331,6 +402,7 @@ export default function SalesAgentPage() {
                 quoteValidUntil: validUntil,
                 agentQuotationNotes: agentNotes,
                 revisions: [...(q.revisions || []), newRevision],
+                messages: updatedMessages,
               }
             : q
         );
@@ -338,6 +410,84 @@ export default function SalesAgentPage() {
         window.dispatchEvent(new Event('amg_quotes_updated'));
       } catch (e) {}
     }
+
+    setIsSaved(true);
+    setTimeout(() => setIsSaved(false), 3500);
+  };
+
+  const handleAcceptCounterOffer = async (q: Quote) => {
+    if (!q.pendingCounterOffer) return;
+    const co = q.pendingCounterOffer;
+    const nextVersion = (q.currentVersion || 1) + 1;
+    const acceptedPrice = co.targetPriceEtb;
+
+    // Adapt engineering pricing matrix parameters to align with accepted price
+    setRawMaterialCost(Math.round(acceptedPrice * 0.65));
+    setFabricationHours(Math.max(30, Math.round((acceptedPrice * 0.15) / hourlyMachineRate)));
+    setCoatingTariff(Math.round(acceptedPrice * 0.05));
+    setFreightTariff(Math.round(acceptedPrice * 0.05));
+    setMarginPercent(Math.max(2, Math.round(10 - co.discountPercent)));
+
+    const formulaSummary = `Formula applied: [Raw Materials: ETB ${Math.round(acceptedPrice * 0.65).toLocaleString()}] + [Machining: ${Math.max(30, Math.round((acceptedPrice * 0.15) / hourlyMachineRate))}hrs @ ETB ${hourlyMachineRate}/hr] + [Coating: ETB ${Math.round(acceptedPrice * 0.05).toLocaleString()}] + [Freight: ETB ${Math.round(acceptedPrice * 0.05).toLocaleString()}] + [Negotiated Margin: ${Math.max(2, Math.round(10 - co.discountPercent))}%].`;
+
+    const newRevision = {
+      version: nextVersion,
+      timestamp: new Date().toISOString(),
+      quotedTotalEtb: acceptedPrice,
+      validUntil: validUntil || '2026-11-30',
+      notes: `Accepted Client Price Negotiation: -${co.discountPercent}% requested discount approved (ETB ${acceptedPrice.toLocaleString()}). ${formulaSummary}`,
+      status: 'draft' as const,
+      changedBy: `${currentUser.fullName} (Sales Engineer)`,
+    };
+
+    const newChatMsg = {
+      id: `msg-${Date.now()}`,
+      quoteId: q.id,
+      senderId: currentUser.id,
+      senderName: currentUser.fullName,
+      senderRole: currentUser.role,
+      message: `✅ [NEGOTIATION ACCEPTED]: Sales engineering desk approved requested -${co.discountPercent}% discount! Revision v${nextVersion} issued at ETB ${acceptedPrice.toLocaleString()}. Official Bank Proforma regenerated and ready for client contract authorization.`,
+      createdAt: new Date().toISOString(),
+    };
+
+    const updatedQuote: Quote = {
+      ...q,
+      finalQuotedTotalEtb: acceptedPrice,
+      currentVersion: nextVersion,
+      status: 'draft_quote_issued',
+      pendingCounterOffer: {
+        ...co,
+        status: 'accepted',
+      },
+      revisions: [...(q.revisions || []), newRevision],
+      messages: [...(q.messages || []), newChatMsg],
+    };
+
+    setSelectedQuote(updatedQuote);
+    setQuotesList((prev) => prev.map((item) => (item.id === q.id ? updatedQuote : item)));
+
+    if (typeof window !== 'undefined') {
+      try {
+        const local = JSON.parse(localStorage.getItem('amg_live_quotes') || '[]');
+        const updated = local.map((item: any) =>
+          item.id === q.id || item.quoteNumber === q.quoteNumber ? updatedQuote : item
+        );
+        localStorage.setItem('amg_live_quotes', JSON.stringify(updated));
+        window.dispatchEvent(new Event('amg_quotes_updated'));
+      } catch (e) {}
+    }
+
+    try {
+      await fetch('/api/quotes', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          quoteId: q.id,
+          action: 'accept_counter_offer',
+          salesAgentName: currentUser.fullName,
+        }),
+      });
+    } catch (e) {}
 
     setIsSaved(true);
     setTimeout(() => setIsSaved(false), 3500);
@@ -408,14 +558,29 @@ export default function SalesAgentPage() {
       createdAt: new Date().toISOString(),
     };
 
-    setSelectedQuote((prev) =>
-      !prev
-        ? null
-        : {
-            ...prev,
-            messages: [...(prev.messages || []), newMsg],
-          }
+    const updatedMessages = [...(selectedQuote.messages || []), newMsg];
+    const updatedQuote: Quote = {
+      ...selectedQuote,
+      messages: updatedMessages,
+    };
+
+    setSelectedQuote(updatedQuote);
+    setQuotesList((prev) =>
+      prev.map((q) => (q.id === selectedQuote.id ? updatedQuote : q))
     );
+
+    if (typeof window !== 'undefined') {
+      try {
+        const local = JSON.parse(localStorage.getItem('amg_live_quotes') || '[]');
+        const updated = local.map((q: any) =>
+          q.id === selectedQuote.id || q.quoteNumber === selectedQuote.quoteNumber
+            ? { ...q, messages: updatedMessages }
+            : q
+        );
+        localStorage.setItem('amg_live_quotes', JSON.stringify(updated));
+        window.dispatchEvent(new Event('amg_quotes_updated'));
+      } catch (e) {}
+    }
 
     try {
       await fetch('/api/chat', {
@@ -804,6 +969,90 @@ export default function SalesAgentPage() {
                 </div>
               )}
 
+              {/* CLIENT PRICE NEGOTIATION COUNTER-OFFER ALERT (SRS 4.1 / 4.5) */}
+              {selectedQuote.pendingCounterOffer && selectedQuote.pendingCounterOffer.status === 'pending' && (
+                <div className="bg-gradient-to-r from-amber-500/15 via-amber-500/5 to-transparent border-2 border-amber-500/40 rounded-2xl p-4 sm:p-5 space-y-3.5 shadow-sm">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                    <div className="flex items-center space-x-2">
+                      <span className="w-2.5 h-2.5 rounded-full bg-amber-500 animate-ping shrink-0" />
+                      <h4 className="text-xs font-black uppercase tracking-wider text-amber-700 dark:text-amber-400 flex items-center space-x-1.5">
+                        <Tag className="w-4 h-4 text-amber-500" />
+                        <span>Client Price Negotiation Counter-Offer Received</span>
+                      </h4>
+                    </div>
+                    <span className="text-[10px] font-mono text-slate-500 dark:text-slate-400">
+                      Submitted: {new Date(selectedQuote.pendingCounterOffer.requestedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} by {selectedQuote.pendingCounterOffer.requestedBy}
+                    </span>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 bg-white dark:bg-[#141416] p-3.5 rounded-xl border border-amber-200 dark:border-amber-900/40">
+                    <div>
+                      <span className="text-[10px] text-slate-500 dark:text-slate-400 block font-bold uppercase">
+                        Current Quoted Baseline
+                      </span>
+                      <span className="text-xs font-mono font-bold line-through text-slate-400">
+                        ETB {selectedQuote.pendingCounterOffer.originalPriceEtb.toLocaleString()}
+                      </span>
+                    </div>
+                    <div>
+                      <span className="text-[10px] text-amber-600 dark:text-amber-400 block font-bold uppercase">
+                        Client Target Price
+                      </span>
+                      <span className="text-sm font-mono font-black text-amber-600 dark:text-amber-400">
+                        ETB {selectedQuote.pendingCounterOffer.targetPriceEtb.toLocaleString()}
+                        <span className="text-[11px] font-normal ml-1.5">(-{selectedQuote.pendingCounterOffer.discountPercent}%)</span>
+                      </span>
+                    </div>
+                    <div>
+                      <span className="text-[10px] text-emerald-600 dark:text-emerald-400 block font-bold uppercase">
+                        Requested Price Reduction
+                      </span>
+                      <span className="text-xs font-mono font-bold text-emerald-600 dark:text-emerald-400">
+                        -ETB {selectedQuote.pendingCounterOffer.savingsEtb.toLocaleString()}
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="text-xs text-slate-700 dark:text-slate-300 bg-slate-50 dark:bg-[#18181B] p-3 rounded-xl border border-slate-200 dark:border-[#27272A]">
+                    <strong className="text-slate-900 dark:text-white">Commercial Justification:</strong> &quot;{selectedQuote.pendingCounterOffer.reason}&quot;
+                  </div>
+
+                  <div className="flex flex-wrap items-center gap-2 pt-1">
+                    <button
+                      type="button"
+                      onClick={() => handleAcceptCounterOffer(selectedQuote)}
+                      className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-xl shadow-sm transition-all flex items-center space-x-1.5"
+                    >
+                      <CheckCircle2 className="w-4 h-4" />
+                      <span>Accept Requested Discount &amp; Issue Revision v{(selectedQuote.currentVersion || 1) + 1}</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const chatEl = document.getElementById('agent-chat-input');
+                        if (chatEl) {
+                          chatEl.focus();
+                          chatEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        }
+                      }}
+                      className="px-3.5 py-2 border border-slate-300 dark:border-slate-700 bg-white dark:bg-[#18181B] hover:bg-slate-50 dark:hover:bg-[#202024] text-slate-800 dark:text-slate-200 font-bold text-xs rounded-xl transition-all flex items-center space-x-1.5"
+                    >
+                      <MessageSquare className="w-3.5 h-3.5" />
+                      <span>Negotiate in Chat Channel</span>
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {selectedQuote.pendingCounterOffer && selectedQuote.pendingCounterOffer.status === 'accepted' && (
+                <div className="bg-emerald-50 dark:bg-emerald-950/20 border border-emerald-300 dark:border-emerald-800 rounded-2xl p-3.5 flex items-center space-x-2.5 text-xs text-emerald-800 dark:text-emerald-300">
+                  <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+                  <span>
+                    <strong>Client Counter-Offer Accepted:</strong> Revision v{selectedQuote.currentVersion} issued at ETB {(selectedQuote.finalQuotedTotalEtb || 0).toLocaleString()} with approved -{selectedQuote.pendingCounterOffer.discountPercent}% discount.
+                  </span>
+                </div>
+              )}
+
               {/* DYNAMIC PRICING MATRIX CALCULATOR (Interactive Tool) */}
               <form onSubmit={handleSaveQuoteMatrix} className="border-t border-slate-100 dark:border-[#222225] pt-4 space-y-4">
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
@@ -1023,6 +1272,7 @@ export default function SalesAgentPage() {
               {/* Chat Input */}
               <form onSubmit={handleSendMessage} className="flex gap-2 pt-2 border-t border-slate-100 dark:border-[#222225]">
                 <input
+                  id="agent-chat-input"
                   type="text"
                   placeholder="Type engineering response to client..."
                   value={chatMessage}

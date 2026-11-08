@@ -1,12 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { findQuote, addQuoteMessage } from '@/lib/quotes-store';
 
 // ====================================================================
 // REAL-TIME NEGOTIATION & MESSAGING API (SRS 4.1 / 4.3)
-// Live WebSocket / SSE / Polling fallback communication channel
-// between procurement buyer and assigned sales engineering agent.
+// Live synchronized communication channel between procurement buyer
+// and assigned lead sales engineering desk.
 // ====================================================================
 
-interface ChatMessageRecord {
+export interface ChatMessageRecord {
   id: string;
   quoteId: string;
   senderId: string;
@@ -16,35 +17,55 @@ interface ChatMessageRecord {
   createdAt: string;
 }
 
-// In-memory chat storage by quoteId
-const CHAT_STORE: Record<string, ChatMessageRecord[]> = {
-  'q1': [
-    {
-      id: 'msg-seed-1',
-      quoteId: 'q1',
-      senderId: 'e1111111-1111-1111-1111-111111111111',
-      senderName: 'Alemayehu Tadesse',
-      senderRole: 'customer',
-      message: 'Can the 24m structural rafters be hot-dip galvanized rather than standard red oxide primer?',
-      createdAt: '2026-10-12T10:15:00Z',
-    },
-    {
-      id: 'msg-seed-2',
-      quoteId: 'q1',
-      senderId: 'e3333333-3333-3333-3333-333333333333',
-      senderName: 'Eng. Solomon Bekele',
-      senderRole: 'sales_agent',
-      message: 'Yes, we can apply 85-micron hot-dip galvanizing per ASTM A123. I updated the coating tariff in Revision 2.',
-      createdAt: '2026-10-12T10:45:00Z',
-    },
-  ],
-};
+declare global {
+  var __amg_chat_store: Record<string, ChatMessageRecord[]> | undefined;
+}
+
+function getStore(): Record<string, ChatMessageRecord[]> {
+  if (!global.__amg_chat_store) {
+    global.__amg_chat_store = {};
+  }
+  return global.__amg_chat_store;
+}
 
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
-  const quoteId = searchParams.get('quoteId') || 'q1';
+  const quoteId = searchParams.get('quoteId');
 
-  const messages = CHAT_STORE[quoteId] || [];
+  if (!quoteId) {
+    return NextResponse.json({ success: true, count: 0, messages: [] });
+  }
+
+  const store = getStore();
+  const quote = findQuote(quoteId);
+
+  // Gather messages from all matching keys
+  const keysToInspect = new Set<string>([quoteId]);
+  if (quote) {
+    if (quote.id) keysToInspect.add(quote.id);
+    if (quote.quoteNumber) keysToInspect.add(quote.quoteNumber);
+  }
+
+  const messageMap = new Map<string, ChatMessageRecord>();
+
+  // 1. Initial messages attached to quote object
+  if (quote && quote.messages && Array.isArray(quote.messages)) {
+    for (const m of quote.messages) {
+      if (m && m.id) messageMap.set(m.id, m as ChatMessageRecord);
+    }
+  }
+
+  // 2. Dynamic live messages from memory store
+  for (const k of keysToInspect) {
+    const list = store[k] || [];
+    for (const m of list) {
+      if (m && m.id) messageMap.set(m.id, m);
+    }
+  }
+
+  const messages = Array.from(messageMap.values()).sort(
+    (a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+  );
 
   return NextResponse.json({
     success: true,
@@ -66,6 +87,9 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    const store = getStore();
+    const quote = findQuote(quoteId);
+
     const newRecord: ChatMessageRecord = {
       id: `msg-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`,
       quoteId,
@@ -76,14 +100,25 @@ export async function POST(req: NextRequest) {
       createdAt: new Date().toISOString(),
     };
 
-    if (!CHAT_STORE[quoteId]) {
-      CHAT_STORE[quoteId] = [];
+    // Save under the provided quoteId
+    if (!store[quoteId]) store[quoteId] = [];
+    store[quoteId].push(newRecord);
+
+    // If quote exists, save under both id and quoteNumber for bidirectional resolution
+    if (quote) {
+      if (quote.id && !store[quote.id]) store[quote.id] = [];
+      if (quote.id && quote.id !== quoteId) store[quote.id].push(newRecord);
+
+      if (quote.quoteNumber && !store[quote.quoteNumber]) store[quote.quoteNumber] = [];
+      if (quote.quoteNumber && quote.quoteNumber !== quoteId) store[quote.quoteNumber].push(newRecord);
+
+      addQuoteMessage(quote.id, newRecord);
     }
-    CHAT_STORE[quoteId].push(newRecord);
 
     return NextResponse.json({
       success: true,
       data: newRecord,
+      message: newRecord,
     });
   } catch (err: unknown) {
     const msg = err instanceof Error ? err.message : 'Chat error';

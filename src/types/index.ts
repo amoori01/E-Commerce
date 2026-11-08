@@ -228,6 +228,17 @@ export interface QuoteRevision {
   changedBy: string;
 }
 
+export interface CounterOfferDetails {
+  targetPriceEtb: number;
+  originalPriceEtb: number;
+  discountPercent: number;
+  savingsEtb: number;
+  reason: string;
+  requestedBy: string;
+  requestedAt: string;
+  status: 'pending' | 'accepted' | 'rejected' | 'countered';
+}
+
 export interface Quote {
   id: string;
   quoteNumber: string;
@@ -250,6 +261,7 @@ export interface Quote {
   quoteValidUntil?: string;
   customerRequirements: string;
   agentQuotationNotes?: string;
+  pendingCounterOffer?: CounterOfferDetails;
   createdAt: string;
   items: QuoteItem[];
   messages: QuoteMessage[];

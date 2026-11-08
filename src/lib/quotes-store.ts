@@ -37,3 +37,14 @@ export function updateQuote(identifier: string, updates: Partial<Quote>): Quote 
   }
   return null;
 }
+
+export function addQuoteMessage(quoteIdentifier: string, message: any): void {
+  const quote = findQuote(quoteIdentifier);
+  if (quote) {
+    if (!quote.messages) quote.messages = [];
+    const exists = quote.messages.some((m) => m.id === message.id);
+    if (!exists) {
+      quote.messages.push(message);
+    }
+  }
+}

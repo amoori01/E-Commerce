@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { CreateRfqQuoteDto, validateCreateRfqDto } from '@/dtos';
 import { Quote } from '@/types';
-import { getLiveQuotes, addLiveQuote } from '@/lib/quotes-store';
+import { getLiveQuotes, addLiveQuote, findQuote, addQuoteMessage, updateQuote } from '@/lib/quotes-store';
 
 export async function POST(req: NextRequest) {
   try {
@@ -89,7 +89,25 @@ export async function GET(req: NextRequest) {
   const agentId = searchParams.get('agentId');
   const subsidiaryId = searchParams.get('subsidiaryId');
 
-  let quotes = [...getLiveQuotes()];
+  const chatStore = (global as any).__amg_chat_store || {};
+  let quotes = getLiveQuotes().map((q) => {
+    // Merge latest chat messages into quote
+    const chatMsgs = [
+      ...(chatStore[q.id] || []),
+      ...(chatStore[q.quoteNumber] || []),
+    ];
+    if (chatMsgs.length > 0) {
+      const existing = q.messages || [];
+      const map = new Map<string, any>();
+      existing.forEach((m) => map.set(m.id, m));
+      chatMsgs.forEach((m) => map.set(m.id, m));
+      const merged = Array.from(map.values()).sort(
+        (a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+      );
+      return { ...q, messages: merged };
+    }
+    return q;
+  });
 
   if (customerId) {
     quotes = quotes.filter((q) => q.customerId === customerId);
@@ -106,4 +124,125 @@ export async function GET(req: NextRequest) {
     count: quotes.length,
     quotes,
   });
+}
+
+export async function PATCH(req: NextRequest) {
+  try {
+    const body = await req.json();
+    const { quoteId, action, counterOffer, updates } = body;
+
+    if (!quoteId) {
+      return NextResponse.json({ error: 'quoteId is required' }, { status: 400 });
+    }
+
+    const quote = findQuote(quoteId);
+    if (!quote) {
+      return NextResponse.json({ error: 'Quote not found' }, { status: 404 });
+    }
+
+    if (action === 'propose_counter_offer') {
+      if (!counterOffer || !counterOffer.targetPriceEtb) {
+        return NextResponse.json({ error: 'Valid counterOffer payload required' }, { status: 400 });
+      }
+
+      quote.pendingCounterOffer = {
+        ...counterOffer,
+        status: 'pending',
+        requestedAt: new Date().toISOString(),
+      };
+
+      // Add audit/negotiation chat message
+      const chatMsg = {
+        id: `msg-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`,
+        quoteId: quote.id,
+        senderId: counterOffer.requestedBy || 'customer',
+        senderName: counterOffer.requestedBy || 'Procurement Buyer',
+        senderRole: 'customer' as const,
+        message: `💼 [PRICE NEGOTIATION COUNTER-OFFER]: Buyer requested a ${counterOffer.discountPercent}% price reduction from ETB ${counterOffer.originalPriceEtb.toLocaleString()} down to ETB ${counterOffer.targetPriceEtb.toLocaleString()} (Target savings: ETB ${counterOffer.savingsEtb.toLocaleString()}). Commercial reason: "${counterOffer.reason}".`,
+        createdAt: new Date().toISOString(),
+      };
+
+      addQuoteMessage(quote.id, chatMsg);
+      const chatStore = (global as any).__amg_chat_store || {};
+      if (!chatStore[quote.id]) chatStore[quote.id] = [];
+      chatStore[quote.id].push(chatMsg);
+      if (quote.quoteNumber) {
+        if (!chatStore[quote.quoteNumber]) chatStore[quote.quoteNumber] = [];
+        chatStore[quote.quoteNumber].push(chatMsg);
+      }
+      (global as any).__amg_chat_store = chatStore;
+
+      return NextResponse.json({
+        success: true,
+        quote,
+        message: 'Counter-offer registered and sales engineering desk notified.',
+      });
+    }
+
+    if (action === 'accept_counter_offer') {
+      const co = quote.pendingCounterOffer;
+      if (!co) {
+        return NextResponse.json({ error: 'No pending counter offer on quote' }, { status: 400 });
+      }
+
+      const nextVersion = (quote.currentVersion || 1) + 1;
+      const acceptedPrice = co.targetPriceEtb;
+      const agentName = body.salesAgentName || 'Assigned Sales Engineer';
+
+      quote.finalQuotedTotalEtb = acceptedPrice;
+      quote.currentVersion = nextVersion;
+      quote.status = 'draft_quote_issued';
+      quote.pendingCounterOffer = {
+        ...co,
+        status: 'accepted',
+      };
+
+      const newRevision = {
+        version: nextVersion,
+        timestamp: new Date().toISOString(),
+        quotedTotalEtb: acceptedPrice,
+        validUntil: quote.quoteValidUntil || '2026-11-30',
+        notes: `Accepted Buyer Price Negotiation: -${co.discountPercent}% requested discount approved (Savings: ETB ${co.savingsEtb.toLocaleString()}).`,
+        status: 'draft' as const,
+        changedBy: `${agentName} (Sales Engineer)`,
+      };
+      quote.revisions = [...(quote.revisions || []), newRevision];
+
+      // Add chat confirmation
+      const chatMsg = {
+        id: `msg-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`,
+        quoteId: quote.id,
+        senderId: 'sales-agent',
+        senderName: agentName,
+        senderRole: 'sales_agent' as const,
+        message: `✅ [NEGOTIATION ACCEPTED]: Sales engineering desk has accepted your requested ${co.discountPercent}% price reduction! Revision v${nextVersion} is issued at ETB ${acceptedPrice.toLocaleString()}. Official Bank Proforma Invoice regenerated and ready for your authorization.`,
+        createdAt: new Date().toISOString(),
+      };
+
+      addQuoteMessage(quote.id, chatMsg);
+      const chatStore = (global as any).__amg_chat_store || {};
+      if (!chatStore[quote.id]) chatStore[quote.id] = [];
+      chatStore[quote.id].push(chatMsg);
+      if (quote.quoteNumber) {
+        if (!chatStore[quote.quoteNumber]) chatStore[quote.quoteNumber] = [];
+        chatStore[quote.quoteNumber].push(chatMsg);
+      }
+      (global as any).__amg_chat_store = chatStore;
+
+      return NextResponse.json({
+        success: true,
+        quote,
+        message: 'Counter-offer accepted and Revision v' + nextVersion + ' issued.',
+      });
+    }
+
+    if (updates) {
+      const updated = updateQuote(quoteId, updates);
+      return NextResponse.json({ success: true, quote: updated });
+    }
+
+    return NextResponse.json({ error: 'Unrecognized action' }, { status: 400 });
+  } catch (err: any) {
+    return NextResponse.json({ error: err.message }, { status: 500 });
+  }
 }

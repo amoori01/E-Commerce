@@ -29,6 +29,10 @@ import {
   X,
   QrCode,
   RotateCcw,
+  Tag,
+  Sliders,
+  Percent,
+  TrendingDown,
 } from 'lucide-react';
 
 export default function CustomerPortalPage() {
@@ -63,6 +67,13 @@ export default function CustomerPortalPage() {
   const [chatMessages, setChatMessages] = useState<any[]>([]);
   const [chatInput, setChatInput] = useState('');
   const [isChatLoading, setIsChatLoading] = useState(false);
+
+  // Price Negotiation & Counter-Offer State (SRS 4.1 / 4.5)
+  const [negotiatingQuote, setNegotiatingQuote] = useState<Quote | null>(null);
+  const [counterDiscountPercent, setCounterDiscountPercent] = useState<number>(10);
+  const [counterTargetPrice, setCounterTargetPrice] = useState<number>(0);
+  const [counterReason, setCounterReason] = useState<string>('Budget limit constraint');
+  const [isSubmittingCounter, setIsSubmittingCounter] = useState(false);
 
   const router = useRouter();
   const isCustomer = activeRole === 'customer';
@@ -147,8 +158,27 @@ export default function CustomerPortalPage() {
     const fetchQuotes = async () => {
       try {
         let combined: Quote[] = [...INITIAL_QUOTES];
+
+        // 1. Fetch live quotes from server API
+        try {
+          const res = await fetch('/api/quotes');
+          if (res.ok) {
+            const data = await res.json();
+            if (data.quotes && Array.isArray(data.quotes)) {
+              for (const q of data.quotes) {
+                const idx = combined.findIndex((c) => c.id === q.id || c.quoteNumber === q.quoteNumber);
+                if (idx >= 0) {
+                  combined[idx] = { ...combined[idx], ...q };
+                } else {
+                  combined.unshift(q);
+                }
+              }
+            }
+          }
+        } catch (e) {}
+
+        // 2. Fetch from client localStorage
         if (typeof window !== 'undefined') {
-          // Auto-purge stale demo data on first load of clean testing environment
           if (localStorage.getItem('amg_data_version') !== 'v2') {
             localStorage.removeItem('amg_live_quotes');
             localStorage.removeItem('amg_live_orders');
@@ -186,6 +216,31 @@ export default function CustomerPortalPage() {
     };
   }, []);
 
+  // Real-time Chat Live Polling (every 2.5s while chat modal is active)
+  useEffect(() => {
+    if (!chatQuote) return;
+    const interval = setInterval(async () => {
+      try {
+        const res = await fetch(`/api/chat?quoteId=${encodeURIComponent(chatQuote.id)}`);
+        if (res.ok) {
+          const data = await res.json();
+          if (data.success && Array.isArray(data.messages)) {
+            setChatMessages(data.messages);
+            setQuotesList((prev) =>
+              prev.map((q) =>
+                q.id === chatQuote.id || q.quoteNumber === chatQuote.quoteNumber
+                  ? { ...q, messages: data.messages }
+                  : q
+              )
+            );
+          }
+        }
+      } catch (err) {}
+    }, 2500);
+
+    return () => clearInterval(interval);
+  }, [chatQuote?.id, chatQuote?.quoteNumber]);
+
   // Strictly isolate orders and quotes to the authenticated user ID
   const myOrders = portalOrders.filter((o) => o.customerId === currentUser.id);
   const myQuotes = quotesList.filter((q) => q.customerId === currentUser.id);
@@ -210,10 +265,37 @@ export default function CustomerPortalPage() {
     setIsAddingAddress(false);
   };
 
-  const handleApproveQuote = (quoteId: string) => {
+  const handleApproveQuote = async (quoteId: string) => {
     setQuotesList((prev) =>
       prev.map((q) => (q.id === quoteId ? { ...q, status: 'quote_approved' } : q))
     );
+
+    if (typeof window !== 'undefined') {
+      try {
+        const local = JSON.parse(localStorage.getItem('amg_live_quotes') || '[]');
+        const updated = local.map((q: any) =>
+          q.id === quoteId ? { ...q, status: 'quote_approved' } : q
+        );
+        localStorage.setItem('amg_live_quotes', JSON.stringify(updated));
+        window.dispatchEvent(new Event('amg_quotes_updated'));
+      } catch (e) {}
+    }
+
+    try {
+      await fetch(`/api/quotes/${encodeURIComponent(quoteId)}/status`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-user-role': currentUser.role,
+          'x-user-id': currentUser.id,
+        },
+        body: JSON.stringify({
+          targetStatus: 'quote_approved',
+          reason: 'Quotation accepted and authorized by procurement officer.',
+        }),
+      });
+    } catch (e) {}
+
     setApprovalMessage('Official quotation accepted & authorized! Sales engineering team notified for contract issuance.');
     setTimeout(() => setApprovalMessage(null), 4000);
   };
@@ -227,8 +309,9 @@ export default function CustomerPortalPage() {
     e.preventDefault();
     if (!revisionQuoteId) return;
 
-    setQuotesList((prev) =>
-      prev.map((q) => {
+    let updatedList: Quote[] = [];
+    setQuotesList((prev) => {
+      updatedList = prev.map((q) => {
         if (q.id === revisionQuoteId) {
           const newVersion = (q.currentVersion || 1) + 1;
           const updatedRevisions = [
@@ -253,12 +336,114 @@ export default function CustomerPortalPage() {
           };
         }
         return q;
-      })
-    );
+      });
+      return updatedList;
+    });
+
+    if (typeof window !== 'undefined') {
+      try {
+        localStorage.setItem('amg_live_quotes', JSON.stringify(updatedList));
+        window.dispatchEvent(new Event('amg_quotes_updated'));
+      } catch (e) {}
+    }
 
     setRevisionQuoteId(null);
     setApprovalMessage('Technical revision request dispatched to assigned sales engineer.');
     setTimeout(() => setApprovalMessage(null), 4000);
+  };
+
+  // Price Negotiation & Counter-Offer Logic
+  const handleOpenNegotiation = (q: Quote) => {
+    const baseTotal = q.finalQuotedTotalEtb || q.estimatedTotalEtb || 0;
+    const defaultDiscount = 10;
+    const target = Math.round(baseTotal * (1 - defaultDiscount / 100));
+    setNegotiatingQuote(q);
+    setCounterDiscountPercent(defaultDiscount);
+    setCounterTargetPrice(target);
+    setCounterReason('Commercial budget ceiling limitation - requesting 10% volume discount to finalize contract');
+  };
+
+  const handleApplyDiscountPercent = (percent: number) => {
+    if (!negotiatingQuote) return;
+    const baseTotal = negotiatingQuote.finalQuotedTotalEtb || negotiatingQuote.estimatedTotalEtb || 0;
+    setCounterDiscountPercent(percent);
+    setCounterTargetPrice(Math.round(baseTotal * (1 - percent / 100)));
+  };
+
+  const handleCustomTargetPriceChange = (val: number) => {
+    if (!negotiatingQuote) return;
+    const baseTotal = negotiatingQuote.finalQuotedTotalEtb || negotiatingQuote.estimatedTotalEtb || 0;
+    setCounterTargetPrice(val);
+    if (baseTotal > 0) {
+      const pct = Math.max(0, Math.min(90, Math.round(((baseTotal - val) / baseTotal) * 100)));
+      setCounterDiscountPercent(pct);
+    }
+  };
+
+  const handleSubmitCounterOffer = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!negotiatingQuote || !counterTargetPrice) return;
+    setIsSubmittingCounter(true);
+
+    const basePrice = negotiatingQuote.finalQuotedTotalEtb || negotiatingQuote.estimatedTotalEtb || 0;
+    const savings = Math.max(0, basePrice - counterTargetPrice);
+
+    const counterPayload = {
+      targetPriceEtb: counterTargetPrice,
+      originalPriceEtb: basePrice,
+      discountPercent: counterDiscountPercent,
+      savingsEtb: savings,
+      reason: counterReason,
+      requestedBy: currentUser.fullName,
+      requestedAt: new Date().toISOString(),
+      status: 'pending' as const,
+    };
+
+    const updatedQuote: Quote = {
+      ...negotiatingQuote,
+      pendingCounterOffer: counterPayload,
+    };
+
+    setQuotesList((prev) =>
+      prev.map((q) =>
+        q.id === negotiatingQuote.id || q.quoteNumber === negotiatingQuote.quoteNumber
+          ? updatedQuote
+          : q
+      )
+    );
+
+    if (typeof window !== 'undefined') {
+      try {
+        const local = JSON.parse(localStorage.getItem('amg_live_quotes') || '[]');
+        const updated = local.map((q: any) =>
+          q.id === negotiatingQuote.id || q.quoteNumber === negotiatingQuote.quoteNumber
+            ? updatedQuote
+            : q
+        );
+        localStorage.setItem('amg_live_quotes', JSON.stringify(updated));
+        window.dispatchEvent(new Event('amg_quotes_updated'));
+      } catch (e) {}
+    }
+
+    try {
+      await fetch('/api/quotes', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          quoteId: negotiatingQuote.id,
+          action: 'propose_counter_offer',
+          counterOffer: counterPayload,
+        }),
+      });
+    } catch (e) {}
+
+    setIsSubmittingCounter(false);
+    setNegotiatingQuote(null);
+    setApprovalMessage(`Price reduction proposal submitted! Sales engineer notified to formulate Revision v${(negotiatingQuote.currentVersion || 1) + 1}.`);
+    setTimeout(() => setApprovalMessage(null), 5000);
+
+    // Open chat channel immediately with the updated quote
+    handleOpenChat(updatedQuote);
   };
 
   const handleOpenChat = async (q: Quote) => {
@@ -295,7 +480,31 @@ export default function CustomerPortalPage() {
       createdAt: new Date().toISOString(),
     };
 
-    setChatMessages((prev) => [...prev, newMsg]);
+    const updatedMessages = [...chatMessages, newMsg];
+    setChatMessages(updatedMessages);
+
+    // Sync into quotesList
+    setQuotesList((prev) =>
+      prev.map((q) =>
+        q.id === chatQuote.id || q.quoteNumber === chatQuote.quoteNumber
+          ? { ...q, messages: updatedMessages }
+          : q
+      )
+    );
+
+    // Sync into client localStorage and broadcast update
+    if (typeof window !== 'undefined') {
+      try {
+        const local = JSON.parse(localStorage.getItem('amg_live_quotes') || '[]');
+        const updated = local.map((q: any) =>
+          q.id === chatQuote.id || q.quoteNumber === chatQuote.quoteNumber
+            ? { ...q, messages: updatedMessages }
+            : q
+        );
+        localStorage.setItem('amg_live_quotes', JSON.stringify(updated));
+        window.dispatchEvent(new Event('amg_quotes_updated'));
+      } catch (e) {}
+    }
 
     try {
       await fetch('/api/chat', {
@@ -650,72 +859,120 @@ export default function CustomerPortalPage() {
                 )}
 
                 {/* Price Matrix Review & Action Controls */}
-                <div className="bg-slate-50 border border-slate-200 p-4 rounded-sm flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
-                  <div>
-                    <span className="text-[10px] font-bold uppercase text-slate-500 block">
-                      Official Quoted Total (ETB)
-                    </span>
-                    <div className="text-xl font-extrabold font-mono text-amg-navy">
-                      ETB {(q.finalQuotedTotalEtb || q.estimatedTotalEtb || 0).toLocaleString('en-US', { minimumFractionDigits: 2 })}
+                <div className="bg-slate-50 border border-slate-200 p-4 rounded-sm flex flex-col justify-between gap-3">
+                  <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
+                    <div>
+                      <span className="text-[10px] font-bold uppercase text-slate-500 block">
+                        Official Quoted Total (ETB)
+                      </span>
+                      <div className="text-xl font-extrabold font-mono text-amg-navy">
+                        ETB {(q.finalQuotedTotalEtb || q.estimatedTotalEtb || 0).toLocaleString('en-US', { minimumFractionDigits: 2 })}
+                      </div>
+                      {q.quoteValidUntil && (
+                        <span className="text-[10px] text-slate-500">
+                          Price lock guaranteed through: <strong className="font-mono text-slate-800">{q.quoteValidUntil}</strong>
+                        </span>
+                      )}
                     </div>
-                    {q.quoteValidUntil && (
-                      <span className="text-[10px] text-slate-500">
-                        Price lock guaranteed through: <strong className="font-mono text-slate-800">{q.quoteValidUntil}</strong>
-                      </span>
-                    )}
-                  </div>
 
-                  <div className="flex flex-wrap items-center gap-2">
-                    {/* Live Negotiation Chat Button (SRS 4.5) */}
-                    <button
-                      type="button"
-                      onClick={() => handleOpenChat(q)}
-                      className="px-3.5 py-2 bg-sky-600 hover:bg-sky-700 text-white font-bold text-xs rounded-sm transition-colors flex items-center space-x-1.5 shadow-sm"
-                    >
-                      <MessageSquare className="w-3.5 h-3.5" />
-                      <span>Negotiate with Engineer</span>
-                    </button>
+                    <div className="flex flex-wrap items-center gap-2">
+                      {/* Live Negotiation Chat Button (SRS 4.5) */}
+                      <button
+                        type="button"
+                        onClick={() => handleOpenChat(q)}
+                        className="px-3.5 py-2 bg-sky-600 hover:bg-sky-700 text-white font-bold text-xs rounded-sm transition-colors flex items-center space-x-1.5 shadow-sm"
+                      >
+                        <MessageSquare className="w-3.5 h-3.5" />
+                        <span>Negotiate / Chat</span>
+                      </button>
 
-                    {/* Official Proforma Invoice Button */}
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setSelectedProformaQuote(q);
-                        setSelectedProformaOrder(null);
-                        setIsProformaOpen(true);
-                      }}
-                      className="px-3.5 py-2 bg-slate-100 hover:bg-slate-200 border border-slate-300 text-slate-800 font-bold text-xs rounded-sm transition-colors flex items-center space-x-1.5"
-                    >
-                      <Printer className="w-3.5 h-3.5 text-amg-navy" />
-                      <span>Bank Proforma Invoice</span>
-                    </button>
-
-                    {q.status === 'draft_quote_issued' && (
-                      <>
+                      {/* Propose Lower Price / Discount Button */}
+                      {q.status === 'draft_quote_issued' && (
                         <button
                           type="button"
-                          onClick={() => handleOpenRevisionModal(q.id)}
-                          className="px-3.5 py-2 border border-slate-300 bg-white hover:bg-slate-50 text-slate-700 font-bold text-xs rounded-sm transition-colors"
+                          onClick={() => handleOpenNegotiation(q)}
+                          className="px-3.5 py-2 bg-amber-500 hover:bg-amber-600 text-white font-bold text-xs rounded-sm transition-colors flex items-center space-x-1.5 shadow-sm"
                         >
-                          Request Revision (v{(q.currentVersion || 1) + 1})
+                          <Tag className="w-3.5 h-3.5" />
+                          <span>{q.pendingCounterOffer?.status === 'pending' ? 'Adjust Counter-Offer' : 'Ask for Lower Price / Discount'}</span>
                         </button>
-                        <button
-                          type="button"
-                          onClick={() => handleApproveQuote(q.id)}
-                          className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-sm transition-colors flex items-center space-x-1.5 shadow-sm"
-                        >
-                          <CheckCircle className="w-4 h-4" />
-                          <span>Accept & Authorize Contract</span>
-                        </button>
-                      </>
-                    )}
-                    {q.status === 'quote_approved' && (
-                      <span className="px-3.5 py-2 bg-emerald-100 text-emerald-800 font-bold text-xs rounded-sm flex items-center space-x-1.5">
-                        <CheckCircle className="w-4 h-4 text-emerald-600" />
-                        <span>Quotation Authorized & In Production Queue</span>
-                      </span>
-                    )}
+                      )}
+
+                      {/* Official Proforma Invoice Button */}
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setSelectedProformaQuote(q);
+                          setSelectedProformaOrder(null);
+                          setIsProformaOpen(true);
+                        }}
+                        className="px-3.5 py-2 bg-slate-100 hover:bg-slate-200 border border-slate-300 text-slate-800 font-bold text-xs rounded-sm transition-colors flex items-center space-x-1.5"
+                      >
+                        <Printer className="w-3.5 h-3.5 text-amg-navy" />
+                        <span>Bank Proforma Invoice</span>
+                      </button>
+
+                      {q.status === 'draft_quote_issued' && (
+                        <>
+                          <button
+                            type="button"
+                            onClick={() => handleOpenRevisionModal(q.id)}
+                            className="px-3.5 py-2 border border-slate-300 bg-white hover:bg-slate-50 text-slate-700 font-bold text-xs rounded-sm transition-colors"
+                          >
+                            Request Specs Revision (v{(q.currentVersion || 1) + 1})
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => handleApproveQuote(q.id)}
+                            className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-sm transition-colors flex items-center space-x-1.5 shadow-sm"
+                          >
+                            <CheckCircle className="w-4 h-4" />
+                            <span>Accept &amp; Authorize Contract</span>
+                          </button>
+                        </>
+                      )}
+                      {q.status === 'quote_approved' && (
+                        <span className="px-3.5 py-2 bg-emerald-100 text-emerald-800 font-bold text-xs rounded-sm flex items-center space-x-1.5">
+                          <CheckCircle className="w-4 h-4 text-emerald-600" />
+                          <span>Quotation Authorized &amp; In Production Queue</span>
+                        </span>
+                      )}
+                    </div>
                   </div>
+
+                  {/* Negotiation Status Cards */}
+                  {q.pendingCounterOffer && q.pendingCounterOffer.status === 'pending' && (
+                    <div className="mt-1 p-3 bg-amber-500/10 border border-amber-500/30 rounded-md text-xs text-amber-900 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                      <div className="flex items-center space-x-2">
+                        <span className="w-2.5 h-2.5 rounded-full bg-amber-500 animate-ping shrink-0" />
+                        <div>
+                          <strong className="font-bold">Price Negotiation In Progress:</strong> Proposed target price{' '}
+                          <span className="font-mono font-bold text-amber-800">
+                            ETB {q.pendingCounterOffer.targetPriceEtb.toLocaleString()}
+                          </span>{' '}
+                          (-{q.pendingCounterOffer.discountPercent}% / Save ETB {q.pendingCounterOffer.savingsEtb.toLocaleString()}).
+                          <span className="block text-[11px] text-amber-700">Reason: &quot;{q.pendingCounterOffer.reason}&quot;</span>
+                        </div>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => handleOpenChat(q)}
+                        className="px-2.5 py-1 bg-amber-600 hover:bg-amber-700 text-white font-bold rounded text-[11px] shrink-0"
+                      >
+                        Open Live Chat
+                      </button>
+                    </div>
+                  )}
+
+                  {q.pendingCounterOffer && q.pendingCounterOffer.status === 'accepted' && (
+                    <div className="mt-1 p-3 bg-emerald-500/10 border border-emerald-500/30 rounded-md text-xs text-emerald-900 flex items-center space-x-2">
+                      <CheckCircle className="w-4 h-4 text-emerald-600 shrink-0" />
+                      <div>
+                        <strong className="font-bold">Requested Discount Approved!</strong> Sales engineer accepted your -{q.pendingCounterOffer.discountPercent}% counter-offer. Revision v{q.currentVersion} has been issued at{' '}
+                        <span className="font-mono font-bold">ETB {(q.finalQuotedTotalEtb || 0).toLocaleString()}</span>. You can now accept &amp; authorize the contract!
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
                 ))}
@@ -1253,10 +1510,34 @@ export default function CustomerPortalPage() {
                   </div>
                 </div>
                 <button
+                  type="button"
                   onClick={() => setChatQuote(null)}
-                  className="text-slate-400 hover:text-white font-bold"
+                  className="text-slate-400 hover:text-white font-bold text-sm px-2 py-1"
                 >
                   ✕
+                </button>
+              </div>
+
+              {/* Price Banner & Counter-Offer Quick Action inside Chat */}
+              <div className="px-4 py-2.5 bg-sky-900/30 border-b border-sky-800/40 flex items-center justify-between gap-2">
+                <div className="text-[11px] text-slate-700">
+                  <span className="text-slate-500 uppercase text-[9px] font-bold block">Quoted Price:</span>
+                  <span className="font-mono font-black text-xs text-amg-navy">
+                    ETB {(chatQuote.finalQuotedTotalEtb || chatQuote.estimatedTotalEtb || 0).toLocaleString()}
+                  </span>
+                  {chatQuote.pendingCounterOffer && chatQuote.pendingCounterOffer.status === 'pending' && (
+                    <span className="ml-1 text-[10px] text-amber-600 font-bold">
+                      (Counter: ETB {chatQuote.pendingCounterOffer.targetPriceEtb.toLocaleString()} pending)
+                    </span>
+                  )}
+                </div>
+                <button
+                  type="button"
+                  onClick={() => handleOpenNegotiation(chatQuote)}
+                  className="px-2.5 py-1 bg-amber-500 hover:bg-amber-600 text-white font-bold text-[11px] rounded transition-all flex items-center space-x-1 shadow-xs"
+                >
+                  <Tag className="w-3 h-3" />
+                  <span>Propose Counter-Offer</span>
                 </button>
               </div>
 
@@ -1316,6 +1597,172 @@ export default function CustomerPortalPage() {
                   <Send className="w-3.5 h-3.5" />
                   <span>Send</span>
                 </button>
+              </form>
+            </div>
+          </div>
+        )}
+
+        {/* Commercial Price Negotiation & Counter-Offer Modal (SRS 4.1 / 4.5) */}
+        {negotiatingQuote && (
+          <div
+            onClick={() => setNegotiatingQuote(null)}
+            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/75 backdrop-blur-sm animate-in fade-in cursor-pointer"
+          >
+            <div
+              onClick={(e) => e.stopPropagation()}
+              className="bg-white border border-slate-300 rounded-2xl shadow-2xl max-w-lg w-full flex flex-col overflow-hidden text-xs cursor-default"
+            >
+              {/* Header */}
+              <div className="px-6 py-4 bg-gradient-to-r from-amber-600 via-amber-700 to-amber-800 text-white flex items-center justify-between">
+                <div className="flex items-center space-x-2.5">
+                  <Tag className="w-5 h-5 text-amber-200" />
+                  <div>
+                    <h3 className="font-bold text-sm uppercase tracking-wide">
+                      Negotiate Commercial Price: {negotiatingQuote.quoteNumber}
+                    </h3>
+                    <span className="text-[11px] text-amber-200/90 font-normal">
+                      Propose a formal price reduction to the assigned sales engineer
+                    </span>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setNegotiatingQuote(null)}
+                  className="text-white/80 hover:text-white font-bold text-base p-1"
+                >
+                  ✕
+                </button>
+              </div>
+
+              {/* Body */}
+              <form onSubmit={handleSubmitCounterOffer} className="p-6 space-y-4 bg-white">
+                {/* Baseline Price Summary */}
+                <div className="bg-slate-50 border border-slate-200 rounded-xl p-4 flex items-center justify-between">
+                  <div>
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500 block">
+                      Currently Quoted Price
+                    </span>
+                    <div className="text-lg font-mono font-extrabold text-amg-navy">
+                      ETB {(negotiatingQuote.finalQuotedTotalEtb || negotiatingQuote.estimatedTotalEtb || 0).toLocaleString()}
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500 block">
+                      Assigned Lead Desk
+                    </span>
+                    <div className="text-xs font-semibold text-sky-700">
+                      {negotiatingQuote.assignedAgentName || 'AMG Sales Engineering'}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Target Discount Percentage Selector */}
+                <div className="space-y-2">
+                  <label className="block text-xs font-bold text-slate-800 uppercase tracking-wide">
+                    Quick Discount Selection:
+                  </label>
+                  <div className="grid grid-cols-4 gap-2">
+                    {[5, 10, 15, 20].map((pct) => (
+                      <button
+                        key={pct}
+                        type="button"
+                        onClick={() => handleApplyDiscountPercent(pct)}
+                        className={`py-2 px-1 rounded-xl font-bold text-xs border transition-all text-center ${
+                          counterDiscountPercent === pct
+                            ? 'bg-amber-500 border-amber-600 text-white shadow-sm ring-2 ring-amber-300'
+                            : 'bg-slate-50 border-slate-200 text-slate-700 hover:border-amber-400'
+                        }`}
+                      >
+                        -{pct}% Discount
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Custom Target Price Input */}
+                <div className="space-y-1.5">
+                  <label className="block text-xs font-bold text-slate-800">
+                    Proposed Target Price (ETB):
+                  </label>
+                  <div className="relative">
+                    <span className="absolute left-3 top-2.5 text-xs font-mono font-bold text-slate-400">ETB</span>
+                    <input
+                      type="number"
+                      required
+                      min={1}
+                      max={negotiatingQuote.finalQuotedTotalEtb || negotiatingQuote.estimatedTotalEtb || 100000000}
+                      value={counterTargetPrice}
+                      onChange={(e) => handleCustomTargetPriceChange(Number(e.target.value) || 0)}
+                      className="w-full pl-12 pr-4 py-2 text-sm font-mono font-bold bg-white border border-slate-300 rounded-xl text-slate-900 focus:border-amber-500 outline-none"
+                    />
+                  </div>
+                  <div className="flex items-center justify-between text-[11px] text-slate-500 pt-1">
+                    <span>
+                      Proposed Reduction:{' '}
+                      <strong className="text-emerald-600 font-mono">
+                        -ETB {Math.max(0, (negotiatingQuote.finalQuotedTotalEtb || negotiatingQuote.estimatedTotalEtb || 0) - counterTargetPrice).toLocaleString()}
+                      </strong>
+                    </span>
+                    <span>
+                      Effective Discount: <strong className="text-amber-600 font-mono">-{counterDiscountPercent}%</strong>
+                    </span>
+                  </div>
+                </div>
+
+                {/* Commercial Reason & Justification */}
+                <div className="space-y-2">
+                  <label className="block text-xs font-bold text-slate-800">
+                    Commercial Justification / Reason:
+                  </label>
+                  <div className="flex flex-wrap gap-1.5 mb-2">
+                    {[
+                      'Budget ceiling limitation',
+                      'Matching competitor formal quote',
+                      'Volume bulk procurement discount',
+                      'Immediate payment authorization upon approval',
+                    ].map((reasonChip) => (
+                      <button
+                        key={reasonChip}
+                        type="button"
+                        onClick={() => setCounterReason(reasonChip)}
+                        className={`text-[10px] px-2.5 py-1 rounded-full border transition-all ${
+                          counterReason === reasonChip
+                            ? 'bg-amber-100 border-amber-300 text-amber-900 font-bold'
+                            : 'bg-slate-100 border-slate-200 text-slate-600 hover:border-slate-400'
+                        }`}
+                      >
+                        {reasonChip}
+                      </button>
+                    ))}
+                  </div>
+                  <textarea
+                    rows={3}
+                    required
+                    value={counterReason}
+                    onChange={(e) => setCounterReason(e.target.value)}
+                    placeholder="Explain the commercial reason for requesting this discount..."
+                    className="w-full p-3 text-xs bg-white border border-slate-300 rounded-xl text-slate-900 focus:border-amber-500 outline-none"
+                  />
+                </div>
+
+                {/* Submit Action */}
+                <div className="flex items-center justify-end space-x-2 pt-2 border-t border-slate-200">
+                  <button
+                    type="button"
+                    onClick={() => setNegotiatingQuote(null)}
+                    className="px-4 py-2 border border-slate-300 text-slate-700 font-bold text-xs rounded-xl hover:bg-slate-100 transition-all"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={isSubmittingCounter}
+                    className="px-5 py-2 bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs rounded-xl shadow-md transition-all flex items-center space-x-1.5 disabled:opacity-50"
+                  >
+                    <Send className="w-3.5 h-3.5" />
+                    <span>{isSubmittingCounter ? 'Submitting...' : `Submit Counter-Offer (ETB ${counterTargetPrice.toLocaleString()})`}</span>
+                  </button>
+                </div>
               </form>
             </div>
           </div>
