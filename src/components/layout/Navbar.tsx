@@ -39,6 +39,24 @@ export function Navbar() {
   const { wishlistCount } = useWishlist();
   const [searchQuery, setSearchQuery] = useState('');
   const [searchSubsidiary, setSearchSubsidiary] = useState('all');
+  const [activeSubSlug, setActiveSubSlug] = useState<string>('all');
+
+  React.useEffect(() => {
+    const updateActive = () => {
+      if (typeof window !== 'undefined') {
+        const params = new URLSearchParams(window.location.search);
+        const sub = params.get('subsidiary');
+        setActiveSubSlug(sub || 'all');
+      }
+    };
+    updateActive();
+    window.addEventListener('popstate', updateActive);
+    window.addEventListener('hashchange', updateActive);
+    return () => {
+      window.removeEventListener('popstate', updateActive);
+      window.removeEventListener('hashchange', updateActive);
+    };
+  }, [pathname]);
 
   const roleLabels: Record<UserRole, { label: string; badgeColor: string; route: string }> = {
     super_admin: { label: 'Corporate Super Admin', badgeColor: 'bg-purple-950 text-purple-200 border-purple-700/50', route: '/admin' },
@@ -497,43 +515,58 @@ export function Navbar() {
       </div>
 
       {/* 3. SUBSIDIARY DIRECTORY NAVIGATION BAR */}
-      <nav className="bg-[#0B0B0C] text-white border-t border-[#1A1A1D]">
-        <div className="max-w-7xl mx-auto px-4 flex items-center justify-between overflow-x-auto scrollbar-none py-1.5">
-          <div className="flex items-center space-x-1.5 shrink-0 font-medium text-xs">
+      <nav className="bg-white/90 dark:bg-[#0B0B0C]/90 backdrop-blur-md border-t border-[#E4E4E7] dark:border-[#1A1A1D] transition-colors py-2">
+        <div className="max-w-7xl mx-auto px-4 flex items-center justify-between overflow-x-auto scrollbar-none gap-4">
+          <div className="flex items-center space-x-2 shrink-0 text-xs">
             <Link
               href="/?subsidiary=all&stream=all#catalog-section"
-              className="px-3 py-1.5 bg-white text-[#0B0B0C] hover:bg-[#C6F432] rounded-full font-bold text-xs transition-colors flex items-center space-x-1"
+              onClick={() => setActiveSubSlug('all')}
+              className={`px-3.5 py-1.5 font-semibold transition-all rounded-full whitespace-nowrap text-xs flex items-center space-x-1.5 ${
+                activeSubSlug === 'all'
+                  ? 'bg-[#C6F432] text-[#0B0B0C] font-bold shadow-[0_0_12px_rgba(198,244,50,0.25)] border border-[#C6F432]'
+                  : 'bg-white dark:bg-[#141416] text-[#71717A] dark:text-[#A1A1AA] border border-[#E4E4E7] dark:border-[#2A2A2E] hover:text-[#0B0B0C] dark:hover:text-white hover:border-[#C6F432]/50 shadow-2xs'
+              }`}
             >
+              {activeSubSlug === 'all' && <span className="w-1.5 h-1.5 rounded-full bg-[#0B0B0C]" />}
               <span>Enterprise Catalog</span>
             </Link>
 
-            {SUBSIDIARIES.map((sub) => (
-              <Link
-                key={sub.id}
-                href={`/?subsidiary=${sub.slug}#catalog-section`}
-                className="px-3 py-1.5 text-[#D4D4D8] hover:text-white hover:bg-[#1A1A1D] rounded-full transition-colors whitespace-nowrap text-xs"
-              >
-                {sub.name.replace('AMG ', '')}
-              </Link>
-            ))}
+            {SUBSIDIARIES.map((sub) => {
+              const isActive = activeSubSlug === sub.slug || activeSubSlug === sub.id;
+              return (
+                <Link
+                  key={sub.id}
+                  href={`/?subsidiary=${sub.slug}#catalog-section`}
+                  onClick={() => setActiveSubSlug(sub.slug)}
+                  className={`px-3.5 py-1.5 font-semibold transition-all rounded-full whitespace-nowrap text-xs flex items-center space-x-1.5 ${
+                    isActive
+                      ? 'bg-[#C6F432] text-[#0B0B0C] font-bold shadow-[0_0_12px_rgba(198,244,50,0.25)] border border-[#C6F432]'
+                      : 'bg-white dark:bg-[#141416] text-[#71717A] dark:text-[#A1A1AA] border border-[#E4E4E7] dark:border-[#2A2A2E] hover:text-[#0B0B0C] dark:hover:text-white hover:border-[#C6F432]/50 shadow-2xs'
+                  }`}
+                >
+                  {isActive && <span className="w-1.5 h-1.5 rounded-full bg-[#0B0B0C]" />}
+                  <span>{sub.name.replace('AMG ', '')}</span>
+                </Link>
+              );
+            })}
           </div>
 
           <div className="hidden lg:flex items-center space-x-2 text-[11px] shrink-0">
             <Link
               href="/?stream=direct_checkout#catalog-section"
-              className="px-3 py-1 bg-[#141416] hover:bg-[#1A1A1D] text-[#E4E4E7] hover:text-white border border-[#2A2A2E] hover:border-[#C6F432]/60 rounded-full transition-all flex items-center space-x-1.5"
+              className="px-3 py-1.5 bg-white dark:bg-[#141416] hover:bg-slate-50 dark:hover:bg-[#1A1A1D] text-[#0B0B0C] dark:text-[#E4E4E7] border border-[#E4E4E7] dark:border-[#2A2A2E] hover:border-[#C6F432]/60 rounded-full transition-all flex items-center space-x-1.5 font-medium shadow-2xs"
               title="Filter catalog to Stream A instant buy products"
             >
-              <span className="w-1.5 h-1.5 rounded-full bg-[#C6F432]" />
+              <span className="w-1.5 h-1.5 rounded-full bg-[#16A34A] dark:bg-[#C6F432] shadow-[0_0_6px_#C6F432]" />
               <span>Direct Buy: Stream A</span>
             </Link>
-            <span className="text-[#3F3F46]">•</span>
+            <span className="text-slate-300 dark:text-[#3F3F46]">•</span>
             <Link
               href="/?stream=assisted_quote#catalog-section"
-              className="px-3 py-1 bg-[#141416] hover:bg-[#1A1A1D] text-[#E4E4E7] hover:text-white border border-[#2A2A2E] hover:border-white rounded-full transition-all flex items-center space-x-1.5"
+              className="px-3 py-1.5 bg-white dark:bg-[#141416] hover:bg-slate-50 dark:hover:bg-[#1A1A1D] text-[#0B0B0C] dark:text-[#E4E4E7] border border-[#E4E4E7] dark:border-[#2A2A2E] hover:border-slate-400 dark:hover:border-white rounded-full transition-all flex items-center space-x-1.5 font-medium shadow-2xs"
               title="Filter catalog to Stream B custom engineering RFQ products"
             >
-              <FileText className="w-3 h-3 text-[#A1A1AA]" />
+              <FileText className="w-3 h-3 text-[#16A34A] dark:text-[#C6F432]" />
               <span>Heavy Engineering: Stream B</span>
             </Link>
           </div>
