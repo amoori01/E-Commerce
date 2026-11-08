@@ -130,7 +130,7 @@ export default function ProductDetailPage({ params }: ProductPageProps) {
               src={selectedImage}
               alt={product.name}
               onError={(e) => {
-                (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=800&auto=format&fit=crop&q=80';
+                (e.target as HTMLImageElement).src = '/products/amg-structural-steel-beams.jpg';
               }}
               className="w-full h-full object-cover"
             />
@@ -164,7 +164,7 @@ export default function ProductDetailPage({ params }: ProductPageProps) {
                   src={product.imageUrl}
                   alt="Main"
                   onError={(e) => {
-                    (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=800&auto=format&fit=crop&q=80';
+                    (e.target as HTMLImageElement).src = '/products/amg-structural-steel-beams.jpg';
                   }}
                   className="w-full h-full object-cover"
                 />
@@ -182,7 +182,7 @@ export default function ProductDetailPage({ params }: ProductPageProps) {
                     src={img}
                     alt={`Gallery ${idx}`}
                     onError={(e) => {
-                      (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=800&auto=format&fit=crop&q=80';
+                      (e.target as HTMLImageElement).src = '/products/amg-structural-steel-beams.jpg';
                     }}
                     className="w-full h-full object-cover"
                   />
@@ -627,7 +627,7 @@ export default function ProductDetailPage({ params }: ProductPageProps) {
                       src={rel.imageUrl}
                       alt={rel.name}
                       onError={(e) => {
-                        (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=800&auto=format&fit=crop&q=80';
+                        (e.target as HTMLImageElement).src = '/products/amg-structural-steel-beams.jpg';
                       }}
                       className="w-full h-full object-cover"
                     />

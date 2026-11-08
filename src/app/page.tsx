@@ -390,7 +390,7 @@ function HomePageContent() {
                       src={sub.imageUrl}
                       alt={sub.name}
                       onError={(e) => {
-                        (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=800&auto=format&fit=crop&q=80';
+                        (e.target as HTMLImageElement).src = '/products/amg-structural-steel-beams.jpg';
                       }}
                       className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                     />
@@ -514,7 +514,7 @@ function HomePageContent() {
                           alt={product.name}
                           loading="lazy"
                           onError={(e) => {
-                            (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=800&auto=format&fit=crop&q=80';
+                            (e.target as HTMLImageElement).src = '/products/amg-structural-steel-beams.jpg';
                           }}
                           className="w-full h-full object-cover group-hover:scale-108 transition-transform duration-500 ease-out"
                         />
