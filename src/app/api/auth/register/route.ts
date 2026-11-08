@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import crypto from 'crypto';
-import { SEEDED_USERS } from '@/lib/constants';
+import { SEEDED_USERS, BRANCHES } from '@/lib/constants';
 import { signJwt, registerRefreshToken } from '@/lib/jwt';
 import { UserProfile, UserRole } from '@/types';
 
@@ -15,7 +15,18 @@ const USER_DIRECTORY: UserProfile[] = [...SEEDED_USERS];
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const { email, phone, fullName, password, companyName, tinNumber, role = 'customer' } = body;
+    const {
+      email,
+      phone,
+      fullName,
+      password,
+      companyName,
+      tinNumber,
+      vatNumber,
+      customerType = 'b2b',
+      branchId,
+      role = 'customer',
+    } = body;
 
     // 1. Validation
     if (!fullName || fullName.trim().length < 2) {
@@ -48,7 +59,12 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Password must be at least 8 characters' }, { status: 400 });
     }
 
-    // 2. Create User Profile
+    // Resolve chosen or default branch
+    const matchedBranch = BRANCHES.find((b) => b.id === branchId || b.code === branchId) || BRANCHES[0];
+
+    const isB2C = customerType === 'b2c';
+
+    // 2. Create User Profile aligned with platform domain model
     const newUserId = `u-${Date.now()}-${crypto.randomBytes(4).toString('hex')}`;
     const newUser: UserProfile = {
       id: newUserId,
@@ -56,9 +72,14 @@ export async function POST(req: NextRequest) {
       phone,
       fullName: fullName.trim(),
       role: role as UserRole,
-      companyName: companyName?.trim() || undefined,
-      tinNumber: tinNumber?.trim() || undefined,
+      customerType: isB2C ? 'b2c' : 'b2b',
+      companyName: isB2C ? 'Individual Retail Buyer' : (companyName?.trim() || 'Commercial Enterprise'),
+      tinNumber: isB2C ? 'N/A (Consumer)' : (tinNumber?.trim() || undefined),
+      vatNumber: isB2C ? 'N/A (Standard Retail)' : (vatNumber?.trim() || undefined),
+      branchId: matchedBranch.id,
+      branchName: matchedBranch.name,
       isVerified: true,
+      twoFactorEnabled: false,
     };
 
     USER_DIRECTORY.push(newUser);

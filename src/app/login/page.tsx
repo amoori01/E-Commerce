@@ -5,7 +5,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useAuth } from '@/lib/auth-context';
-import { SEEDED_USERS } from '@/lib/constants';
+import { SEEDED_USERS, BRANCHES } from '@/lib/constants';
 import { UserProfile, UserRole } from '@/types';
 import {
   Shield,
@@ -57,6 +57,9 @@ function LoginContent() {
   const [regPhone, setRegPhone] = useState('');
   const [regCompanyName, setRegCompanyName] = useState('');
   const [regTinNumber, setRegTinNumber] = useState('');
+  const [regVatNumber, setRegVatNumber] = useState('');
+  const [regBranchId, setRegBranchId] = useState(BRANCHES[0]?.id || 'a1111111-1111-1111-1111-111111111111');
+  const [regCity, setRegCity] = useState('Addis Ababa');
   const [regPassword, setRegPassword] = useState('');
   const [regConfirmPassword, setRegConfirmPassword] = useState('');
   const [showRegPassword, setShowRegPassword] = useState(false);
@@ -154,8 +157,12 @@ function LoginContent() {
         email: regEmail.trim() || undefined,
         phone: regPhone.trim() || undefined,
         password: regPassword,
-        companyName: regAccountType === 'b2b' ? regCompanyName.trim() : undefined,
-        tinNumber: regAccountType === 'b2b' ? regTinNumber.trim() : undefined,
+        customerType: regAccountType,
+        branchId: regBranchId,
+        companyName: regAccountType === 'b2b' ? regCompanyName.trim() : 'Individual Retail Buyer',
+        tinNumber: regAccountType === 'b2b' ? regTinNumber.trim() : 'N/A (Consumer)',
+        vatNumber: regAccountType === 'b2b' ? (regVatNumber.trim() || undefined) : 'N/A (Standard Retail)',
+        city: regCity,
         role: 'customer',
       };
 
@@ -518,20 +525,20 @@ function LoginContent() {
                     <label className="text-[11px] font-bold uppercase tracking-wider text-[#D4D4D8] block mb-2">
                       Customer Classification
                     </label>
-                    <div className="grid grid-cols-2 gap-2">
+                    <div className="grid grid-cols-2 gap-2 mb-2.5">
                       <button
                         type="button"
                         onClick={() => setRegAccountType('b2b')}
                         className={`p-3 rounded-2xl border text-left flex items-start space-x-2.5 transition-all ${
                           regAccountType === 'b2b'
-                            ? 'border-[#C6F432] bg-[#C6F432]/10 text-white'
+                            ? 'border-[#C6F432] bg-[#C6F432]/10 text-white shadow-xs'
                             : 'border-[#27272A] bg-[#18181B] text-[#A1A1AA] hover:border-[#3F3F46]'
                         }`}
                       >
                         <Building2 className={`w-4 h-4 shrink-0 mt-0.5 ${regAccountType === 'b2b' ? 'text-[#C6F432]' : 'text-[#71717A]'}`} />
                         <div>
                           <div className="font-bold text-xs text-white">Commercial B2B</div>
-                          <div className="text-[10px] text-[#A1A1AA]">Corporate, builder, or fleet</div>
+                          <div className="text-[10px] text-[#A1A1AA]">Contractor, builder, or fleet</div>
                         </div>
                       </button>
 
@@ -540,64 +547,126 @@ function LoginContent() {
                         onClick={() => setRegAccountType('b2c')}
                         className={`p-3 rounded-2xl border text-left flex items-start space-x-2.5 transition-all ${
                           regAccountType === 'b2c'
-                            ? 'border-[#C6F432] bg-[#C6F432]/10 text-white'
+                            ? 'border-[#C6F432] bg-[#C6F432]/10 text-white shadow-xs'
                             : 'border-[#27272A] bg-[#18181B] text-[#A1A1AA] hover:border-[#3F3F46]'
                         }`}
                       >
                         <User className={`w-4 h-4 shrink-0 mt-0.5 ${regAccountType === 'b2c' ? 'text-[#C6F432]' : 'text-[#71717A]'}`} />
                         <div>
                           <div className="font-bold text-xs text-white">Retail / Individual</div>
-                          <div className="text-[10px] text-[#A1A1AA]">Direct personal shopping</div>
+                          <div className="text-[10px] text-[#A1A1AA]">Direct personal buyer</div>
                         </div>
                       </button>
                     </div>
+
+                    {/* Contextual Tier Notice */}
+                    {regAccountType === 'b2b' ? (
+                      <div className="p-2.5 rounded-xl bg-[#141E28] border border-sky-500/30 text-[11px] text-sky-200 flex items-center space-x-2">
+                        <Building2 className="w-3.5 h-3.5 text-sky-400 shrink-0" />
+                        <span>Enables ERCA 15% VAT tax invoices, corporate credit terms, and custom PEB engineering RFQs.</span>
+                      </div>
+                    ) : (
+                      <div className="p-2.5 rounded-xl bg-[#132219] border border-emerald-500/30 text-[11px] text-emerald-200 flex items-center space-x-2">
+                        <Check className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+                        <span>Instant consumer access (like Ahmed). No company TIN or commercial trade licenses required.</span>
+                      </div>
+                    )}
                   </div>
 
                   {/* Representative Full Name */}
                   <div className="space-y-1">
                     <label className="text-[11px] font-bold uppercase tracking-wider text-[#D4D4D8] block">
-                      Full Representative Name *
+                      Full {regAccountType === 'b2b' ? 'Representative' : 'Customer'} Name *
                     </label>
                     <input
                       type="text"
                       required
                       value={regFullName}
                       onChange={(e) => setRegFullName(e.target.value)}
-                      placeholder="e.g., Eng. Dawit Kebede or Ahmed Mohammed"
+                      placeholder={regAccountType === 'b2b' ? 'e.g., Eng. Dawit Kebede' : 'e.g., Ahmed Mohammed'}
                       className="w-full bg-[#18181B] border border-[#2E2E34] focus:border-[#C6F432] focus:ring-4 focus:ring-[#C6F432]/10 text-white rounded-xl px-3.5 py-2.5 text-xs outline-none transition-all placeholder-[#71717A]"
                     />
                   </div>
 
-                  {/* Company Name & TIN (Conditional for B2B) */}
+                  {/* Company Name & TIN & VAT (Conditional for B2B) */}
                   {regAccountType === 'b2b' && (
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 animate-in fade-in">
-                      <div className="space-y-1">
-                        <label className="text-[11px] font-bold uppercase tracking-wider text-[#D4D4D8] block">
-                          Company Legal Name *
-                        </label>
-                        <input
-                          type="text"
-                          required={regAccountType === 'b2b'}
-                          value={regCompanyName}
-                          onChange={(e) => setRegCompanyName(e.target.value)}
-                          placeholder="e.g., Sunshine Construction PLC"
-                          className="w-full bg-[#18181B] border border-[#2E2E34] focus:border-[#C6F432] text-white rounded-xl px-3 py-2.5 text-xs outline-none transition-all placeholder-[#71717A]"
-                        />
+                    <div className="space-y-2.5 animate-in fade-in">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                        <div className="space-y-1">
+                          <label className="text-[11px] font-bold uppercase tracking-wider text-[#D4D4D8] block">
+                            Company Legal Name *
+                          </label>
+                          <input
+                            type="text"
+                            required={regAccountType === 'b2b'}
+                            value={regCompanyName}
+                            onChange={(e) => setRegCompanyName(e.target.value)}
+                            placeholder="e.g., Sunshine Construction PLC"
+                            className="w-full bg-[#18181B] border border-[#2E2E34] focus:border-[#C6F432] text-white rounded-xl px-3 py-2.5 text-xs outline-none transition-all placeholder-[#71717A]"
+                          />
+                        </div>
+                        <div className="space-y-1">
+                          <label className="text-[11px] font-bold uppercase tracking-wider text-[#D4D4D8] block">
+                            Ethiopian TIN (10-Digit) *
+                          </label>
+                          <input
+                            type="text"
+                            required={regAccountType === 'b2b'}
+                            value={regTinNumber}
+                            onChange={(e) => setRegTinNumber(e.target.value)}
+                            placeholder="0019283746"
+                            className="w-full bg-[#18181B] border border-[#2E2E34] focus:border-[#C6F432] text-white rounded-xl px-3 py-2.5 text-xs outline-none transition-all placeholder-[#71717A] font-mono"
+                          />
+                        </div>
                       </div>
+
                       <div className="space-y-1">
                         <label className="text-[11px] font-bold uppercase tracking-wider text-[#D4D4D8] block">
-                          Ethiopian TIN (10-Digit)
+                          ERCA VAT Registration Number (Optional)
                         </label>
                         <input
                           type="text"
-                          value={regTinNumber}
-                          onChange={(e) => setRegTinNumber(e.target.value)}
-                          placeholder="0019283746"
-                          className="w-full bg-[#18181B] border border-[#2E2E34] focus:border-[#C6F432] text-white rounded-xl px-3 py-2.5 text-xs outline-none transition-all placeholder-[#71717A] font-mono"
+                          value={regVatNumber}
+                          onChange={(e) => setRegVatNumber(e.target.value)}
+                          placeholder="e.g., 01-2948-59281"
+                          className="w-full bg-[#18181B] border border-[#2E2E34] focus:border-[#C6F432] text-white rounded-xl px-3 py-2 text-xs outline-none transition-all placeholder-[#71717A] font-mono"
                         />
                       </div>
                     </div>
                   )}
+
+                  {/* Primary Servicing Hub & Destination */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                    <div className="space-y-1">
+                      <label className="text-[11px] font-bold uppercase tracking-wider text-[#D4D4D8] block">
+                        Fulfillment Branch Hub
+                      </label>
+                      <select
+                        value={regBranchId}
+                        onChange={(e) => setRegBranchId(e.target.value)}
+                        className="w-full bg-[#18181B] border border-[#2E2E34] focus:border-[#C6F432] text-white rounded-xl px-3 py-2.5 text-xs outline-none transition-all cursor-pointer"
+                      >
+                        {BRANCHES.map((b) => (
+                          <option key={b.id} value={b.id} className="bg-[#141416] text-white">
+                            {b.name} ({b.city})
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+
+                    <div className="space-y-1">
+                      <label className="text-[11px] font-bold uppercase tracking-wider text-[#D4D4D8] block">
+                        Delivery City / Region
+                      </label>
+                      <input
+                        type="text"
+                        value={regCity}
+                        onChange={(e) => setRegCity(e.target.value)}
+                        placeholder="e.g., Addis Ababa, Bole"
+                        className="w-full bg-[#18181B] border border-[#2E2E34] focus:border-[#C6F432] text-white rounded-xl px-3 py-2.5 text-xs outline-none transition-all placeholder-[#71717A]"
+                      />
+                    </div>
+                  </div>
 
                   {/* Email & Ethiopian Mobile */}
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
