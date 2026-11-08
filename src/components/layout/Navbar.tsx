@@ -304,7 +304,7 @@ export function Navbar() {
                 <span>{currentUser.fullName}</span>
               </span>
               <span className={`px-2 py-0.5 rounded-full text-[9px] font-bold uppercase ${roleLabels[activeRole]?.badgeColor || 'bg-[#1A1A1D] text-white border border-[#2A2A2E]'}`}>
-                {activeRole.replace('_', ' ')}
+                {activeRole === 'customer' ? (currentUser.customerType === 'b2c' ? 'B2C Retail' : 'B2B Corporate') : activeRole.replace('_', ' ')}
               </span>
 
               {/* Quick link to current role's portal */}
@@ -313,7 +313,7 @@ export function Navbar() {
                 className="ml-1.5 px-3 py-0.5 bg-[#141416] hover:bg-[#1A1A1D] text-[#C6F432] border border-[#C6F432]/40 rounded-full font-bold text-[10px] flex items-center space-x-1 transition-all"
               >
                 <Shield className="w-3 h-3 text-[#C6F432]" />
-                <span>Go to Portal</span>
+                <span>{activeRole === 'customer' ? 'Orders & Quotes' : 'Go to Portal'}</span>
               </Link>
 
               <Link

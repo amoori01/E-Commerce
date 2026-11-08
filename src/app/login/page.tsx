@@ -83,7 +83,7 @@ function LoginContent() {
     branch_admin: '/branch-admin',
     sales_agent: '/agent',
     finance: '/finance',
-    customer: '/portal',
+    customer: '/',
   };
 
   const handleStandardLogin = async (e: React.FormEvent) => {
@@ -182,11 +182,11 @@ function LoginContent() {
         throw new Error(data.error || 'Registration failed');
       }
 
-      setRegSuccessNotice('Account successfully registered! Redirecting to your Customer Portal...');
+      setRegSuccessNotice('Account successfully registered! Redirecting to storefront catalog...');
       if (data.user) {
         setUser(data.user);
         setTimeout(() => {
-          router.push('/portal');
+          router.push('/');
         }, 1200);
       }
     } catch (err: unknown) {
@@ -807,7 +807,7 @@ function LoginContent() {
                         finance: { bg: 'bg-lime-100 dark:bg-[#C6F432]/10 border-lime-300 dark:border-[#C6F432]/30', text: 'text-lime-900 dark:text-[#C6F432]', label: 'Finance Lead', portal: '/finance' },
                         branch_admin: { bg: 'bg-emerald-100 dark:bg-emerald-950/80 border-emerald-300 dark:border-emerald-500/40', text: 'text-emerald-800 dark:text-emerald-300', label: 'Branch Admin', portal: '/branch-admin' },
                         sales_agent: { bg: 'bg-sky-100 dark:bg-sky-950/80 border-sky-300 dark:border-sky-500/40', text: 'text-sky-800 dark:text-sky-300', label: 'Sales Agent', portal: '/agent' },
-                        customer: { bg: 'bg-amber-100 dark:bg-amber-950/80 border-amber-300 dark:border-amber-500/40', text: 'text-amber-800 dark:text-amber-300', label: 'B2B Customer', portal: '/portal' },
+                        customer: { bg: 'bg-amber-100 dark:bg-amber-950/80 border-amber-300 dark:border-amber-500/40', text: 'text-amber-800 dark:text-amber-300', label: 'B2B Customer', portal: '/' },
                       };
 
                       const roleInfo = badgeStyles[u.role];
@@ -832,7 +832,7 @@ function LoginContent() {
                               </span>
                             </div>
                             <div className="text-[11px] text-slate-600 dark:text-[#A1A1AA] font-mono">
-                              {u.email}
+                                {u.email}
                             </div>
                             {(u.companyName || u.branchName) && (
                               <div className="text-[10px] text-slate-500 dark:text-[#71717A]">
@@ -842,7 +842,7 @@ function LoginContent() {
                           </div>
 
                           <div className="flex items-center space-x-1.5 text-xs font-bold text-slate-500 dark:text-[#A1A1AA] group-hover:text-emerald-700 dark:group-hover:text-[#C6F432] transition-colors pl-3 shrink-0">
-                            <span className="hidden sm:inline">Enter Portal</span>
+                            <span className="hidden sm:inline">{u.role === 'customer' ? 'Browse Catalog' : 'Enter Portal'}</span>
                             <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
                           </div>
                         </div>
