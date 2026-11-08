@@ -125,7 +125,7 @@ export function RfqModal() {
         projectTitle,
         deliveryDestination,
         targetDeliveryDate,
-        customerRequirements: uploadedFileUrl || customerRequirements,
+        customerRequirements: payload.customerRequirements,
         estimatedTotalEtb: 0,
         createdAt: new Date().toISOString(),
         items: payload.items,
