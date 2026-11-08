@@ -42,6 +42,7 @@ import {
   QrCode,
   ShieldAlert,
   ArrowRight,
+  ChevronDown,
   Users,
   UserCheck,
   Briefcase,
@@ -697,29 +698,36 @@ export default function BranchAdminPage() {
               </p>
             </div>
 
-            {/* Operating Branch Dropdown */}
-            <div className="bg-[#141416] border border-[#2A2A2E] p-4 rounded-2xl shrink-0 space-y-2 shadow-sm min-w-[280px]">
-              <div className="text-[10px] uppercase font-bold text-[#A1A1AA] tracking-wider border-b border-[#222225] pb-2">
-                Active Regional Depot
-              </div>
-              <div>
-                <select
-                  value={selectedBranchId}
-                  onChange={(e) => setSelectedBranchId(e.target.value)}
-                  className="w-full bg-[#0E0E10] border border-[#2A2A2E] text-white font-bold px-3 py-2 rounded-xl text-xs outline-none focus:border-[#C6F432] transition-colors"
-                >
-                  <option value="all">All Regional Depots ({ordersList.length} total orders)</option>
-                  {BRANCHES.map((b) => {
-                    const count = ordersList.filter((o) => o.fulfillmentBranchId === b.id).length;
-                    return (
-                      <option key={b.id} value={b.id}>
-                        {b.name} ({b.city}) {count > 0 ? `• [${count} order${count > 1 ? 's' : ''}]` : ''}
-                      </option>
-                    );
-                  })}
-                </select>
-                <div className="text-[11px] text-[#C6F432] mt-1.5 font-mono flex items-center space-x-1">
-                  <MapPin className="w-3 h-3 text-[#C6F432] shrink-0" />
+            {/* Operating Branch Scope Selector */}
+            <div className="shrink-0 flex items-center lg:self-center">
+              <div className="bg-[#141416]/90 border border-[#2A2A2E] hover:border-[#C6F432]/40 rounded-xl px-3 py-2 shadow-sm transition-all sm:w-72 w-full">
+                <div className="flex items-center justify-between text-[10px] uppercase font-bold text-[#71717A] tracking-wider mb-1.5 px-0.5">
+                  <span className="flex items-center gap-1.5">
+                    <span className="w-1.5 h-1.5 rounded-full bg-[#C6F432] shadow-[0_0_6px_#C6F432]" />
+                    Depot Scope
+                  </span>
+                  <span className="text-[#C6F432] font-mono text-[10px] font-semibold">{activeBranch.code}</span>
+                </div>
+                <div className="relative">
+                  <select
+                    value={selectedBranchId}
+                    onChange={(e) => setSelectedBranchId(e.target.value)}
+                    className="w-full appearance-none bg-[#0E0E10] border border-[#2A2A2E] hover:border-[#3E3E44] focus:border-[#C6F432] text-white font-medium pl-2.5 pr-7 py-1.5 rounded-lg text-xs outline-none transition-colors cursor-pointer"
+                  >
+                    <option value="all">All Regional Depots ({ordersList.length} orders)</option>
+                    {BRANCHES.map((b) => {
+                      const count = ordersList.filter((o) => o.fulfillmentBranchId === b.id).length;
+                      return (
+                        <option key={b.id} value={b.id}>
+                          {b.name} ({b.city}) {count > 0 ? `• [${count}]` : ''}
+                        </option>
+                      );
+                    })}
+                  </select>
+                  <ChevronDown className="w-3.5 h-3.5 text-[#A1A1AA] pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2" />
+                </div>
+                <div className="text-[10px] text-[#71717A] mt-1 px-0.5 flex items-center space-x-1 font-mono">
+                  <MapPin className="w-2.5 h-2.5 text-[#C6F432] shrink-0" />
                   <span className="truncate">{activeBranch.address}</span>
                 </div>
               </div>
