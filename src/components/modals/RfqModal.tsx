@@ -45,6 +45,17 @@ export function RfqModal() {
     setUploadedFileUrl(null);
   }, [rfqProduct, isRfqOpen]);
 
+  useEffect(() => {
+    if (!isRfqOpen) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        handleClose();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isRfqOpen]);
+
   if (!isRfqOpen) return null;
 
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -156,8 +167,14 @@ export function RfqModal() {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm animate-fadeIn">
-      <div className="relative w-full max-w-2xl bg-white dark:bg-[#0B0B0C] border border-[#E4E4E7] dark:border-[#222225] shadow-2xl rounded-3xl overflow-hidden flex flex-col max-h-[92vh] text-[#0B0B0C] dark:text-white transition-colors">
+    <div
+      onClick={handleClose}
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm animate-fadeIn cursor-pointer"
+    >
+      <div
+        onClick={(e) => e.stopPropagation()}
+        className="relative w-full max-w-2xl bg-white dark:bg-[#0B0B0C] border border-[#E4E4E7] dark:border-[#222225] shadow-2xl rounded-3xl overflow-hidden flex flex-col max-h-[92vh] text-[#0B0B0C] dark:text-white transition-colors cursor-default"
+      >
         {/* Modal Header */}
         <div className="flex items-center justify-between px-6 py-4 bg-[#0B0B0C] text-white border-b border-[#222225]">
           <div className="flex items-center space-x-2">

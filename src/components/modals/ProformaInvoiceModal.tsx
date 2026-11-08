@@ -31,6 +31,18 @@ export function ProformaInvoiceModal({
     }
   }, [initialVersion, quote?.currentVersion]);
 
+  // Escape key handler to close modal
+  useEffect(() => {
+    if (!isOpen) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        onClose();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isOpen, onClose]);
+
   if (!isOpen || (!quote && !order)) return null;
 
   // Resolve target revision if dealing with a Quote
@@ -73,11 +85,16 @@ export function ProformaInvoiceModal({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm overflow-y-auto print:p-0 print:bg-white animate-in fade-in">
-      <div className="relative w-full max-w-3xl bg-white border border-slate-300 shadow-modal rounded-sm overflow-hidden my-8 print:border-none print:shadow-none text-slate-900 text-xs font-sans">
-        
+    <div
+      onClick={onClose}
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm overflow-y-auto print:p-0 print:bg-white animate-in fade-in cursor-pointer"
+    >
+      <div
+        onClick={(e) => e.stopPropagation()}
+        className="relative w-full max-w-3xl bg-white border border-slate-300 shadow-modal rounded-sm overflow-hidden my-8 print:border-none print:shadow-none text-slate-900 text-xs font-sans cursor-default"
+      >
         {/* Modal Controls (Hidden in Print) */}
-        <div className="bg-slate-900 text-white px-6 py-3 flex flex-wrap items-center justify-between gap-3 print:hidden">
+        <div className="sticky top-0 z-30 bg-slate-900 text-white px-6 py-3 flex flex-wrap items-center justify-between gap-3 print:hidden border-b border-slate-800 shadow-md">
           <div className="flex items-center space-x-2">
             <span className="px-2 py-0.5 bg-amg-red text-white text-[10px] font-extrabold uppercase rounded-sm">
               Official Document
@@ -99,7 +116,7 @@ export function ProformaInvoiceModal({
                     key={rev.version}
                     type="button"
                     onClick={() => setActiveVersion(rev.version)}
-                    className={`px-2 py-0.5 font-mono text-[10px] font-bold rounded-xs transition-colors ${
+                    className={`px-2 py-0.5 font-mono text-[10px] font-bold rounded-xs transition-colors cursor-pointer ${
                       isSelected
                         ? 'bg-sky-600 text-white shadow-xs'
                         : 'bg-slate-800 text-slate-300 hover:bg-slate-700'
@@ -114,17 +131,21 @@ export function ProformaInvoiceModal({
 
           <div className="flex items-center space-x-2">
             <button
+              type="button"
               onClick={handlePrint}
-              className="px-3 py-1 bg-amg-navy hover:bg-amg-navy-900 text-white font-bold rounded-sm text-xs flex items-center space-x-1.5 transition-colors shadow-sm"
+              className="px-3 py-1.5 bg-sky-600 hover:bg-sky-500 text-white font-bold rounded-sm text-xs flex items-center space-x-1.5 transition-colors shadow-sm cursor-pointer"
             >
               <Printer className="w-3.5 h-3.5" />
               <span>Print / Save PDF</span>
             </button>
             <button
+              type="button"
               onClick={onClose}
-              className="p-1 text-slate-400 hover:text-white transition-colors"
+              className="px-3 py-1.5 bg-slate-800 hover:bg-rose-600 text-white font-bold rounded-sm text-xs flex items-center space-x-1 transition-all cursor-pointer border border-slate-700 hover:border-rose-500 shadow-sm"
+              title="Close proforma invoice (or press Esc)"
             >
-              <X className="w-5 h-5" />
+              <X className="w-4 h-4" />
+              <span>Close (✕)</span>
             </button>
           </div>
         </div>
@@ -391,6 +412,31 @@ export function ProformaInvoiceModal({
             </div>
           </div>
 
+        </div>
+
+        {/* Modal Bottom Footer Action Bar (Hidden in Print) */}
+        <div className="sticky bottom-0 z-30 bg-slate-900 border-t border-slate-800 px-6 py-3.5 flex flex-wrap items-center justify-between gap-3 print:hidden shadow-lg">
+          <div className="text-[11px] text-slate-400 font-mono flex items-center space-x-2">
+            <span>Press <kbd className="px-1.5 py-0.5 bg-slate-800 border border-slate-700 text-slate-200 rounded text-[10px] font-bold">Esc</kbd> or click outside to exit</span>
+          </div>
+          <div className="flex items-center space-x-2">
+            <button
+              type="button"
+              onClick={handlePrint}
+              className="px-4 py-2 bg-sky-600 hover:bg-sky-500 text-white font-bold text-xs rounded-sm transition-colors flex items-center space-x-1.5 shadow-sm cursor-pointer"
+            >
+              <Printer className="w-3.5 h-3.5" />
+              <span>Print / Save PDF</span>
+            </button>
+            <button
+              type="button"
+              onClick={onClose}
+              className="px-4 py-2 bg-rose-600 hover:bg-rose-500 text-white font-bold text-xs rounded-sm transition-colors flex items-center space-x-1.5 shadow-sm cursor-pointer"
+            >
+              <X className="w-4 h-4" />
+              <span>Close Invoice</span>
+            </button>
+          </div>
         </div>
       </div>
     </div>

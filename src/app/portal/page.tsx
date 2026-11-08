@@ -1167,8 +1167,14 @@ export default function CustomerPortalPage() {
 
         {/* Modal: Request Technical Revision */}
         {revisionQuoteId && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/70 backdrop-blur-sm animate-in fade-in">
-            <div className="bg-white border border-slate-300 rounded-sm shadow-modal max-w-md w-full p-5 space-y-4 text-xs">
+          <div
+            onClick={() => setRevisionQuoteId(null)}
+            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/70 backdrop-blur-sm animate-in fade-in cursor-pointer"
+          >
+            <div
+              onClick={(e) => e.stopPropagation()}
+              className="bg-white border border-slate-300 rounded-sm shadow-modal max-w-md w-full p-5 space-y-4 text-xs cursor-default"
+            >
               <div className="flex justify-between items-center border-b border-slate-200 pb-2">
                 <h4 className="font-bold text-slate-900 text-sm">
                   Request Specification / Pricing Revision
@@ -1225,8 +1231,14 @@ export default function CustomerPortalPage() {
 
         {/* Real-Time Engineering Negotiation Chat Modal (SRS 4.5) */}
         {chatQuote && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/70 backdrop-blur-sm animate-in fade-in">
-            <div className="bg-white border border-slate-300 rounded-sm shadow-modal max-w-lg w-full flex flex-col h-[520px] overflow-hidden text-xs">
+          <div
+            onClick={() => setChatQuote(null)}
+            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/70 backdrop-blur-sm animate-in fade-in cursor-pointer"
+          >
+            <div
+              onClick={(e) => e.stopPropagation()}
+              className="bg-white border border-slate-300 rounded-sm shadow-modal max-w-lg w-full flex flex-col h-[520px] overflow-hidden text-xs cursor-default"
+            >
               {/* Header */}
               <div className="px-5 py-3.5 bg-[#0B1528] text-white flex items-center justify-between border-b border-sky-950">
                 <div className="flex items-center space-x-2">
