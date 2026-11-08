@@ -28,6 +28,7 @@ import {
   GitBranch,
   X,
   QrCode,
+  RotateCcw,
 } from 'lucide-react';
 
 export default function CustomerPortalPage() {
@@ -520,7 +521,41 @@ export default function CustomerPortalPage() {
                 </div>
               </div>
             ) : (
-              myQuotes.map((q) => (
+              <div className="space-y-4">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white dark:bg-[#141416] p-4 rounded-2xl border border-slate-200 dark:border-[#2A2A2E] shadow-xs">
+                  <div>
+                    <h3 className="font-bold text-slate-900 dark:text-white text-xs">Active Quotation Records</h3>
+                    <p className="text-[11px] text-slate-500 dark:text-[#A1A1AA]">Track technical formulation status and approve proforma contract terms.</p>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <button
+                      type="button"
+                      onClick={() => openRfq()}
+                      className="px-3.5 py-1.5 bg-[#C6F432] hover:bg-[#D7F860] text-[#0B0B0C] font-bold text-xs rounded-full shadow-xs transition-all flex items-center space-x-1"
+                    >
+                      <span>+ Request Custom RFQ</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={async () => {
+                        if (!confirm('Clear all demo test RFQs to start fresh from customer?')) return;
+                        try {
+                          await fetch('/api/quotes/reset', { method: 'POST' });
+                        } catch (e) {}
+                        localStorage.removeItem('amg_live_quotes');
+                        window.dispatchEvent(new Event('amg_quotes_updated'));
+                        setQuotesList([]);
+                      }}
+                      className="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 dark:bg-[#1A1A1D] dark:hover:bg-[#222225] border border-slate-300 dark:border-[#2A2A2E] text-slate-600 dark:text-[#A1A1AA] hover:text-rose-600 rounded-full text-xs font-semibold transition-all flex items-center space-x-1"
+                      title="Clear test RFQs"
+                    >
+                      <RotateCcw className="w-3 h-3" />
+                      <span>Reset RFQs</span>
+                    </button>
+                  </div>
+                </div>
+
+                {myQuotes.map((q) => (
               <div
                 key={q.id}
                 className="bg-white border border-slate-300 rounded-sm shadow-crisp p-5 space-y-4"
@@ -673,7 +708,9 @@ export default function CustomerPortalPage() {
                   </div>
                 </div>
               </div>
-            )))}
+                ))}
+              </div>
+            )}
           </div>
         )}
 

@@ -24,7 +24,8 @@ import {
   ArrowRight,
   History,
   Printer,
-  Search
+  Search,
+  RotateCcw
 } from 'lucide-react';
 
 export default function SalesAgentPage() {
@@ -114,28 +115,31 @@ export default function SalesAgentPage() {
     return true;
   });
 
-  const [selectedQuote, setSelectedQuote] = useState<Quote>(
-    myAgentQuotes[0] || INITIAL_QUOTES[0]
+  const [selectedQuote, setSelectedQuote] = useState<Quote | null>(
+    myAgentQuotes[0] || null
   );
 
   useEffect(() => {
     if (myAgentQuotes.length > 0) {
-      if (!myAgentQuotes.some((q) => q.id === selectedQuote?.id)) {
+      if (!selectedQuote || !myAgentQuotes.some((q) => q.id === selectedQuote?.id)) {
         setSelectedQuote(myAgentQuotes[0]);
+        handleSelectQuote(myAgentQuotes[0]);
       }
+    } else {
+      setSelectedQuote(null);
     }
   }, [currentUser.id, filterTab, searchQuery, quotesList.length]);
 
   // Pricing Matrix Parameters
-  const [rawMaterialCost, setRawMaterialCost] = useState<number>(8500000);
-  const [fabricationHours, setFabricationHours] = useState<number>(320);
+  const [rawMaterialCost, setRawMaterialCost] = useState<number>(6500000);
+  const [fabricationHours, setFabricationHours] = useState<number>(180);
   const [hourlyMachineRate, setHourlyMachineRate] = useState<number>(3500);
-  const [coatingTariff, setCoatingTariff] = useState<number>(750000);
-  const [freightTariff, setFreightTariff] = useState<number>(450000);
-  const [marginPercent, setMarginPercent] = useState<number>(9.5);
+  const [coatingTariff, setCoatingTariff] = useState<number>(450000);
+  const [freightTariff, setFreightTariff] = useState<number>(350000);
+  const [marginPercent, setMarginPercent] = useState<number>(10.0);
 
-  const [validUntil, setValidUntil] = useState<string>(selectedQuote.quoteValidUntil || '2026-10-31');
-  const [agentNotes, setAgentNotes] = useState<string>(selectedQuote.agentQuotationNotes || '');
+  const [validUntil, setValidUntil] = useState<string>('2026-11-30');
+  const [agentNotes, setAgentNotes] = useState<string>('');
   const [chatMessage, setChatMessage] = useState('');
   const [isSaved, setIsSaved] = useState(false);
 
@@ -148,6 +152,19 @@ export default function SalesAgentPage() {
   // Order Conversion & Notification State
   const [isConvertingOrder, setIsConvertingOrder] = useState(false);
   const [convertedOrderSuccess, setConvertedOrderSuccess] = useState<string | null>(null);
+
+  const handleResetAllQuotes = async () => {
+    if (!confirm('Clear all demo RFQ deals and inquiries to test fresh from customer?')) return;
+    try {
+      await fetch('/api/quotes/reset', { method: 'POST' });
+    } catch (e) {}
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem('amg_live_quotes');
+      window.dispatchEvent(new Event('amg_quotes_updated'));
+    }
+    setQuotesList([]);
+    setSelectedQuote(null);
+  };
 
   // Live Auto-Calculation of the Quoted Price from the Engineering Pricing Matrix
   const subtotalFabrication = fabricationHours * hourlyMachineRate;
@@ -231,6 +248,7 @@ export default function SalesAgentPage() {
 
   const handleSaveQuoteMatrix = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!selectedQuote) return;
     const nextVersion = (selectedQuote.currentVersion || 1) + 1;
     const formulaSummary = `Formula applied: [Raw Materials: ETB ${rawMaterialCost.toLocaleString()}] + [Machining: ${fabricationHours}hrs @ ETB ${hourlyMachineRate}/hr] + [Coating: ETB ${coatingTariff.toLocaleString()}] + [Freight: ETB ${freightTariff.toLocaleString()}] + [Target Margin: ${marginPercent}%].`;
     const newRevision = {
@@ -259,15 +277,19 @@ export default function SalesAgentPage() {
       )
     );
 
-    setSelectedQuote((prev) => ({
-      ...prev,
-      status: 'draft_quote_issued',
-      currentVersion: nextVersion,
-      finalQuotedTotalEtb: calculatedQuotedTotal,
-      quoteValidUntil: validUntil,
-      agentQuotationNotes: agentNotes,
-      revisions: [...(prev.revisions || []), newRevision],
-    }));
+    setSelectedQuote((prev) =>
+      !prev
+        ? null
+        : {
+            ...prev,
+            status: 'draft_quote_issued',
+            currentVersion: nextVersion,
+            finalQuotedTotalEtb: calculatedQuotedTotal,
+            quoteValidUntil: validUntil,
+            agentQuotationNotes: agentNotes,
+            revisions: [...(prev.revisions || []), newRevision],
+          }
+    );
 
     try {
       const quoteIdentifier = selectedQuote.quoteNumber || selectedQuote.id;
@@ -364,7 +386,7 @@ export default function SalesAgentPage() {
 
   const handleSendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!chatMessage.trim()) return;
+    if (!chatMessage.trim() || !selectedQuote) return;
 
     const outgoingText = chatMessage.trim();
     setChatMessage('');
@@ -379,10 +401,14 @@ export default function SalesAgentPage() {
       createdAt: new Date().toISOString(),
     };
 
-    setSelectedQuote((prev) => ({
-      ...prev,
-      messages: [...prev.messages, newMsg],
-    }));
+    setSelectedQuote((prev) =>
+      !prev
+        ? null
+        : {
+            ...prev,
+            messages: [...(prev.messages || []), newMsg],
+          }
+    );
 
     try {
       await fetch('/api/chat', {
@@ -434,16 +460,28 @@ export default function SalesAgentPage() {
               </p>
             </div>
 
-            {/* Assigned Engineer Persona Card */}
-            <div className="flex items-center space-x-3 bg-white/90 dark:bg-[#141416]/90 p-3.5 rounded-2xl border border-slate-200 dark:border-[#2A2A2E] shadow-sm backdrop-blur-md shrink-0">
-              <div className="w-10 h-10 rounded-full bg-slate-950 dark:bg-[#1A1A1D] text-[#C6F432] font-bold flex items-center justify-center text-sm border border-slate-800 dark:border-[#2A2A2E] shadow-xs">
-                {currentUser.fullName[0]}
-              </div>
-              <div className="text-left text-xs">
-                <div className="text-[10px] uppercase font-bold text-slate-400">Assigned Engineer</div>
-                <div className="font-bold text-slate-950 dark:text-white leading-tight">{currentUser.fullName}</div>
-                <div className="text-[10px] text-emerald-900 dark:text-[#C6F432] font-semibold">
-                  {currentUser.subsidiaryName || 'Heavy Steel & Transport Division'}
+            {/* Assigned Engineer Persona Card & Reset Action */}
+            <div className="flex items-center space-x-3 shrink-0">
+              <button
+                type="button"
+                onClick={handleResetAllQuotes}
+                className="px-3.5 py-2 bg-white/90 dark:bg-[#141416]/90 hover:bg-rose-50 dark:hover:bg-rose-950/30 border border-slate-200 dark:border-[#2A2A2E] hover:border-rose-300 dark:hover:border-rose-700 text-slate-700 dark:text-[#A1A1AA] hover:text-rose-600 dark:hover:text-rose-400 rounded-2xl text-[11px] font-bold transition-all flex items-center space-x-1.5 shadow-xs backdrop-blur-md cursor-pointer"
+                title="Purge all demo test deals to start clean from customer"
+              >
+                <RotateCcw className="w-3.5 h-3.5" />
+                <span>Reset Pipeline</span>
+              </button>
+
+              <div className="flex items-center space-x-3 bg-white/90 dark:bg-[#141416]/90 p-3.5 rounded-2xl border border-slate-200 dark:border-[#2A2A2E] shadow-sm backdrop-blur-md">
+                <div className="w-10 h-10 rounded-full bg-slate-950 dark:bg-[#1A1A1D] text-[#C6F432] font-bold flex items-center justify-center text-sm border border-slate-800 dark:border-[#2A2A2E] shadow-xs">
+                  {currentUser.fullName[0]}
+                </div>
+                <div className="text-left text-xs">
+                  <div className="text-[10px] uppercase font-bold text-slate-400">Assigned Engineer</div>
+                  <div className="font-bold text-slate-950 dark:text-white leading-tight">{currentUser.fullName}</div>
+                  <div className="text-[10px] text-emerald-900 dark:text-[#C6F432] font-semibold">
+                    {currentUser.subsidiaryName || 'Heavy Steel & Transport Division'}
+                  </div>
                 </div>
               </div>
             </div>
@@ -626,8 +664,24 @@ export default function SalesAgentPage() {
 
           {/* Right Col: Active RFQ Quotation Form & Pricing Matrix */}
           <div className="lg:col-span-8 space-y-6">
-            {/* Active RFQ Details Card */}
-            <div className="bg-white dark:bg-[#141416] border border-slate-200 dark:border-[#222225] rounded-3xl p-6 space-y-4 shadow-xs">
+            {!selectedQuote ? (
+              <div className="bg-white dark:bg-[#141416] border border-slate-200 dark:border-[#222225] rounded-3xl p-12 text-center space-y-4 shadow-xs">
+                <div className="w-16 h-16 bg-slate-100 dark:bg-[#1A1A1D] rounded-2xl flex items-center justify-center mx-auto text-slate-400 border border-slate-200 dark:border-[#2A2A2E]">
+                  <FileText className="w-8 h-8 text-[#16A34A] dark:text-[#C6F432]" />
+                </div>
+                <div className="space-y-2">
+                  <h3 className="text-base font-bold text-slate-900 dark:text-white">
+                    No RFQ Deal Selected
+                  </h3>
+                  <p className="text-xs text-slate-500 dark:text-[#A1A1AA] max-w-md mx-auto leading-relaxed">
+                    The engineering pipeline is currently clear. Submit a new custom quote inquiry from the customer portal to test the end-to-end quotation, formulation, and order conversion flow.
+                  </p>
+                </div>
+              </div>
+            ) : (
+              <>
+                {/* Active RFQ Details Card */}
+                <div className="bg-white dark:bg-[#141416] border border-slate-200 dark:border-[#222225] rounded-3xl p-6 space-y-4 shadow-xs">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-3.5 border-b border-slate-100 dark:border-[#222225] gap-2">
                 <div>
                   <div className="flex items-center space-x-2">
@@ -977,16 +1031,20 @@ export default function SalesAgentPage() {
                 </button>
               </form>
             </div>
+              </>
+            )}
           </div>
         </div>
 
         {/* Bank Proforma Modal for Agent */}
-        <ProformaInvoiceModal
-          isOpen={isProformaOpen}
-          quote={selectedQuote}
-          initialVersion={activeProformaVersion}
-          onClose={() => setIsProformaOpen(false)}
-        />
+        {selectedQuote && (
+          <ProformaInvoiceModal
+            isOpen={isProformaOpen}
+            quote={selectedQuote}
+            initialVersion={activeProformaVersion}
+            onClose={() => setIsProformaOpen(false)}
+          />
+        )}
       </div>
     </div>
   );
