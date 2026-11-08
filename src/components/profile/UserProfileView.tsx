@@ -202,6 +202,8 @@ export default function UserProfileView() {
     }, 2000);
   };
 
+  const isB2C = currentUser?.customerType === 'b2c';
+
   return (
     <div className="space-y-6 max-w-7xl mx-auto">
       {/* 1. EXECUTIVE BENTO HEADER */}
@@ -229,17 +231,17 @@ export default function UserProfileView() {
                 </span>
                 <span className="px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-emerald-100 dark:bg-emerald-950/80 text-emerald-800 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-700/60 flex items-center space-x-1">
                   <ShieldCheck className="w-3.5 h-3.5" />
-                  <span>ERCA Verified Entity</span>
+                  <span>{isB2C ? 'Verified Individual Shopper (B2C)' : 'ERCA Verified Entity'}</span>
                 </span>
                 <span className="px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold bg-[#C6F432]/20 dark:bg-[#C6F432]/10 text-emerald-900 dark:text-[#C6F432] border border-[#C6F432]/40">
-                  Role: {currentUser?.role?.replace('_', ' ').toUpperCase()}
+                  {isB2C ? 'TYPE: B2C RETAIL' : `ROLE: ${currentUser?.role?.replace('_', ' ').toUpperCase()}`}
                 </span>
               </div>
 
               <div className="text-xs text-slate-600 dark:text-[#A1A1AA] flex flex-wrap items-center gap-x-4 gap-y-1">
                 <span className="flex items-center space-x-1.5 font-medium">
                   <Building2 className="w-3.5 h-3.5 text-emerald-600 dark:text-[#C6F432]" />
-                  <span>{currentUser?.companyName || 'MIDROC Construction Ethiopia PLC'}</span>
+                  <span>{currentUser?.companyName || (isB2C ? 'Individual Retail Buyer' : 'MIDROC Construction Ethiopia PLC')}</span>
                 </span>
                 <span className="text-slate-300 dark:text-[#333338]">•</span>
                 <span className="flex items-center space-x-1.5 font-mono">
@@ -290,35 +292,41 @@ export default function UserProfileView() {
         <div className="mt-6 pt-6 border-t border-slate-200 dark:border-[#222225] grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           <div className="bg-white/80 dark:bg-[#0E0E10] border border-slate-200 dark:border-[#222225] p-3.5 rounded-2xl">
             <div className="text-[10px] uppercase font-bold text-slate-500 dark:text-[#71717A] tracking-wider mb-1 flex items-center justify-between">
-              <span>Ethiopian Tax TIN</span>
-              <button
-                type="button"
-                onClick={handleCopyTin}
-                className="text-[10px] text-emerald-700 dark:text-[#C6F432] hover:underline flex items-center space-x-1"
-                title="Copy TIN to clipboard"
-              >
-                {copiedTin ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />}
-                <span>{copiedTin ? 'Copied' : 'Copy'}</span>
-              </button>
+              <span>{isB2C ? 'Tax Status' : 'Ethiopian Tax TIN'}</span>
+              {!isB2C && (
+                <button
+                  type="button"
+                  onClick={handleCopyTin}
+                  className="text-[10px] text-emerald-700 dark:text-[#C6F432] hover:underline flex items-center space-x-1"
+                  title="Copy TIN to clipboard"
+                >
+                  {copiedTin ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />}
+                  <span>{copiedTin ? 'Copied' : 'Copy'}</span>
+                </button>
+              )}
             </div>
             <div className="text-sm font-mono font-bold text-slate-900 dark:text-white flex items-center space-x-1.5">
-              <span>{tinNumber}</span>
-              <span className="w-2 h-2 rounded-full bg-emerald-500" title="Valid 10-digit TIN" />
+              <span>{isB2C ? 'Consumer (No TIN)' : tinNumber}</span>
+              <span className="w-2 h-2 rounded-full bg-emerald-500" title={isB2C ? 'Standard Individual Consumer' : 'Valid 10-digit TIN'} />
             </div>
-            <div className="text-[10px] text-slate-400 dark:text-[#A1A1AA] mt-0.5">ERCA MoR Live Registered</div>
+            <div className="text-[10px] text-slate-400 dark:text-[#A1A1AA] mt-0.5">
+              {isB2C ? '15% VAT on Checkout Receipt' : 'ERCA MoR Live Registered'}
+            </div>
           </div>
 
           <div className="bg-white/80 dark:bg-[#0E0E10] border border-slate-200 dark:border-[#222225] p-3.5 rounded-2xl">
             <div className="text-[10px] uppercase font-bold text-slate-500 dark:text-[#71717A] tracking-wider mb-1">
-              Commercial Credit Tier
+              {isB2C ? 'Payment Method' : 'Commercial Credit Tier'}
             </div>
             <div className="text-sm font-bold text-slate-900 dark:text-white flex items-center space-x-1.5">
-              <span>ETB 25,000,000</span>
+              <span>{isB2C ? 'Telebirr & CBE Cash' : 'ETB 25,000,000'}</span>
               <span className="text-[10px] font-mono px-1.5 py-0.2 rounded bg-emerald-100 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 font-bold">
-                Net-30
+                {isB2C ? 'Direct' : 'Net-30'}
               </span>
             </div>
-            <div className="text-[10px] text-slate-400 dark:text-[#A1A1AA] mt-0.5">Available: ETB 18,450,000</div>
+            <div className="text-[10px] text-slate-400 dark:text-[#A1A1AA] mt-0.5">
+              {isB2C ? 'Immediate Settlement Rail' : 'Available: ETB 18,450,000'}
+            </div>
           </div>
 
           <div className="bg-white/80 dark:bg-[#0E0E10] border border-slate-200 dark:border-[#222225] p-3.5 rounded-2xl">
@@ -371,10 +379,12 @@ export default function UserProfileView() {
               <div className="space-y-1">
                 <h3 className="text-sm font-bold text-slate-900 dark:text-white uppercase tracking-wider flex items-center space-x-2">
                   <Building2 className="w-4 h-4 text-emerald-600 dark:text-[#C6F432]" />
-                  <span>Corporate Legal Entity & ERCA Tax Compliance</span>
+                  <span>{isB2C ? 'Personal Consumer Profile & Identification' : 'Corporate Legal Entity & ERCA Tax Compliance'}</span>
                 </h3>
                 <p className="text-[11px] text-slate-500 dark:text-[#A1A1AA]">
-                  Official enterprise registration details recognized by the Ethiopian Ministry of Revenues.
+                  {isB2C
+                    ? 'Individual retail shopper profile used for delivery fulfillment and order tracking.'
+                    : 'Official enterprise registration details recognized by the Ethiopian Ministry of Revenues.'}
                 </p>
               </div>
               <span className="hidden sm:inline-flex items-center space-x-1 px-2.5 py-1 rounded-full text-[10px] font-bold bg-amber-100 dark:bg-amber-950/60 text-amber-800 dark:text-amber-300 border border-amber-300 dark:border-amber-700/50">
@@ -384,10 +394,10 @@ export default function UserProfileView() {
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
-              {/* Company Legal Entity */}
+              {/* Company Legal Entity / Account Label */}
               <div className="sm:col-span-2 space-y-1.5">
                 <label className="block text-[11px] font-bold text-slate-700 dark:text-[#D4D4D8] flex items-center justify-between">
-                  <span>Registered Corporate Entity Name *</span>
+                  <span>{isB2C ? 'Account Classification / Persona Name *' : 'Registered Corporate Entity Name *'}</span>
                   <span className="text-[10px] text-amber-600 dark:text-amber-400 font-mono font-normal">
                     Requires OTP to modify
                   </span>
@@ -397,7 +407,7 @@ export default function UserProfileView() {
                     type="text"
                     value={companyName}
                     onChange={(e) => setCompanyName(e.target.value)}
-                    placeholder="e.g. MIDROC Construction Ethiopia PLC"
+                    placeholder={isB2C ? 'Individual Retail Buyer' : 'e.g. MIDROC Construction Ethiopia PLC'}
                     className="w-full bg-slate-50 dark:bg-[#0E0E10] border border-slate-300 dark:border-[#2A2A2E] text-slate-900 dark:text-white font-semibold px-4 py-2.5 rounded-xl text-xs outline-none focus:border-[#C6F432] focus:ring-1 focus:ring-[#C6F432] transition-colors"
                   />
                   <Building2 className="w-4 h-4 text-slate-400 absolute right-3.5 top-3 pointer-events-none" />
@@ -407,15 +417,15 @@ export default function UserProfileView() {
               {/* TIN Number */}
               <div className="space-y-1.5">
                 <label className="block text-[11px] font-bold text-slate-700 dark:text-[#D4D4D8] flex items-center justify-between">
-                  <span>Tax Identification No. (TIN) *</span>
-                  <span className="text-[10px] text-amber-600 dark:text-amber-400 font-mono font-normal">10 Digits</span>
+                  <span>{isB2C ? 'Tax ID / Personal TIN (Optional)' : 'Tax Identification No. (TIN) *'}</span>
+                  <span className="text-[10px] text-slate-400 font-mono font-normal">{isB2C ? 'Optional for Retail' : '10 Digits'}</span>
                 </label>
                 <input
                   type="text"
                   maxLength={10}
                   value={tinNumber}
                   onChange={(e) => setTinNumber(e.target.value)}
-                  placeholder="0019283746"
+                  placeholder={isB2C ? 'Not required for retail' : '0019283746'}
                   className="w-full bg-slate-50 dark:bg-[#0E0E10] border border-slate-300 dark:border-[#2A2A2E] text-slate-900 dark:text-white font-mono font-bold px-4 py-2.5 rounded-xl text-xs outline-none focus:border-[#C6F432] focus:ring-1 focus:ring-[#C6F432] transition-colors tracking-widest"
                 />
               </div>

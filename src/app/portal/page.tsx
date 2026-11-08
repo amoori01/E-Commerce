@@ -344,15 +344,19 @@ export default function CustomerPortalPage() {
               <div className="flex flex-wrap items-center gap-2">
                 <div className="inline-flex items-center space-x-2 px-3.5 py-1.5 bg-white/90 dark:bg-[#141416] border border-slate-200/90 dark:border-[#2A2A2E] rounded-full text-xs font-medium text-slate-900 dark:text-[#E4E4E7] shadow-xs backdrop-blur-md">
                   <span className="w-2 h-2 rounded-full bg-[#16A34A] dark:bg-[#C6F432] inline-block shadow-[0_0_8px_rgba(22,163,74,0.6)] dark:shadow-[0_0_8px_#C6F432] animate-pulse" />
-                  <span className="font-semibold tracking-wide">Tier 1: Corporate B2B Procurement Desk</span>
+                  <span className="font-semibold tracking-wide">
+                    {currentUser.customerType === 'b2c' ? 'Retail B2C Direct Shopper Desk' : 'Tier 1: Corporate B2B Procurement Desk'}
+                  </span>
                   <span className="text-slate-300 dark:text-[#52525B]">|</span>
                   <span className="px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-[#C6F432]/25 dark:bg-[#C6F432]/10 text-emerald-900 dark:text-[#C6F432] border border-[#C6F432]/40">
-                    TIN: {currentUser.tinNumber || '0019283746'}
+                    {currentUser.customerType === 'b2c' ? 'Direct Consumer' : `TIN: ${currentUser.tinNumber || '0019283746'}`}
                   </span>
                 </div>
                 <div className="inline-flex items-center space-x-1.5 px-3 py-1 bg-white/80 dark:bg-[#141416] border border-slate-200/80 dark:border-[#2A2A2E] rounded-full text-[11px] text-slate-600 dark:text-[#A1A1AA] shadow-xs">
                   <Building2 className="w-3.5 h-3.5 text-[#16A34A] dark:text-[#C6F432]" />
-                  <span>ERCA Verified Commercial Buyer</span>
+                  <span>
+                    {currentUser.customerType === 'b2c' ? 'Verified Retail Individual Shopper' : 'ERCA Verified Commercial Buyer'}
+                  </span>
                 </div>
               </div>
 
@@ -361,22 +365,32 @@ export default function CustomerPortalPage() {
               </h1>
 
               <p className="text-xs sm:text-sm text-slate-600 dark:text-[#A1A1AA] font-sans leading-relaxed max-w-2xl font-normal">
-                Authorized purchasing portal for <strong>{currentUser.companyName || currentUser.fullName}</strong>. Review formal engineering quotations, inspect revision versioning, track delivery progress, and generate bank-grade proforma invoices.
+                {currentUser.customerType === 'b2c' ? (
+                  <>
+                    Personal retail purchasing desk for <strong>{currentUser.fullName}</strong>. Track self-service Stream A direct orders, inspect delivery status, and review Telebirr / CBE payment receipts.
+                  </>
+                ) : (
+                  <>
+                    Authorized purchasing portal for <strong>{currentUser.companyName || currentUser.fullName}</strong>. Review formal engineering quotations, inspect revision versioning, track delivery progress, and generate bank-grade proforma invoices.
+                  </>
+                )}
               </p>
             </div>
 
-            {/* Corporate Entity Persona Card */}
+            {/* Corporate / Retail Entity Persona Card */}
             <div className="flex items-center space-x-3 bg-white/90 dark:bg-[#141416]/90 p-3.5 rounded-2xl border border-slate-200 dark:border-[#2A2A2E] shadow-sm backdrop-blur-md shrink-0">
               <div className="w-10 h-10 rounded-full bg-slate-950 dark:bg-[#1A1A1D] text-[#C6F432] font-bold flex items-center justify-center text-sm border border-slate-800 dark:border-[#2A2A2E] shadow-xs">
                 {currentUser.fullName[0]}
               </div>
               <div className="text-left text-xs">
-                <div className="text-[10px] uppercase font-bold text-slate-400">Procuring Entity</div>
+                <div className="text-[10px] uppercase font-bold text-slate-400">
+                  {currentUser.customerType === 'b2c' ? 'Personal Account' : 'Procuring Entity'}
+                </div>
                 <div className="font-bold text-slate-950 dark:text-white leading-tight">
                   {currentUser.companyName || currentUser.fullName}
                 </div>
                 <div className="text-[10px] text-emerald-900 dark:text-[#C6F432] font-semibold mt-0.5">
-                  ERCA Tax Compliant • Credit Tier A
+                  {currentUser.customerType === 'b2c' ? 'Verified Individual • Direct Pay' : 'ERCA Tax Compliant • Credit Tier A'}
                 </div>
               </div>
             </div>

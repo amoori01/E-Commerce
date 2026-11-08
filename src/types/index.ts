@@ -61,6 +61,7 @@ export interface UserProfile {
   fullName: string;
   phone?: string;
   role: UserRole;
+  customerType?: 'b2b' | 'b2c' | 'individual';
   subsidiaryId?: string;
   subsidiaryName?: string;
   branchId?: string;

@@ -552,6 +552,10 @@ function LoginContent() {
                       customer: { bg: 'bg-amber-900/60 border-amber-700', text: 'text-amber-300', label: 'Customer', portal: '/portal' },
                     };
                     const roleInfo = badgeStyles[u.role];
+                    const isB2C = u.customerType === 'b2c';
+                    const badgeLabel = isB2C ? 'Individual (B2C)' : roleInfo.label;
+                    const badgeBg = isB2C ? 'bg-teal-950/80 border-teal-600' : roleInfo.bg;
+                    const badgeText = isB2C ? 'text-teal-300' : roleInfo.text;
 
                     return (
                       <div
@@ -564,8 +568,8 @@ function LoginContent() {
                             <span className="text-xs font-bold text-white group-hover:text-sky-300 transition-colors">
                               {u.fullName}
                             </span>
-                            <span className={`px-1.5 py-0.2 rounded-sm text-[9px] font-bold uppercase border ${roleInfo.bg} ${roleInfo.text}`}>
-                              {roleInfo.label}
+                            <span className={`px-1.5 py-0.2 rounded-sm text-[9px] font-bold uppercase border ${badgeBg} ${badgeText}`}>
+                              {badgeLabel}
                             </span>
                           </div>
                           <div className="text-[11px] text-slate-400 font-mono">

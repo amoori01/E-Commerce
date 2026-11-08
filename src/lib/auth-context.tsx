@@ -8,6 +8,7 @@ interface AuthContextType {
   currentUser: UserProfile;
   activeRole: UserRole;
   switchRole: (role: UserRole) => void;
+  switchUser: (emailOrId: string) => void;
   setUser: (user: UserProfile) => void;
   logout: () => void;
   isLoggedIn: boolean;
@@ -44,6 +45,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     localStorage.setItem('amg_is_logged_in', 'true');
   };
 
+  const switchUser = (emailOrId: string) => {
+    const targetUser =
+      SEEDED_USERS.find(
+        (u) =>
+          u.email.toLowerCase() === emailOrId.toLowerCase() ||
+          u.id === emailOrId ||
+          u.fullName.toLowerCase() === emailOrId.toLowerCase()
+      ) || SEEDED_USERS[0];
+    setCurrentUser(targetUser);
+    setIsLoggedIn(true);
+    localStorage.setItem('amg_active_user_email', targetUser.email);
+    localStorage.setItem('amg_is_logged_in', 'true');
+  };
+
   const setUser = (user: UserProfile) => {
     setCurrentUser(user);
     setIsLoggedIn(true);
@@ -64,6 +79,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         currentUser,
         activeRole: currentUser.role,
         switchRole,
+        switchUser,
         setUser,
         logout,
         isLoggedIn,
