@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/lib/auth-context';
 import { INITIAL_QUOTES } from '@/lib/constants';
 import { Quote } from '@/types';
@@ -29,7 +29,25 @@ import {
 export default function SalesAgentPage() {
   const { currentUser, activeRole, switchRole } = useAuth();
   const [quotesList, setQuotesList] = useState<Quote[]>(INITIAL_QUOTES);
-  const [selectedQuote, setSelectedQuote] = useState<Quote>(INITIAL_QUOTES[0]);
+
+  // Strictly filter deals assigned to this sales agent or their subsidiary
+  const myAgentQuotes = quotesList.filter(
+    (q) =>
+      q.assignedAgentId === currentUser.id ||
+      (!q.assignedAgentId && q.subsidiaryId === currentUser.subsidiaryId) ||
+      currentUser.role === 'super_admin'
+  );
+  const [selectedQuote, setSelectedQuote] = useState<Quote>(
+    myAgentQuotes[0] || INITIAL_QUOTES[0]
+  );
+
+  useEffect(() => {
+    if (myAgentQuotes.length > 0) {
+      if (!myAgentQuotes.some((q) => q.id === selectedQuote?.id)) {
+        setSelectedQuote(myAgentQuotes[0]);
+      }
+    }
+  }, [currentUser.id]);
 
   // Pricing Matrix Parameters
   const [rawMaterialCost, setRawMaterialCost] = useState<number>(8500000);
@@ -241,23 +259,29 @@ export default function SalesAgentPage() {
           {/* Left Col: Pending RFQ Inquiries Queue */}
           <div className="lg:col-span-4 space-y-3">
             <h2 className="text-xs font-bold uppercase tracking-wider text-[#71717A] dark:text-[#A1A1AA] flex items-center justify-between px-1">
-              <span>Assigned RFQ Deals ({quotesList.length})</span>
+              <span>Assigned RFQ Deals ({myAgentQuotes.length})</span>
               <span className="font-mono text-emerald-600 dark:text-[#C6F432]">Escalated SLA</span>
             </h2>
 
             <div className="space-y-2.5">
-              {quotesList.map((q) => {
-                const isSelected = q.id === selectedQuote.id;
-                return (
-                  <div
-                    key={q.id}
-                    onClick={() => handleSelectQuote(q)}
-                    className={`p-4 border rounded-2xl cursor-pointer transition-all ${
-                      isSelected
-                        ? 'border-[#C6F432] bg-white dark:bg-[#1A1A1D] shadow-[0_4px_20px_rgba(198,244,50,0.15)] ring-1 ring-[#C6F432]'
-                        : 'border-slate-200 dark:border-[#222225] bg-white dark:bg-[#141416] hover:border-slate-400 dark:hover:border-[#2A2A2E]'
-                    }`}
-                  >
+              {myAgentQuotes.length === 0 ? (
+                <div className="p-6 bg-white dark:bg-[#141416] border border-slate-200 dark:border-[#222225] rounded-2xl text-center space-y-2">
+                  <p className="font-bold text-slate-800 dark:text-white">No Deals Currently Assigned</p>
+                  <p className="text-[11px] text-slate-500">You have no active quotations pending your review in this subsidiary queue.</p>
+                </div>
+              ) : (
+                myAgentQuotes.map((q) => {
+                  const isSelected = q.id === selectedQuote?.id;
+                  return (
+                    <div
+                      key={q.id}
+                      onClick={() => handleSelectQuote(q)}
+                      className={`p-4 border rounded-2xl cursor-pointer transition-all ${
+                        isSelected
+                          ? 'border-[#C6F432] bg-white dark:bg-[#1A1A1D] shadow-[0_4px_20px_rgba(198,244,50,0.15)] ring-1 ring-[#C6F432]'
+                          : 'border-slate-200 dark:border-[#222225] bg-white dark:bg-[#141416] hover:border-slate-400 dark:hover:border-[#2A2A2E]'
+                      }`}
+                    >
                     <div className="flex justify-between items-start mb-1.5">
                       <div className="flex items-center space-x-1.5">
                         <span className="font-mono font-bold text-[#0B0B0C] dark:text-[#C6F432] text-[11px]">
@@ -288,7 +312,7 @@ export default function SalesAgentPage() {
                     </div>
                   </div>
                 );
-              })}
+              }))}
             </div>
           </div>
 

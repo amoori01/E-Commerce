@@ -139,12 +139,45 @@ export default function CustomerPortalPage() {
     };
   }, []);
 
-  const myOrders = portalOrders.filter(
-    (o) => o.customerId === currentUser.id || ['super_admin', 'branch_admin'].includes(currentUser.role)
-  );
-  const myQuotes = quotesList.filter(
-    (q) => q.customerId === currentUser.id || ['super_admin', 'sales_agent'].includes(currentUser.role)
-  );
+  useEffect(() => {
+    const fetchQuotes = async () => {
+      try {
+        let combined: Quote[] = [...INITIAL_QUOTES];
+        if (typeof window !== 'undefined') {
+          const local = localStorage.getItem('amg_live_quotes');
+          if (local) {
+            try {
+              const parsed = JSON.parse(local);
+              if (Array.isArray(parsed)) {
+                for (const p of parsed) {
+                  const idx = combined.findIndex((c) => c.id === p.id || c.quoteNumber === p.quoteNumber);
+                  if (idx >= 0) {
+                    combined[idx] = { ...combined[idx], ...p };
+                  } else {
+                    combined.unshift(p);
+                  }
+                }
+              }
+            } catch (e) {}
+          }
+        }
+        setQuotesList(combined);
+      } catch (e) {}
+    };
+
+    fetchQuotes();
+    const handleUpdate = () => fetchQuotes();
+    window.addEventListener('amg_quotes_updated', handleUpdate);
+    window.addEventListener('storage', handleUpdate);
+    return () => {
+      window.removeEventListener('amg_quotes_updated', handleUpdate);
+      window.removeEventListener('storage', handleUpdate);
+    };
+  }, []);
+
+  // Strictly isolate orders and quotes to the authenticated user ID
+  const myOrders = portalOrders.filter((o) => o.customerId === currentUser.id);
+  const myQuotes = quotesList.filter((q) => q.customerId === currentUser.id);
 
   const handleAddAddress = (e: React.FormEvent) => {
     e.preventDefault();

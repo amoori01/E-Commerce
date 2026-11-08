@@ -109,11 +109,35 @@ export function RfqModal() {
       });
 
       const data = await res.json();
-      if (res.ok && data.quote) {
-        setSubmittedRfqNumber(data.quote.quoteNumber);
-      } else {
-        const generatedRfq = `RFQ-2026-AMG-00${Math.floor(100 + Math.random() * 900)}`;
-        setSubmittedRfqNumber(generatedRfq);
+      const generatedRfq = (data.ok && data.quote?.quoteNumber) || `RFQ-2026-AMG-00${Math.floor(100 + Math.random() * 900)}`;
+      setSubmittedRfqNumber(generatedRfq);
+
+      const createdQuote = data?.quote || {
+        id: `quote-${Date.now()}`,
+        quoteNumber: generatedRfq,
+        customerId: currentUser.id,
+        customerName: currentUser.fullName,
+        customerCompany: currentUser.companyName || 'Retail Customer',
+        subsidiaryId,
+        subsidiaryName: 'AMG Industrial Division',
+        status: 'inquiry_submitted',
+        currentVersion: 1,
+        projectTitle,
+        deliveryDestination,
+        targetDeliveryDate,
+        customerRequirements: uploadedFileUrl || customerRequirements,
+        estimatedTotalEtb: 0,
+        createdAt: new Date().toISOString(),
+        items: payload.items,
+      };
+
+      if (typeof window !== 'undefined') {
+        try {
+          const existing = JSON.parse(localStorage.getItem('amg_live_quotes') || '[]');
+          existing.unshift(createdQuote);
+          localStorage.setItem('amg_live_quotes', JSON.stringify(existing));
+          window.dispatchEvent(new Event('amg_quotes_updated'));
+        } catch (e) {}
       }
     } catch {
       const generatedRfq = `RFQ-2026-AMG-00${Math.floor(100 + Math.random() * 900)}`;
