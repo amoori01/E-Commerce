@@ -1,15 +1,19 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { CreateRfqQuoteDto, validateCreateRfqDto } from '@/dtos';
-import { createAdminClient } from '@/lib/supabase/admin';
 import { INITIAL_QUOTES } from '@/lib/constants';
+import { Quote } from '@/types';
 
 // ====================================================================
 // STREAM B: AGENT-ASSISTED CUSTOM QUOTATION (RFQ) API ENDPOINT
+// Live memory store synchronized with client storage
 // ====================================================================
+
+// Global memory cache preserving live RFQ submissions across API requests
+const LIVE_QUOTES: Quote[] = [...INITIAL_QUOTES];
 
 export async function POST(req: NextRequest) {
   try {
-    const body: CreateRfqQuoteDto = await req.json();
+    const body: CreateRfqQuoteDto & { customerName?: string; customerCompany?: string; subsidiaryName?: string } = await req.json();
 
     // 1. DTO Validation
     const validation = validateCreateRfqDto(body);
@@ -22,14 +26,15 @@ export async function POST(req: NextRequest) {
 
     const quoteNumber = `RFQ-2026-AMG-00${Math.floor(100 + Math.random() * 900)}`;
 
-    const newQuote = {
+    const newQuote: Quote = {
       id: `quote-${Date.now()}`,
       quoteNumber,
       customerId: body.customerId,
-      customerName: 'Procurement Representative',
+      customerName: body.customerName || 'Procurement Representative',
+      customerCompany: body.customerCompany || 'Commercial Client',
       subsidiaryId: body.subsidiaryId,
-      subsidiaryName: 'AMG Industrial Division',
-      status: 'inquiry_submitted' as const,
+      subsidiaryName: body.subsidiaryName || 'AMG Industrial Division',
+      status: 'inquiry_submitted',
       currentVersion: 1,
       revisions: [
         {
@@ -38,8 +43,8 @@ export async function POST(req: NextRequest) {
           quotedTotalEtb: 0,
           validUntil: 'Pending Formulation',
           notes: 'Initial inquiry submission with technical requirements payload.',
-          status: 'draft' as const,
-          changedBy: 'Procurement Officer (Client)',
+          status: 'draft',
+          changedBy: body.customerName || 'Procurement Officer (Client)',
         },
       ],
       projectTitle: body.projectTitle,
@@ -60,20 +65,20 @@ export async function POST(req: NextRequest) {
           id: `msg-${Date.now()}`,
           quoteId: `quote-${Date.now()}`,
           senderId: body.customerId,
-          senderName: 'Client Buyer',
-          senderRole: 'customer' as const,
+          senderName: body.customerName || 'Client Buyer',
+          senderRole: 'customer',
           message: 'Engineering specification inquiry submitted for technical review.',
           createdAt: new Date().toISOString(),
         },
       ],
     };
 
-    // In production with live Supabase credentials:
-    // const supabase = createAdminClient();
-    // await supabase.from('quotes').insert({ ... });
+    // Store in global server memory
+    LIVE_QUOTES.unshift(newQuote);
 
     return NextResponse.json({
       success: true,
+      ok: true,
       quote: newQuote,
       message: 'RFQ inquiry successfully registered and dispatched to dedicated sales engineering desk.',
     });
@@ -90,14 +95,18 @@ export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
   const customerId = searchParams.get('customerId');
   const agentId = searchParams.get('agentId');
+  const subsidiaryId = searchParams.get('subsidiaryId');
 
-  let quotes = [...INITIAL_QUOTES];
+  let quotes = [...LIVE_QUOTES];
 
   if (customerId) {
     quotes = quotes.filter((q) => q.customerId === customerId);
   }
   if (agentId) {
     quotes = quotes.filter((q) => q.assignedAgentId === agentId);
+  }
+  if (subsidiaryId) {
+    quotes = quotes.filter((q) => q.subsidiaryId === subsidiaryId);
   }
 
   return NextResponse.json({

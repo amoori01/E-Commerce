@@ -85,7 +85,10 @@ export function RfqModal() {
     try {
       const payload = {
         customerId: currentUser.id,
+        customerName: currentUser.fullName,
+        customerCompany: currentUser.companyName || 'Commercial Client',
         subsidiaryId,
+        subsidiaryName: SUBSIDIARIES.find((s) => s.id === subsidiaryId)?.name || 'AMG Industrial Division',
         projectTitle,
         deliveryDestination,
         targetDeliveryDate,
@@ -109,7 +112,7 @@ export function RfqModal() {
       });
 
       const data = await res.json();
-      const generatedRfq = (data.ok && data.quote?.quoteNumber) || `RFQ-2026-AMG-00${Math.floor(100 + Math.random() * 900)}`;
+      const generatedRfq = data?.quote?.quoteNumber || `RFQ-2026-AMG-00${Math.floor(100 + Math.random() * 900)}`;
       setSubmittedRfqNumber(generatedRfq);
 
       const createdQuote = data?.quote || {
@@ -117,9 +120,9 @@ export function RfqModal() {
         quoteNumber: generatedRfq,
         customerId: currentUser.id,
         customerName: currentUser.fullName,
-        customerCompany: currentUser.companyName || 'Retail Customer',
+        customerCompany: currentUser.companyName || 'Commercial Client',
         subsidiaryId,
-        subsidiaryName: 'AMG Industrial Division',
+        subsidiaryName: payload.subsidiaryName,
         status: 'inquiry_submitted',
         currentVersion: 1,
         projectTitle,

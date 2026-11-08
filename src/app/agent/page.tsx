@@ -29,14 +29,83 @@ import {
 export default function SalesAgentPage() {
   const { currentUser, activeRole, switchRole } = useAuth();
   const [quotesList, setQuotesList] = useState<Quote[]>(INITIAL_QUOTES);
+  const [filterTab, setFilterTab] = useState<'all' | 'assigned' | 'inquiries'>('all');
 
-  // Strictly filter deals assigned to this sales agent or their subsidiary
-  const myAgentQuotes = quotesList.filter(
-    (q) =>
-      q.assignedAgentId === currentUser.id ||
-      (!q.assignedAgentId && q.subsidiaryId === currentUser.subsidiaryId) ||
-      currentUser.role === 'super_admin'
-  );
+  // Live quotes synchronization from server API and client storage
+  useEffect(() => {
+    const fetchQuotes = async () => {
+      try {
+        let combined: Quote[] = [...INITIAL_QUOTES];
+
+        // 1. Fetch from server API
+        try {
+          const res = await fetch('/api/quotes');
+          if (res.ok) {
+            const data = await res.json();
+            if (data.quotes && Array.isArray(data.quotes)) {
+              for (const q of data.quotes) {
+                const idx = combined.findIndex((c) => c.id === q.id || c.quoteNumber === q.quoteNumber);
+                if (idx >= 0) {
+                  combined[idx] = { ...combined[idx], ...q };
+                } else {
+                  combined.unshift(q);
+                }
+              }
+            }
+          }
+        } catch (e) {}
+
+        // 2. Fetch from client localStorage
+        if (typeof window !== 'undefined') {
+          const local = localStorage.getItem('amg_live_quotes');
+          if (local) {
+            try {
+              const parsed = JSON.parse(local);
+              if (Array.isArray(parsed)) {
+                for (const p of parsed) {
+                  const idx = combined.findIndex((c) => c.id === p.id || c.quoteNumber === p.quoteNumber);
+                  if (idx >= 0) {
+                    combined[idx] = { ...combined[idx], ...p };
+                  } else {
+                    combined.unshift(p);
+                  }
+                }
+              }
+            } catch (e) {}
+          }
+        }
+
+        setQuotesList(combined);
+      } catch (e) {}
+    };
+
+    fetchQuotes();
+    const handleUpdate = () => fetchQuotes();
+    window.addEventListener('amg_quotes_updated', handleUpdate);
+    window.addEventListener('storage', handleUpdate);
+    return () => {
+      window.removeEventListener('amg_quotes_updated', handleUpdate);
+      window.removeEventListener('storage', handleUpdate);
+    };
+  }, []);
+
+  // Filter deals assigned to this sales agent OR unassigned inquiries ready for this subsidiary / division
+  const eligibleQuotes = quotesList.filter((q) => {
+    if (currentUser.role === 'super_admin') return true;
+    if (q.assignedAgentId === currentUser.id) return true;
+    if (!q.assignedAgentId) {
+      // Unassigned customer inquiries: visible to matching subsidiary agent or if unassigned
+      return !currentUser.subsidiaryId || !q.subsidiaryId || q.subsidiaryId === currentUser.subsidiaryId;
+    }
+    return false;
+  });
+
+  const myAgentQuotes = eligibleQuotes.filter((q) => {
+    if (filterTab === 'assigned') return q.assignedAgentId === currentUser.id;
+    if (filterTab === 'inquiries') return !q.assignedAgentId || q.status === 'inquiry_submitted';
+    return true;
+  });
+
   const [selectedQuote, setSelectedQuote] = useState<Quote>(
     myAgentQuotes[0] || INITIAL_QUOTES[0]
   );
@@ -47,7 +116,7 @@ export default function SalesAgentPage() {
         setSelectedQuote(myAgentQuotes[0]);
       }
     }
-  }, [currentUser.id]);
+  }, [currentUser.id, filterTab, quotesList.length]);
 
   // Pricing Matrix Parameters
   const [rawMaterialCost, setRawMaterialCost] = useState<number>(8500000);
@@ -140,8 +209,56 @@ export default function SalesAgentPage() {
       console.warn('Quote state machine sync warning:', err);
     }
 
+    if (typeof window !== 'undefined') {
+      try {
+        const local = JSON.parse(localStorage.getItem('amg_live_quotes') || '[]');
+        const updated = local.map((q: any) =>
+          q.id === selectedQuote.id || q.quoteNumber === selectedQuote.quoteNumber
+            ? {
+                ...q,
+                status: 'draft_quote_issued',
+                currentVersion: nextVersion,
+                finalQuotedTotalEtb: calculatedQuotedTotal,
+                quoteValidUntil: validUntil,
+                agentQuotationNotes: agentNotes,
+                revisions: [...(q.revisions || []), newRevision],
+              }
+            : q
+        );
+        localStorage.setItem('amg_live_quotes', JSON.stringify(updated));
+        window.dispatchEvent(new Event('amg_quotes_updated'));
+      } catch (e) {}
+    }
+
     setIsSaved(true);
     setTimeout(() => setIsSaved(false), 3500);
+  };
+
+  const handleClaimQuote = (q: Quote) => {
+    const updatedQuote: Quote = {
+      ...q,
+      assignedAgentId: currentUser.id,
+      assignedAgentName: currentUser.fullName,
+      status: q.status === 'inquiry_submitted' ? 'assigned_to_agent' : q.status,
+    };
+    setQuotesList((prev) =>
+      prev.map((item) => (item.id === q.id ? updatedQuote : item))
+    );
+    setSelectedQuote(updatedQuote);
+
+    if (typeof window !== 'undefined') {
+      try {
+        const local = JSON.parse(localStorage.getItem('amg_live_quotes') || '[]');
+        const idx = local.findIndex((item: any) => item.id === q.id || item.quoteNumber === q.quoteNumber);
+        if (idx >= 0) {
+          local[idx] = { ...local[idx], ...updatedQuote };
+        } else {
+          local.unshift(updatedQuote);
+        }
+        localStorage.setItem('amg_live_quotes', JSON.stringify(local));
+        window.dispatchEvent(new Event('amg_quotes_updated'));
+      } catch (e) {}
+    }
   };
 
   const handleSendMessage = async (e: React.FormEvent) => {
@@ -258,20 +375,67 @@ export default function SalesAgentPage() {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
           {/* Left Col: Pending RFQ Inquiries Queue */}
           <div className="lg:col-span-4 space-y-3">
-            <h2 className="text-xs font-bold uppercase tracking-wider text-[#71717A] dark:text-[#A1A1AA] flex items-center justify-between px-1">
-              <span>Assigned RFQ Deals ({myAgentQuotes.length})</span>
-              <span className="font-mono text-emerald-600 dark:text-[#C6F432]">Escalated SLA</span>
-            </h2>
+            <div className="space-y-2">
+              <h2 className="text-xs font-bold uppercase tracking-wider text-[#71717A] dark:text-[#A1A1AA] flex items-center justify-between px-1">
+                <span>Assigned RFQ Deals ({myAgentQuotes.length})</span>
+                <span className="font-mono text-emerald-600 dark:text-[#C6F432]">Escalated SLA</span>
+              </h2>
+
+              {/* Filter Tabs */}
+              <div className="grid grid-cols-3 gap-1 bg-slate-100 dark:bg-[#141416] p-1 rounded-xl border border-slate-200 dark:border-[#222225] text-[11px] font-semibold">
+                <button
+                  type="button"
+                  onClick={() => setFilterTab('all')}
+                  className={`py-1.5 rounded-lg transition-all text-center ${
+                    filterTab === 'all'
+                      ? 'bg-white dark:bg-[#1E1E22] text-[#0B0B0C] dark:text-white font-bold shadow-xs'
+                      : 'text-slate-500 dark:text-[#71717A] hover:text-slate-900 dark:hover:text-white'
+                  }`}
+                >
+                  All ({eligibleQuotes.length})
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setFilterTab('assigned')}
+                  className={`py-1.5 rounded-lg transition-all text-center ${
+                    filterTab === 'assigned'
+                      ? 'bg-white dark:bg-[#1E1E22] text-[#0B0B0C] dark:text-white font-bold shadow-xs'
+                      : 'text-slate-500 dark:text-[#71717A] hover:text-slate-900 dark:hover:text-white'
+                  }`}
+                >
+                  My Deals ({eligibleQuotes.filter((q) => q.assignedAgentId === currentUser.id).length})
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setFilterTab('inquiries')}
+                  className={`py-1.5 rounded-lg transition-all text-center relative ${
+                    filterTab === 'inquiries'
+                      ? 'bg-white dark:bg-[#1E1E22] text-[#0B0B0C] dark:text-white font-bold shadow-xs'
+                      : 'text-slate-500 dark:text-[#71717A] hover:text-slate-900 dark:hover:text-white'
+                  }`}
+                >
+                  <span>New ({eligibleQuotes.filter((q) => !q.assignedAgentId || q.status === 'inquiry_submitted').length})</span>
+                  {eligibleQuotes.some((q) => !q.assignedAgentId) && (
+                    <span className="w-1.5 h-1.5 rounded-full bg-[#16A34A] dark:bg-[#C6F432] absolute top-1 right-1" />
+                  )}
+                </button>
+              </div>
+            </div>
 
             <div className="space-y-2.5">
               {myAgentQuotes.length === 0 ? (
                 <div className="p-6 bg-white dark:bg-[#141416] border border-slate-200 dark:border-[#222225] rounded-2xl text-center space-y-2">
-                  <p className="font-bold text-slate-800 dark:text-white">No Deals Currently Assigned</p>
-                  <p className="text-[11px] text-slate-500">You have no active quotations pending your review in this subsidiary queue.</p>
+                  <p className="font-bold text-slate-800 dark:text-white">No Deals In This View</p>
+                  <p className="text-[11px] text-slate-500">
+                    {filterTab === 'inquiries'
+                      ? 'All customer RFQs have been assigned to an engineer.'
+                      : 'You have no active quotations pending your review in this queue.'}
+                  </p>
                 </div>
               ) : (
                 myAgentQuotes.map((q) => {
                   const isSelected = q.id === selectedQuote?.id;
+                  const isUnassigned = !q.assignedAgentId;
                   return (
                     <div
                       key={q.id}
@@ -291,9 +455,16 @@ export default function SalesAgentPage() {
                           v{q.currentVersion || 1}
                         </span>
                       </div>
-                      <span className="px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider rounded-full bg-slate-100 dark:bg-[#222225] text-slate-700 dark:text-[#E4E4E7] border border-slate-200 dark:border-[#2A2A2E]">
-                        {q.status.replace(/_/g, ' ')}
-                      </span>
+                      <div className="flex items-center space-x-1">
+                        {isUnassigned && (
+                          <span className="px-1.5 py-0.5 text-[8px] font-extrabold uppercase tracking-wider rounded-md bg-[#C6F432]/20 text-emerald-900 dark:text-[#C6F432] border border-[#C6F432]/40">
+                            New Inquiry
+                          </span>
+                        )}
+                        <span className="px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider rounded-full bg-slate-100 dark:bg-[#222225] text-slate-700 dark:text-[#E4E4E7] border border-slate-200 dark:border-[#2A2A2E]">
+                          {q.status.replace(/_/g, ' ')}
+                        </span>
+                      </div>
                     </div>
 
                     <h3 className="font-bold text-[#0B0B0C] dark:text-white line-clamp-1 text-xs">
@@ -335,6 +506,16 @@ export default function SalesAgentPage() {
                   </h2>
                 </div>
                 <div className="flex items-center space-x-2">
+                  {!selectedQuote.assignedAgentId && (
+                    <button
+                      type="button"
+                      onClick={() => handleClaimQuote(selectedQuote)}
+                      className="px-3 py-1.5 bg-[#C6F432] hover:bg-[#D7F860] text-[#0B0B0C] font-extrabold rounded-full text-[11px] transition-colors flex items-center space-x-1 shadow-sm cursor-pointer"
+                    >
+                      <Check className="w-3.5 h-3.5" />
+                      <span>Claim &amp; Formulate</span>
+                    </button>
+                  )}
                   <button
                     type="button"
                     onClick={() => {
