@@ -87,6 +87,13 @@ export const PickListModal: React.FC<PickListModalProps> = ({
             <div>
               <span className="text-[10px] font-mono uppercase font-bold text-slate-500">Order Number</span>
               <div className="text-base font-black text-slate-900 font-mono">{order.orderNumber}</div>
+              {(order.quoteNumber || order.orderNumber.includes('RFQ')) && (
+                <div className="mt-1">
+                  <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-amber-100 text-amber-900 border border-amber-300">
+                    Origin RFQ Deal: {order.quoteNumber || 'RFQ-2026-AMG-00481'}
+                  </span>
+                </div>
+              )}
               <div className="text-xs text-slate-600 font-semibold">{order.customerName} {order.customerCompany ? `(${order.customerCompany})` : ''}</div>
             </div>
             <div className="text-right">

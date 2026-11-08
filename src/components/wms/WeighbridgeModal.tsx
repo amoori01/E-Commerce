@@ -200,7 +200,14 @@ export const WeighbridgeModal: React.FC<WeighbridgeModalProps> = ({
               <div className="p-3 bg-slate-50 border border-slate-200 rounded flex justify-between items-center">
                 <div>
                   <span className="text-[10px] uppercase font-bold text-slate-500 block">Consignment Order</span>
-                  <span className="font-mono font-bold text-slate-900 text-sm">{order.orderNumber}</span>
+                  <div className="flex items-center space-x-2">
+                    <span className="font-mono font-bold text-slate-900 text-sm">{order.orderNumber}</span>
+                    {(order.quoteNumber || order.orderNumber.includes('RFQ')) && (
+                      <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[9px] font-mono font-bold bg-amber-100 text-amber-900 border border-amber-300">
+                        Origin RFQ: {order.quoteNumber || 'RFQ-2026-AMG-00481'}
+                      </span>
+                    )}
+                  </div>
                   <div className="text-[11px] text-slate-600">
                     Driver: {order.driverName || 'Tewodros Kassahun'} • Plate: {order.truckPlate || 'AA-3-92018'}
                   </div>

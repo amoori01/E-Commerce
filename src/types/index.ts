@@ -161,6 +161,8 @@ export interface OrderItem {
 export interface Order {
   id: string;
   orderNumber: string;
+  quoteId?: string;
+  quoteNumber?: string;
   customerId: string;
   customerName: string;
   customerCompany?: string;

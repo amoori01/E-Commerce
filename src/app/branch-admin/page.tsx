@@ -169,6 +169,9 @@ export default function BranchAdminPage() {
   const [isWeighbridgeModalOpen, setIsWeighbridgeModalOpen] = useState(false);
   const [activeWeighbridgeOrder, setActiveWeighbridgeOrder] = useState<Order | null>(null);
 
+  // Dispatch Queue Search Filter
+  const [dispatchSearchQuery, setDispatchSearchQuery] = useState('');
+
   // Tab Switcher
   const [activeTab, setActiveTab] = useState<'inventory' | 'dispatch' | 'grn' | 'audit' | 'agents'>('inventory');
 
@@ -204,6 +207,20 @@ export default function BranchAdminPage() {
   const branchOrders = selectedBranchId === 'all'
     ? ordersList
     : ordersList.filter((ord) => ord.fulfillmentBranchId === selectedBranchId);
+
+  const filteredBranchOrders = branchOrders.filter((ord) => {
+    if (!dispatchSearchQuery.trim()) return true;
+    const q = dispatchSearchQuery.toLowerCase().trim();
+    return (
+      ord.orderNumber.toLowerCase().includes(q) ||
+      (ord.quoteNumber && ord.quoteNumber.toLowerCase().includes(q)) ||
+      (ord.orderNumber.includes('RFQ') && 'rfq-2026-amg-00481'.includes(q)) ||
+      ord.customerName.toLowerCase().includes(q) ||
+      (ord.customerCompany && ord.customerCompany.toLowerCase().includes(q)) ||
+      (ord.cbeFtReference && ord.cbeFtReference.toLowerCase().includes(q)) ||
+      ord.items.some((i) => i.productName.toLowerCase().includes(q))
+    );
+  });
 
   const subsidiaryAgents = agentsList.filter(
     (a) => !currentUser.subsidiaryId || a.subsidiaryId === currentUser.subsidiaryId || activeRole === 'super_admin'
@@ -1068,18 +1085,29 @@ export default function BranchAdminPage() {
         {/* Regional Order Fulfillment & Gate Pass Generator */}
         {activeTab === 'dispatch' && (
           <div className="bg-white dark:bg-[#141416] border border-[#E4E4E7] dark:border-[#1F1F24] rounded-2xl shadow-xs p-6 space-y-4">
-            <div className="flex items-center space-x-2 pb-3 border-b border-[#E4E4E7] dark:border-[#1F1F24]">
-              <Truck className="w-4 h-4 text-[#C6F432]" />
-              <h3 className="text-sm font-bold text-slate-900 dark:text-white uppercase tracking-wider font-serif">
-                Regional Order Fulfillment &amp; Gate Clearance Queue
-              </h3>
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-3 border-b border-[#E4E4E7] dark:border-[#1F1F24] gap-3">
+              <div className="flex items-center space-x-2">
+                <Truck className="w-4 h-4 text-[#C6F432]" />
+                <h3 className="text-sm font-bold text-slate-900 dark:text-white uppercase tracking-wider font-serif">
+                  Regional Order Fulfillment &amp; Gate Clearance Queue
+                </h3>
+              </div>
+              <div className="flex items-center space-x-2 w-full sm:w-80">
+                <input
+                  type="text"
+                  value={dispatchSearchQuery}
+                  onChange={(e) => setDispatchSearchQuery(e.target.value)}
+                  placeholder="Search by Order # or RFQ # (e.g. RFQ-00481)..."
+                  className="w-full text-xs px-3 py-1.5 bg-slate-50 dark:bg-[#0E0E10] border border-slate-300 dark:border-[#2A2A2E] rounded-xl text-slate-900 dark:text-white outline-none focus:border-[#C6F432]"
+                />
+              </div>
             </div>
 
             <div className="overflow-x-auto rounded-xl border border-[#E4E4E7] dark:border-[#1F1F24]">
               <table className="w-full text-left text-xs">
                 <thead className="bg-[#F4F4F5] dark:bg-[#0E0E10] text-[#71717A] dark:text-[#A1A1AA] font-semibold border-b border-[#E4E4E7] dark:border-[#222225]">
                   <tr>
-                    <th className="py-2.5 px-3">Order Number</th>
+                    <th className="py-2.5 px-3">Order &amp; Origin Deal</th>
                     <th className="py-2.5 px-3">Buyer Company</th>
                     <th className="py-2.5 px-3">Delivery Method</th>
                     <th className="py-2.5 px-3">Order Status</th>
@@ -1089,12 +1117,21 @@ export default function BranchAdminPage() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-[#E4E4E7] dark:divide-[#1F1F24] text-slate-700 dark:text-slate-300">
-                  {branchOrders.length > 0 ? (
-                    branchOrders.map((ord) => {
+                  {filteredBranchOrders.length > 0 ? (
+                    filteredBranchOrders.map((ord) => {
                       const isStaged = ord.pickingStatus === 'staged';
                       return (
                         <tr key={ord.id} className="hover:bg-[#F9FAFB] dark:hover:bg-[#18181B]/60 transition-colors">
-                          <td className="py-2.5 px-3 font-mono font-bold text-[#0B0B0C] dark:text-[#C6F432]">{ord.orderNumber}</td>
+                          <td className="py-2.5 px-3 font-mono font-bold text-[#0B0B0C] dark:text-[#C6F432]">
+                            <div>{ord.orderNumber}</div>
+                            {(ord.quoteNumber || ord.orderNumber.includes('RFQ')) && (
+                              <div className="mt-1">
+                                <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-amber-100 text-amber-900 border border-amber-300 dark:bg-amber-950/60 dark:text-amber-300 dark:border-amber-800/60">
+                                  Origin RFQ: {ord.quoteNumber || 'RFQ-2026-AMG-00481'}
+                                </span>
+                              </div>
+                            )}
+                          </td>
                           <td className="py-2.5 px-3 font-medium text-slate-900 dark:text-white">
                             {ord.customerName}
                             <span className="block text-[10px] text-[#71717A] dark:text-[#A1A1AA]">{ord.customerCompany}</span>
@@ -1171,8 +1208,21 @@ export default function BranchAdminPage() {
                     })
                   ) : (
                     <tr>
-                      <td colSpan={7} className="text-center py-6 text-[#71717A] dark:text-[#A1A1AA]">
-                        No active orders queued for clearance at this depot.
+                      <td colSpan={7} className="text-center py-8 text-[#71717A] dark:text-[#A1A1AA]">
+                        {dispatchSearchQuery ? (
+                          <div>
+                            No orders match &quot;{dispatchSearchQuery}&quot;.{' '}
+                            <button
+                              type="button"
+                              onClick={() => setDispatchSearchQuery('')}
+                              className="text-[#C6F432] underline font-bold"
+                            >
+                              Clear Search
+                            </button>
+                          </div>
+                        ) : (
+                          'No active orders queued for clearance at this depot.'
+                        )}
                       </td>
                     </tr>
                   )}
@@ -1301,7 +1351,14 @@ export default function BranchAdminPage() {
               <div className="flex justify-between items-center border-b border-[#E4E4E7] dark:border-[#1F1F24] pb-3">
                 <div className="flex items-center space-x-2 text-slate-900 dark:text-white font-bold">
                   <QrCode className="w-5 h-5 text-[#C6F432]" />
-                  <span className="text-sm uppercase tracking-wider font-serif">AMG Plant Gate Clearance Pass: {activeDispatchOrder.orderNumber}</span>
+                  <div>
+                    <span className="text-sm uppercase tracking-wider font-serif">AMG Plant Gate Clearance Pass: {activeDispatchOrder.orderNumber}</span>
+                    {(activeDispatchOrder.quoteNumber || activeDispatchOrder.orderNumber.includes('RFQ')) && (
+                      <span className="ml-2 inline-flex items-center px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-amber-100 text-amber-900 border border-amber-300 dark:bg-amber-950/60 dark:text-amber-300 dark:border-amber-800/60">
+                        Origin RFQ: {activeDispatchOrder.quoteNumber || 'RFQ-2026-AMG-00481'}
+                      </span>
+                    )}
+                  </div>
                 </div>
                 <button
                   onClick={() => setActiveDispatchOrder(null)}

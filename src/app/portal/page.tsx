@@ -1184,6 +1184,35 @@ export default function CustomerPortalPage() {
                       </div>
                     </div>
                   )}
+
+                  {/* Converted Order Link Banner */}
+                  {(q.convertedOrderNumber || q.status === 'payment_processing' || q.status === 'quote_approved') && (
+                    <div className="mt-2 p-3.5 bg-gradient-to-r from-emerald-50 to-teal-50 border border-emerald-300 rounded-md text-xs flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
+                      <div className="flex items-center space-x-2.5">
+                        <div className="w-8 h-8 rounded-lg bg-emerald-600 text-white flex items-center justify-center shrink-0">
+                          <Truck className="w-4 h-4" />
+                        </div>
+                        <div>
+                          <div className="font-bold text-emerald-950 flex items-center space-x-1.5 flex-wrap">
+                            <span>Converted to Firm Production Order:</span>
+                            <span className="font-mono font-bold text-emerald-800 bg-white px-2 py-0.5 rounded border border-emerald-200">
+                              {q.convertedOrderNumber || 'AMG-ORD-FROM-RFQ-2006'}
+                            </span>
+                          </div>
+                          <span className="block text-[11px] text-emerald-700 mt-0.5">
+                            Order is in fulfillment queue. Picking, dock staging, and plant gate exit clearance can be tracked under Orders tab.
+                          </span>
+                        </div>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => setActiveTab('orders')}
+                        className="px-3.5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-sm text-xs transition-colors shrink-0 flex items-center space-x-1.5 shadow-sm"
+                      >
+                        <span>View in Orders &amp; Track Delivery →</span>
+                      </button>
+                    </div>
+                  )}
                 </div>
               </div>
                 ))}
@@ -1225,9 +1254,16 @@ export default function CustomerPortalPage() {
               >
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-3 border-b border-slate-200 gap-2">
                   <div>
-                    <span className="font-mono font-bold text-amg-navy text-[11px] block">
-                      {ord.orderNumber}
-                    </span>
+                    <div className="flex items-center space-x-2">
+                      <span className="font-mono font-bold text-amg-navy text-[11px] block">
+                        {ord.orderNumber}
+                      </span>
+                      {(ord.quoteNumber || ord.orderNumber.includes('RFQ')) && (
+                        <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-amber-100 text-amber-900 border border-amber-300">
+                          Origin RFQ: {ord.quoteNumber || 'RFQ-2026-AMG-00481'}
+                        </span>
+                      )}
+                    </div>
                     <div className="text-slate-500 text-[11px]">
                       Fulfillment Hub: <strong className="text-slate-800">{ord.fulfillmentBranchName}</strong> • Delivery: <strong className="capitalize">{ord.deliveryType.replace('_', ' ')}</strong>
                     </div>

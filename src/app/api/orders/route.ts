@@ -3,6 +3,7 @@ import { CreateOrderDto, validateCreateOrderDto } from '@/dtos';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { INITIAL_ORDERS, PRODUCTS, SEEDED_USERS, BRANCHES } from '@/lib/constants';
 import { getServerOrders, addServerOrder, clearServerOrders } from '@/lib/server-orders';
+import { getLiveQuotes } from '@/lib/quotes-store';
 
 // ====================================================================
 // STREAM A: DIRECT SELF-SERVICE ORDERS API ENDPOINT
@@ -99,7 +100,20 @@ export async function GET(req: NextRequest) {
   const customerId = searchParams.get('customerId');
   const branchId = searchParams.get('branchId');
 
-  let orders = [...getServerOrders()];
+  const liveQuotes = getLiveQuotes();
+  let orders = getServerOrders().map((o) => {
+    if (!o.quoteNumber && (o.id.includes('rfq') || o.orderNumber.includes('RFQ'))) {
+      const matchQ = liveQuotes.find(
+        (q) =>
+          q.convertedOrderNumber === o.orderNumber ||
+          (q.customerId === o.customerId && q.items.some((qi) => o.items.some((oi) => oi.productName === qi.customProductName)))
+      );
+      if (matchQ) {
+        return { ...o, quoteId: matchQ.id, quoteNumber: matchQ.quoteNumber };
+      }
+    }
+    return o;
+  });
 
   if (customerId) {
     orders = orders.filter((o) => o.customerId === customerId);

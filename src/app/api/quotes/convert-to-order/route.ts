@@ -70,6 +70,8 @@ export async function POST(req: NextRequest) {
     const newOrder: Order = {
       id: `ord-rfq-${Date.now()}`,
       orderNumber,
+      quoteId: quote.id,
+      quoteNumber: quote.quoteNumber,
       customerId: quote.customerId,
       customerName: quote.customerName,
       customerCompany: quote.customerCompany,
@@ -100,6 +102,7 @@ export async function POST(req: NextRequest) {
     // Transition quote status to 'payment_processing'
     const prevQuoteStatus = quote.status;
     quote.status = 'payment_processing';
+    quote.convertedOrderNumber = orderNumber;
     recordQuoteTransition(
       quote.id,
       prevQuoteStatus,
