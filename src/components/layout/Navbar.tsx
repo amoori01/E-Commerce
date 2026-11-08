@@ -358,44 +358,55 @@ export function Navbar() {
         {/* Search Bar with SKU / Category selector */}
         <form
           onSubmit={handleSearch}
-          className="hidden lg:flex flex-1 max-w-2xl items-center border border-[#E4E4E7] dark:border-[#222225] hover:border-[#0B0B0C] dark:hover:border-[#C6F432]/50 focus-within:border-[#0B0B0C] dark:focus-within:border-[#C6F432] focus-within:ring-2 focus-within:ring-[#C6F432]/40 rounded-full bg-[#FAFAFA] dark:bg-[#141416] overflow-hidden transition-all shadow-inner"
+          className="hidden lg:flex flex-1 max-w-2xl items-center bg-slate-50/90 dark:bg-[#141416]/90 hover:bg-white dark:hover:bg-[#18181B] border border-slate-200/90 dark:border-[#2A2A2E] hover:border-slate-400 dark:hover:border-[#C6F432]/50 focus-within:bg-white dark:focus-within:bg-[#0E0E10] focus-within:border-slate-900 dark:focus-within:border-[#C6F432] focus-within:ring-4 focus-within:ring-[#C6F432]/10 dark:focus-within:ring-[#C6F432]/15 rounded-full p-1 pl-1.5 transition-all duration-300 shadow-xs backdrop-blur-md"
         >
-          <div className="bg-white dark:bg-[#1A1A1D] border-r border-[#E4E4E7] dark:border-[#222225] px-3.5 py-2.5 text-[#0B0B0C] dark:text-white font-medium text-xs shrink-0 flex items-center space-x-1.5">
-            <Layers className="w-3.5 h-3.5 text-[#0B0B0C] dark:text-[#C6F432]" />
-            <select
-              value={searchSubsidiary}
-              onChange={(e) => setSearchSubsidiary(e.target.value)}
-              className="bg-transparent text-[#0B0B0C] dark:text-white text-xs font-semibold focus:outline-none cursor-pointer pr-1"
-              aria-label="Filter search by subsidiary"
-            >
-              <option value="all" className="dark:bg-[#141416]">All Subsidiaries</option>
-              {SUBSIDIARIES.map((sub) => (
-                <option key={sub.id} value={sub.slug} className="dark:bg-[#141416]">
-                  {sub.name.replace('AMG ', '')}
+          {/* Subsidiary Filter Pill */}
+          <div className="relative flex items-center shrink-0">
+            <div className="flex items-center space-x-1.5 px-3 py-1.5 rounded-full bg-white dark:bg-[#1E1E22] border border-slate-200 dark:border-[#2D2D32] text-slate-800 dark:text-white text-xs font-semibold shadow-2xs hover:border-slate-400 dark:hover:border-[#C6F432]/40 transition-colors cursor-pointer group/sub">
+              <Layers className="w-3.5 h-3.5 text-emerald-600 dark:text-[#C6F432] shrink-0" />
+              <select
+                value={searchSubsidiary}
+                onChange={(e) => setSearchSubsidiary(e.target.value)}
+                className="bg-transparent text-slate-900 dark:text-white text-xs font-semibold focus:outline-none cursor-pointer appearance-none pr-4"
+                aria-label="Filter search by subsidiary"
+              >
+                <option value="all" className="bg-white dark:bg-[#141416] text-slate-900 dark:text-white">
+                  All Subsidiaries
                 </option>
-              ))}
-            </select>
+                {SUBSIDIARIES.map((sub) => (
+                  <option key={sub.id} value={sub.slug} className="bg-white dark:bg-[#141416] text-slate-900 dark:text-white">
+                    {sub.name.replace('AMG ', '')}
+                  </option>
+                ))}
+              </select>
+              <ChevronDown className="w-3 h-3 text-slate-400 dark:text-[#A1A1AA] absolute right-2.5 pointer-events-none group-hover/sub:text-slate-900 dark:group-hover/sub:text-white transition-colors" />
+            </div>
           </div>
+
+          {/* Search Query Input */}
           <input
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Search by SKU, ASTM standard, steel grade, roofing gauge, vehicle chassis..."
-            className="w-full px-4 py-2.5 text-xs text-[#0B0B0C] dark:text-white placeholder-[#A1A1AA] bg-transparent outline-none"
+            placeholder="Search structural steel, roofing, transport fleet, industrial gases..."
+            className="w-full px-3.5 py-1.5 text-xs text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-[#71717A] bg-transparent outline-none font-medium"
           />
+
           {searchQuery && (
             <button
               type="button"
               onClick={() => setSearchQuery('')}
-              className="px-2 text-[#A1A1AA] hover:text-[#0B0B0C] dark:hover:text-white transition-colors"
+              className="p-1 mr-1 text-slate-400 hover:text-slate-900 dark:hover:text-white rounded-full hover:bg-slate-200 dark:hover:bg-[#222225] transition-colors"
               title="Clear search input"
             >
               <X className="w-3.5 h-3.5" />
             </button>
           )}
+
+          {/* Submit Action Button */}
           <button
             type="submit"
-            className="bg-[#0B0B0C] hover:bg-[#1A1A1D] text-[#C6F432] px-5 py-2.5 font-bold flex items-center justify-center transition-colors shrink-0 m-0.5 rounded-full"
+            className="w-9 h-9 rounded-full bg-[#0B0B0C] dark:bg-[#C6F432] hover:bg-slate-800 dark:hover:bg-[#D7F860] text-white dark:text-[#0B0B0C] flex items-center justify-center shrink-0 transition-all shadow-sm hover:scale-105 active:scale-95 cursor-pointer"
             title="Search catalog"
           >
             <Search className="w-4 h-4" />
@@ -483,38 +494,40 @@ export function Navbar() {
         </div>
       </div>
 
-      {/* 2b. MOBILE / TABLET SEARCH BAR */}
-      <div className="lg:hidden px-4 pb-3 pt-1 bg-[#FAFAFA] dark:bg-[#141416] border-t border-[#E4E4E7] dark:border-[#222225]">
-        <form
-          onSubmit={handleSearch}
-          className="flex items-center border border-[#E4E4E7] dark:border-[#222225] rounded-full bg-white dark:bg-[#0B0B0C] overflow-hidden focus-within:border-[#0B0B0C] dark:focus-within:border-[#C6F432] p-0.5"
-        >
-          <input
-            type="text"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Search SKU, ASTM, steel grade, chassis..."
-            className="w-full px-3.5 py-1.5 text-xs text-[#0B0B0C] dark:text-white placeholder-[#A1A1AA] outline-none bg-transparent"
-          />
-          {searchQuery && (
-            <button
-              type="button"
-              onClick={() => setSearchQuery('')}
-              className="px-2 text-[#A1A1AA] hover:text-[#0B0B0C] dark:hover:text-white"
-              title="Clear search input"
-            >
-              <X className="w-3.5 h-3.5" />
-            </button>
-          )}
-          <button
-            type="submit"
-            className="bg-[#0B0B0C] text-[#C6F432] p-2 rounded-full font-bold flex items-center justify-center transition-colors"
-            title="Search catalog"
+      {/* 2b. MOBILE / TABLET SEARCH BAR (Storefront Only) */}
+      {isStorefront && (
+        <div className="lg:hidden px-4 pb-3 pt-1.5 bg-[#FAFAFA] dark:bg-[#141416] border-t border-[#E4E4E7] dark:border-[#222225]">
+          <form
+            onSubmit={handleSearch}
+            className="flex items-center bg-white dark:bg-[#0B0B0C] border border-slate-200 dark:border-[#2A2A2E] focus-within:border-[#C6F432] focus-within:ring-2 focus-within:ring-[#C6F432]/20 rounded-full p-1 pl-3 transition-all shadow-xs"
           >
-            <Search className="w-3.5 h-3.5" />
-          </button>
-        </form>
-      </div>
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Search products, SKUs, materials..."
+              className="w-full text-xs text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-[#71717A] outline-none bg-transparent"
+            />
+            {searchQuery && (
+              <button
+                type="button"
+                onClick={() => setSearchQuery('')}
+                className="px-2 text-slate-400 hover:text-slate-900 dark:hover:text-white"
+                title="Clear search"
+              >
+                <X className="w-3.5 h-3.5" />
+              </button>
+            )}
+            <button
+              type="submit"
+              className="w-8 h-8 rounded-full bg-[#0B0B0C] dark:bg-[#C6F432] text-white dark:text-[#0B0B0C] font-bold flex items-center justify-center shrink-0 transition-transform active:scale-95"
+              title="Search catalog"
+            >
+              <Search className="w-3.5 h-3.5" />
+            </button>
+          </form>
+        </div>
+      )}
 
       {/* 3. SUBSIDIARY DIRECTORY NAVIGATION BAR (Storefront Catalog Only) */}
       {isStorefront && (
