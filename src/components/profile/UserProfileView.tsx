@@ -560,56 +560,97 @@ export default function UserProfileView() {
 
         {/* RIGHT 1 COL: FINANCIAL TERMS, SECURITY & NOTIFICATIONS */}
         <div className="space-y-6">
-          {/* SECTION C: COMMERCIAL CREDIT TERMS */}
+          {/* SECTION C: COMMERCIAL CREDIT / RETAIL SETTLEMENT TERMS */}
           <div className="bg-white dark:bg-[#141416] border border-slate-200/90 dark:border-[#2A2A2E] rounded-3xl p-6 shadow-xs space-y-4">
             <div className="border-b border-slate-200 dark:border-[#222225] pb-3">
               <h3 className="text-sm font-bold text-slate-900 dark:text-white uppercase tracking-wider flex items-center space-x-2">
                 <CreditCard className="w-4 h-4 text-emerald-600 dark:text-[#C6F432]" />
-                <span>B2B Credit & Settlement</span>
+                <span>{currentUser?.customerType === 'b2c' ? 'Retail Settlement & Payment Rails' : 'B2B Credit & Settlement'}</span>
               </h3>
               <p className="text-[11px] text-slate-500 dark:text-[#A1A1AA]">
-                Approved enterprise commercial credit terms.
+                {currentUser?.customerType === 'b2c'
+                  ? 'Consumer digital settlement and instant payment methods.'
+                  : 'Approved enterprise commercial credit terms and bank settlement.'}
               </p>
             </div>
 
-            <div className="space-y-3 text-xs">
-              <div className="bg-slate-50 dark:bg-[#0E0E10] p-4 rounded-2xl border border-slate-200 dark:border-[#222225] space-y-3">
-                <div className="flex justify-between items-center text-xs">
-                  <span className="text-slate-500 dark:text-[#A1A1AA] font-medium">Approved Credit Facility</span>
-                  <span className="font-mono font-bold text-slate-900 dark:text-white">ETB 25,000,000</span>
+            {currentUser?.customerType === 'b2c' ? (
+              <div className="space-y-3 text-xs">
+                <div className="bg-slate-50 dark:bg-[#0E0E10] p-4 rounded-2xl border border-slate-200 dark:border-[#222225] space-y-2.5">
+                  <div className="flex justify-between items-center text-xs">
+                    <span className="text-slate-500 dark:text-[#A1A1AA] font-medium">Customer Payment Tier</span>
+                    <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-teal-500/10 text-teal-600 dark:text-teal-400 border border-teal-500/20">
+                      Direct Retail (Instant Buy)
+                    </span>
+                  </div>
+                  <div className="flex justify-between items-center text-xs">
+                    <span className="text-slate-500 dark:text-[#A1A1AA] font-medium">Credit Facility Status</span>
+                    <span className="text-slate-600 dark:text-slate-400 font-mono text-[11px]">N/A (Prepaid / Direct)</span>
+                  </div>
+                  <div className="p-2.5 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-800 dark:text-emerald-300 text-[11px] flex items-center space-x-2">
+                    <Check className="w-3.5 h-3.5 shrink-0 text-emerald-600 dark:text-[#C6F432]" />
+                    <span>Instant release on Telebirr or CBE Birr direct payment.</span>
+                  </div>
                 </div>
-                <div className="flex justify-between items-center text-xs">
-                  <span className="text-slate-500 dark:text-[#A1A1AA] font-medium">Utilized Balance</span>
-                  <span className="font-mono font-semibold text-amber-700 dark:text-amber-400">ETB 6,550,000</span>
-                </div>
-                {/* Progress bar */}
-                <div className="w-full bg-slate-200 dark:bg-[#222225] h-2 rounded-full overflow-hidden">
-                  <div className="bg-[#C6F432] h-full rounded-full" style={{ width: '26.2%' }} />
-                </div>
-                <div className="flex justify-between items-center text-[10px] text-slate-400">
-                  <span>26.2% Drawn</span>
-                  <span className="text-emerald-700 dark:text-[#C6F432] font-semibold">ETB 18,450,000 Available</span>
-                </div>
-              </div>
 
-              <div className="space-y-2 pt-1 text-[11px]">
-                <div className="flex items-center justify-between py-1 border-b border-slate-100 dark:border-[#222225]">
-                  <span className="text-slate-500 dark:text-[#A1A1AA]">Standard Terms:</span>
-                  <span className="font-semibold text-slate-900 dark:text-white">Net-30 Days post-dispatch</span>
-                </div>
-                <div className="flex items-center justify-between py-1 border-b border-slate-100 dark:border-[#222225]">
-                  <span className="text-slate-500 dark:text-[#A1A1AA]">Settlement Rail:</span>
-                  <span className="font-semibold text-slate-900 dark:text-white flex items-center space-x-1">
-                    <Landmark className="w-3.5 h-3.5 text-emerald-600 dark:text-[#C6F432]" />
-                    <span>CBE Bank Transfer</span>
-                  </span>
-                </div>
-                <div className="flex items-center justify-between py-1">
-                  <span className="text-slate-500 dark:text-[#A1A1AA]">CBE Verified Acct:</span>
-                  <span className="font-mono font-bold text-slate-900 dark:text-white">1000123456789</span>
+                <div className="space-y-2 pt-1 text-[11px]">
+                  <div className="flex items-center justify-between py-1 border-b border-slate-100 dark:border-[#222225]">
+                    <span className="text-slate-500 dark:text-[#A1A1AA]">Primary Payment Rail:</span>
+                    <span className="font-semibold text-slate-900 dark:text-white flex items-center space-x-1">
+                      <Smartphone className="w-3.5 h-3.5 text-emerald-600 dark:text-[#C6F432]" />
+                      <span>Telebirr / CBE Birr QR</span>
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between py-1 border-b border-slate-100 dark:border-[#222225]">
+                    <span className="text-slate-500 dark:text-[#A1A1AA]">Payment Timing:</span>
+                    <span className="font-semibold text-slate-900 dark:text-white">Immediate (At Checkout / Pickup)</span>
+                  </div>
+                  <div className="flex items-center justify-between py-1">
+                    <span className="text-slate-500 dark:text-[#A1A1AA]">Storefront Receipt:</span>
+                    <span className="font-medium text-slate-900 dark:text-white">Electronic SMS & PDF Receipt</span>
+                  </div>
                 </div>
               </div>
-            </div>
+            ) : (
+              <div className="space-y-3 text-xs">
+                <div className="bg-slate-50 dark:bg-[#0E0E10] p-4 rounded-2xl border border-slate-200 dark:border-[#222225] space-y-3">
+                  <div className="flex justify-between items-center text-xs">
+                    <span className="text-slate-500 dark:text-[#A1A1AA] font-medium">Approved Credit Facility</span>
+                    <span className="font-mono font-bold text-slate-900 dark:text-white">ETB 25,000,000</span>
+                  </div>
+                  <div className="flex justify-between items-center text-xs">
+                    <span className="text-slate-500 dark:text-[#A1A1AA] font-medium">Utilized Balance</span>
+                    <span className="font-mono font-semibold text-amber-700 dark:text-amber-400">ETB 6,550,000</span>
+                  </div>
+                  {/* Progress bar */}
+                  <div className="w-full bg-slate-200 dark:bg-[#222225] h-2 rounded-full overflow-hidden">
+                    <div className="bg-[#C6F432] h-full rounded-full" style={{ width: '26.2%' }} />
+                  </div>
+                  <div className="flex justify-between items-center text-[10px] text-slate-400">
+                    <span>26.2% Drawn</span>
+                    <span className="text-emerald-700 dark:text-[#C6F432] font-semibold">ETB 18,450,000 Available</span>
+                  </div>
+                </div>
+
+                <div className="space-y-2 pt-1 text-[11px]">
+                  <div className="flex items-center justify-between py-1 border-b border-slate-100 dark:border-[#222225]">
+                    <span className="text-slate-500 dark:text-[#A1A1AA]">Standard Terms:</span>
+                    <span className="font-semibold text-slate-900 dark:text-white">Net-30 Days post-dispatch</span>
+                  </div>
+                  <div className="flex items-center justify-between py-1 border-b border-slate-100 dark:border-[#222225]">
+                    <span className="text-slate-500 dark:text-[#A1A1AA]">Settlement Rail:</span>
+                    <span className="font-semibold text-slate-900 dark:text-white flex items-center space-x-1">
+                      <Landmark className="w-3.5 h-3.5 text-emerald-600 dark:text-[#C6F432]" />
+                      <span>CBE Bank Transfer</span>
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between py-1">
+                    <span className="text-slate-500 dark:text-[#A1A1AA]">CBE Verified Acct:</span>
+                    <span className="font-mono font-bold text-slate-900 dark:text-white">1000123456789</span>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
 
           {/* SECTION D: SECURITY & 2FA (SRS 4.2) */}
