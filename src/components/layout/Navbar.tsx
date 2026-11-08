@@ -520,6 +520,7 @@ export function Navbar() {
           <div className="flex items-center space-x-2 shrink-0 text-xs">
             <Link
               href="/?subsidiary=all&stream=all#catalog-section"
+              scroll={false}
               onClick={() => setActiveSubSlug('all')}
               className={`px-3.5 py-1.5 font-semibold transition-all rounded-full whitespace-nowrap text-xs flex items-center space-x-1.5 ${
                 activeSubSlug === 'all'
@@ -537,6 +538,7 @@ export function Navbar() {
                 <Link
                   key={sub.id}
                   href={`/?subsidiary=${sub.slug}#catalog-section`}
+                  scroll={false}
                   onClick={() => setActiveSubSlug(sub.slug)}
                   className={`px-3.5 py-1.5 font-semibold transition-all rounded-full whitespace-nowrap text-xs flex items-center space-x-1.5 ${
                     isActive
@@ -554,6 +556,7 @@ export function Navbar() {
           <div className="hidden lg:flex items-center space-x-2 text-[11px] shrink-0">
             <Link
               href="/?stream=direct_checkout#catalog-section"
+              scroll={false}
               className="px-3 py-1.5 bg-white dark:bg-[#141416] hover:bg-slate-50 dark:hover:bg-[#1A1A1D] text-[#0B0B0C] dark:text-[#E4E4E7] border border-[#E4E4E7] dark:border-[#2A2A2E] hover:border-[#C6F432]/60 rounded-full transition-all flex items-center space-x-1.5 font-medium shadow-2xs"
               title="Filter catalog to Stream A instant buy products"
             >
@@ -563,6 +566,7 @@ export function Navbar() {
             <span className="text-slate-300 dark:text-[#3F3F46]">•</span>
             <Link
               href="/?stream=assisted_quote#catalog-section"
+              scroll={false}
               className="px-3 py-1.5 bg-white dark:bg-[#141416] hover:bg-slate-50 dark:hover:bg-[#1A1A1D] text-[#0B0B0C] dark:text-[#E4E4E7] border border-[#E4E4E7] dark:border-[#2A2A2E] hover:border-slate-400 dark:hover:border-white rounded-full transition-all flex items-center space-x-1.5 font-medium shadow-2xs"
               title="Filter catalog to Stream B custom engineering RFQ products"
             >
