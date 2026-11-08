@@ -1428,6 +1428,77 @@ export const INITIAL_ORDERS: Order[] = [];
 
 export const INITIAL_QUOTES: Quote[] = [
   {
+    id: 'b3333333-3333-3333-3333-333333333333',
+    quoteNumber: 'RFQ-2026-AMG-00975',
+    customerId: 'e6666666-6666-6666-6666-666666666666',
+    customerName: 'Ahmed Ibrahim',
+    customerCompany: 'Ibrahim General Contractors & Trading',
+    customerPhone: '+251 91 123 4567',
+    subsidiaryId: '11111111-1111-1111-1111-111111111111',
+    subsidiaryName: 'AMG Heavy Structural Engineering',
+    status: 'inquiry_submitted',
+    currentVersion: 1,
+    revisions: [
+      {
+        version: 1,
+        timestamp: '2026-10-14T09:15:00Z',
+        quotedTotalEtb: 0,
+        validUntil: 'Pending Formulation',
+        notes: 'Initial blueprint inquiry submission for structural PEB warehouse framework.',
+        status: 'draft',
+        changedBy: 'Ahmed Ibrahim (Client Procurement)',
+      },
+    ],
+    projectTitle: 'Custom Structural Pre-Engineered Steel Frame & High-Tensile Rebar Package',
+    deliveryDestination: 'Gelan Industrial Park Zone 4, Addis Ababa / Oromia Corridor',
+    targetDeliveryDate: '2026-11-30',
+    estimatedTotalEtb: 0,
+    customerRequirements:
+      'Urgent technical review and volume cost matrix required. Commercial warehouse expansion requires 40 heavy PEB columns (Grade S355JR), 42-meter clear-span roof rafters, and 60 metric tons of 12mm high-tensile thermo-mechanically treated (TMT) Grade 60 rebar. Delivery directly to Gelan site.',
+    createdAt: '2026-10-14T09:15:00Z',
+    items: [
+      {
+        id: 'qi-975-1',
+        productId: 'f6666666-6666-6666-6666-666666666666',
+        customProductName: 'Heavy Welded PEB Columns (Grade S355JR)',
+        requestedSpecs: {
+          'Height': '10.5 Meters',
+          'Flange Thickness': '22mm',
+          'Web Thickness': '14mm',
+          'Anti-Corrosion': 'Epoxy Zinc Rich 100μm',
+          'Quantity': '40 Units',
+        },
+        quantity: 52,
+        unitMeasurement: 'ton',
+      },
+      {
+        id: 'qi-975-2',
+        productId: 'f2222222-2222-2222-2222-222222222222',
+        customProductName: 'High-Tensile TMT Steel Rebar (12mm Grade 60)',
+        requestedSpecs: {
+          'Diameter': '12mm High Tensile',
+          'Standard': 'ASTM A615 / ES ISO 6935-2',
+          'Length': '12.0 Meter Bundles',
+          'Quantity': '60 Metric Tons',
+        },
+        quantity: 60,
+        unitMeasurement: 'ton',
+      },
+    ],
+    messages: [
+      {
+        id: 'msg-975-1',
+        quoteId: 'b3333333-3333-3333-3333-333333333333',
+        senderId: 'e6666666-6666-6666-6666-666666666666',
+        senderName: 'Ahmed Ibrahim',
+        senderRole: 'customer',
+        message:
+          'Engineering specifications and CAD blueprints submitted for RFQ-2026-AMG-00975. Awaiting technical team review and official proforma quote.',
+        createdAt: '2026-10-14T09:15:00Z',
+      },
+    ],
+  },
+  {
     id: 'b1111111-1111-1111-1111-111111111111',
     quoteNumber: 'RFQ-2026-AMG-0089',
     customerId: 'e4444444-4444-4444-4444-444444444444',

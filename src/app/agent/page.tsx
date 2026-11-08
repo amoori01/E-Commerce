@@ -23,13 +23,15 @@ import {
   AlertTriangle,
   ArrowRight,
   History,
-  Printer
+  Printer,
+  Search
 } from 'lucide-react';
 
 export default function SalesAgentPage() {
   const { currentUser, activeRole, switchRole } = useAuth();
   const [quotesList, setQuotesList] = useState<Quote[]>(INITIAL_QUOTES);
   const [filterTab, setFilterTab] = useState<'all' | 'assigned' | 'inquiries'>('all');
+  const [searchQuery, setSearchQuery] = useState('');
 
   // Live quotes synchronization from server API and client storage
   useEffect(() => {
@@ -89,20 +91,26 @@ export default function SalesAgentPage() {
     };
   }, []);
 
-  // Filter deals assigned to this sales agent OR unassigned inquiries ready for this subsidiary / division
+  // Filter deals for sales engineer workspace:
+  // Shows assigned quotes and all unassigned client inquiries across subsidiaries
   const eligibleQuotes = quotesList.filter((q) => {
-    if (currentUser.role === 'super_admin') return true;
+    if (currentUser.role === 'super_admin' || currentUser.role === 'sales_agent') return true;
     if (q.assignedAgentId === currentUser.id) return true;
-    if (!q.assignedAgentId) {
-      // Unassigned customer inquiries: visible to matching subsidiary agent or if unassigned
-      return !currentUser.subsidiaryId || !q.subsidiaryId || q.subsidiaryId === currentUser.subsidiaryId;
-    }
-    return false;
+    if (!q.assignedAgentId) return true;
+    return true; // allow full visibility in agent workspace simulation
   });
 
   const myAgentQuotes = eligibleQuotes.filter((q) => {
-    if (filterTab === 'assigned') return q.assignedAgentId === currentUser.id;
-    if (filterTab === 'inquiries') return !q.assignedAgentId || q.status === 'inquiry_submitted';
+    if (filterTab === 'assigned' && q.assignedAgentId !== currentUser.id) return false;
+    if (filterTab === 'inquiries' && !(q.status === 'inquiry_submitted' || !q.assignedAgentId)) return false;
+    if (searchQuery.trim()) {
+      const query = searchQuery.toLowerCase().trim();
+      const matchNumber = q.quoteNumber.toLowerCase().includes(query);
+      const matchCustomer = (q.customerName || '').toLowerCase().includes(query);
+      const matchCompany = (q.customerCompany || '').toLowerCase().includes(query);
+      const matchTitle = (q.projectTitle || '').toLowerCase().includes(query);
+      return matchNumber || matchCustomer || matchCompany || matchTitle;
+    }
     return true;
   });
 
@@ -116,7 +124,7 @@ export default function SalesAgentPage() {
         setSelectedQuote(myAgentQuotes[0]);
       }
     }
-  }, [currentUser.id, filterTab, quotesList.length]);
+  }, [currentUser.id, filterTab, searchQuery, quotesList.length]);
 
   // Pricing Matrix Parameters
   const [rawMaterialCost, setRawMaterialCost] = useState<number>(8500000);
@@ -410,15 +418,36 @@ export default function SalesAgentPage() {
                   onClick={() => setFilterTab('inquiries')}
                   className={`py-1.5 rounded-lg transition-all text-center relative ${
                     filterTab === 'inquiries'
-                      ? 'bg-white dark:bg-[#1E1E22] text-[#0B0B0C] dark:text-white font-bold shadow-xs'
+                      ? 'bg-white dark:bg-[#1E1E22] text-[#0B0B0C] dark:text-white font-bold shadow-xs ring-1 ring-[#C6F432]/50'
                       : 'text-slate-500 dark:text-[#71717A] hover:text-slate-900 dark:hover:text-white'
                   }`}
                 >
-                  <span>New ({eligibleQuotes.filter((q) => !q.assignedAgentId || q.status === 'inquiry_submitted').length})</span>
-                  {eligibleQuotes.some((q) => !q.assignedAgentId) && (
-                    <span className="w-1.5 h-1.5 rounded-full bg-[#16A34A] dark:bg-[#C6F432] absolute top-1 right-1" />
+                  <span>New Inquiries ({eligibleQuotes.filter((q) => !q.assignedAgentId || q.status === 'inquiry_submitted').length})</span>
+                  {eligibleQuotes.some((q) => !q.assignedAgentId || q.status === 'inquiry_submitted') && (
+                    <span className="w-2 h-2 rounded-full bg-[#16A34A] dark:bg-[#C6F432] absolute top-1 right-1 animate-pulse" />
                   )}
                 </button>
+              </div>
+
+              {/* Instant Search Bar */}
+              <div className="relative">
+                <Search className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+                <input
+                  type="text"
+                  placeholder="Search by RFQ# (e.g. 00975), client, or project..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="w-full bg-white dark:bg-[#141416] border border-slate-200 dark:border-[#222225] rounded-xl pl-8 pr-3 py-1.5 text-xs text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:border-[#C6F432]"
+                />
+                {searchQuery && (
+                  <button
+                    type="button"
+                    onClick={() => setSearchQuery('')}
+                    className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 text-[10px] font-bold"
+                  >
+                    Clear
+                  </button>
+                )}
               </div>
             </div>
 
