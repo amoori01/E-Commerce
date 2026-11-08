@@ -37,7 +37,7 @@ class _CartScreenState extends State<CartScreen> {
     ),
   ];
 
-  double get _subtotal => _items.reduce((sum, i) => sum + i.totalPrice, 0.0);
+  double get _subtotal => _items.fold(0.0, (sum, i) => sum + i.totalPrice);
   double get _tax => _subtotal * 0.15; // 15% Ethiopian VAT
   double get _total => _subtotal + _tax;
 
