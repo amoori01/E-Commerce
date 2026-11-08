@@ -31,8 +31,8 @@ const CHAT_STORE: Record<string, ChatMessageRecord[]> = {
     {
       id: 'msg-seed-2',
       quoteId: 'q1',
-      senderId: 'e2222222-2222-2222-2222-222222222222',
-      senderName: 'Eng. Biruk Kebede',
+      senderId: 'e3333333-3333-3333-3333-333333333333',
+      senderName: 'Eng. Solomon Bekele',
       senderRole: 'sales_agent',
       message: 'Yes, we can apply 85-micron hot-dip galvanizing per ASTM A123. I updated the coating tariff in Revision 2.',
       createdAt: '2026-10-12T10:45:00Z',

@@ -10,7 +10,7 @@ import { SEEDED_USERS } from '@/lib/constants';
 
 // Sales agents from seeded personas + active workload counter
 const AGENT_WORKLOAD: Record<string, number> = {
-  'e2222222-2222-2222-2222-222222222222': 2, // Eng. Biruk Kebede (Heavy Steel)
+  'e3333333-3333-3333-3333-333333333333': 1, // Eng. Solomon Bekele (Lead Sales Engineer)
 };
 
 export async function POST(req: NextRequest) {

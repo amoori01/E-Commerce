@@ -777,7 +777,7 @@ function LoginContent() {
                 <div className="space-y-3">
                   <div className="flex items-center justify-between text-xs text-[#71717A]">
                     <span>Instant demo authentication:</span>
-                    <span className="font-mono text-[10px] text-[#C6F432]">6 Personas Configured</span>
+                    <span className="font-mono text-[10px] text-[#C6F432]">{SEEDED_USERS.length} Core Personas Configured</span>
                   </div>
 
                   <div className="space-y-2 max-h-[380px] overflow-y-auto pr-1 scrollbar-none">
