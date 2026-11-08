@@ -5,7 +5,6 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useAuth } from '@/lib/auth-context';
-import { useTheme } from '@/lib/theme-context';
 import { SEEDED_USERS, BRANCHES } from '@/lib/constants';
 import { UserProfile, UserRole } from '@/types';
 import {
@@ -34,15 +33,12 @@ import {
   FileText,
   BadgeCheck,
   HelpCircle,
-  Sun,
-  Moon,
 } from 'lucide-react';
 
 function LoginContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { setUser, switchRole } = useAuth();
-  const { theme, toggleTheme } = useTheme();
 
   const [activeTab, setActiveTab] = useState<'standard' | 'register' | 'demo'>('standard');
   const [identifier, setIdentifier] = useState('');
@@ -204,42 +200,6 @@ function LoginContent() {
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-[#080809] text-slate-900 dark:text-white flex flex-col justify-between selection:bg-[#C6F432] selection:text-[#080809] transition-colors duration-200">
-      {/* Top subtle bar */}
-      <div className="border-b border-slate-200 dark:border-[#1E1E22] bg-white/90 dark:bg-[#0E0E10]/80 backdrop-blur-md px-4 sm:px-8 py-3.5 flex items-center justify-between">
-        <Link
-          href="/"
-          className="flex items-center space-x-2 text-xs font-semibold text-slate-600 dark:text-[#A1A1AA] hover:text-slate-900 dark:hover:text-white transition-colors group"
-        >
-          <ArrowLeft className="w-3.5 h-3.5 group-hover:-translate-x-1 transition-transform" />
-          <span>Return to Storefront Catalog</span>
-        </Link>
-
-        <div className="flex items-center space-x-3 text-[11px] font-mono text-slate-500 dark:text-[#71717A]">
-          <span className="hidden sm:inline-flex items-center space-x-1.5 px-2.5 py-0.5 rounded-full bg-slate-100 dark:bg-[#18181B] border border-slate-200 dark:border-[#27272A] text-slate-700 dark:text-slate-300">
-            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 dark:bg-[#C6F432] animate-pulse" />
-            <span>Gateway Online • Addis Ababa GMT+3</span>
-          </span>
-          <span className="hidden md:inline text-slate-300 dark:text-slate-600">|</span>
-          <span className="text-slate-500 dark:text-slate-400">SRS 4.2 Compliant</span>
-          <button
-            type="button"
-            onClick={toggleTheme}
-            className="p-1.5 rounded-xl border border-slate-200 dark:border-[#27272A] bg-white dark:bg-[#18181B] text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition-colors flex items-center space-x-1.5 shadow-xs cursor-pointer"
-            title={theme === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
-            aria-label="Toggle theme"
-          >
-            {theme === 'dark' ? (
-              <Sun className="w-3.5 h-3.5 text-amber-400" />
-            ) : (
-              <Moon className="w-3.5 h-3.5 text-slate-700" />
-            )}
-            <span className="text-[10px] font-bold capitalize sm:inline hidden">
-              {theme === 'dark' ? 'Light Mode' : 'Dark Mode'}
-            </span>
-          </button>
-        </div>
-      </div>
-
       {/* Main Container: Split on LG */}
       <div className="flex-1 max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-8 lg:py-12 flex items-center">
         <div className="w-full grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
