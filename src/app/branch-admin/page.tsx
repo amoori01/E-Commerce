@@ -12,7 +12,6 @@ import {
 } from '@/lib/constants';
 import { addServerOrder } from '@/lib/server-orders';
 import { QrCodeView } from '@/components/ui/QrCodeView';
-import { ThemeToggle } from '@/components/ui/ThemeToggle';
 import {
   InventoryItem,
   Order,
@@ -698,11 +697,10 @@ export default function BranchAdminPage() {
               </p>
             </div>
 
-            {/* Operating Branch Dropdown & ThemeToggle */}
-            <div className="bg-[#141416] border border-[#2A2A2E] p-4 rounded-2xl shrink-0 space-y-2.5 shadow-sm min-w-[280px]">
-              <div className="flex items-center justify-between border-b border-[#222225] pb-2">
-                <div className="text-[10px] uppercase font-bold text-[#A1A1AA] tracking-wider">Active Regional Depot</div>
-                <ThemeToggle />
+            {/* Operating Branch Dropdown */}
+            <div className="bg-[#141416] border border-[#2A2A2E] p-4 rounded-2xl shrink-0 space-y-2 shadow-sm min-w-[280px]">
+              <div className="text-[10px] uppercase font-bold text-[#A1A1AA] tracking-wider border-b border-[#222225] pb-2">
+                Active Regional Depot
               </div>
               <div>
                 <select

@@ -74,7 +74,6 @@ import {
   Warehouse,
 } from 'lucide-react';
 import { MfaVerificationModal } from '@/components/modals/MfaVerificationModal';
-import { ThemeToggle } from '@/components/ui/ThemeToggle';
 
 export default function SuperAdminPage() {
   const { currentUser, activeRole, switchRole } = useAuth();
@@ -603,9 +602,8 @@ export default function SuperAdminPage() {
                 </div>
               </div>
 
-              <div className="pt-2 border-t border-[#2A2A2E] w-full flex items-center justify-between lg:justify-end gap-2">
-                <ThemeToggle variant="compact" />
-                <span className="text-[10px] text-[#71717A] hidden lg:inline font-mono">Consortium Root</span>
+              <div className="pt-2 border-t border-[#2A2A2E] w-full flex items-center justify-end">
+                <span className="text-[10px] text-[#71717A] font-mono">Consortium Root Governance</span>
               </div>
             </div>
           </div>
