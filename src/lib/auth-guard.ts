@@ -142,14 +142,8 @@ export function enforceAbac(user: JwtPayload, resource: AbacResource, action: 'r
     return { allowed: true };
   }
 
-  // Sales Agent checks
+  // Sales Agent checks: Lead engineering desk handles consortium-wide quotations
   if (user.role === 'sales_agent') {
-    if (resource.subsidiaryId && user.subsidiaryId && resource.subsidiaryId !== user.subsidiaryId) {
-      return {
-        allowed: false,
-        reason: 'ABAC Access Denied: Sales agent cannot access inquiries outside their specialized subsidiary division.',
-      };
-    }
     // If quote is already assigned to a different agent
     if (resource.assignedAgentId && resource.assignedAgentId !== user.sub && action === 'write') {
       return {

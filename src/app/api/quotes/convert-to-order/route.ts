@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { INITIAL_QUOTES, INITIAL_ORDERS, BRANCHES } from '@/lib/constants';
+import { INITIAL_ORDERS, BRANCHES } from '@/lib/constants';
 import { authenticateRequest, enforceAbac } from '@/lib/auth-guard';
 import { recordQuoteTransition, recordOrderTransition } from '@/lib/state-machine';
 import { Order } from '@/types';
+import { findQuote } from '@/lib/quotes-store';
 
 // ====================================================================
 // SALES AGENT WORKFLOW: CONVERT APPROVED QUOTE TO ORDER (R1.3 & R3.2)
@@ -32,7 +33,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'quoteId is required' }, { status: 400 });
     }
 
-    const quote = INITIAL_QUOTES.find((q) => q.id === quoteId || q.quoteNumber === quoteId);
+    const quote = findQuote(quoteId);
     if (!quote) {
       return NextResponse.json({ error: 'Quote not found' }, { status: 404 });
     }

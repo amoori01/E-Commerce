@@ -61,9 +61,9 @@ export function validateOrderTransition(
 // --------------------------------------------------------------------
 
 export const VALID_QUOTE_TRANSITIONS: Record<QuoteStatus, QuoteStatus[]> = {
-  inquiry_submitted: ['assigned_to_agent', 'rejected'],
+  inquiry_submitted: ['assigned_to_agent', 'draft_quote_issued', 'rejected'],
   assigned_to_agent: ['draft_quote_issued', 'rejected'],
-  draft_quote_issued: ['customer_review', 'quote_approved', 'rejected'],
+  draft_quote_issued: ['draft_quote_issued', 'customer_review', 'quote_approved', 'rejected'],
   customer_review: ['draft_quote_issued', 'quote_approved', 'rejected'],
   quote_approved: ['payment_processing', 'rejected'],
   payment_processing: ['fulfilled', 'rejected'],

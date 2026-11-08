@@ -1,15 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { CreateRfqQuoteDto, validateCreateRfqDto } from '@/dtos';
-import { INITIAL_QUOTES } from '@/lib/constants';
 import { Quote } from '@/types';
-
-// ====================================================================
-// STREAM B: AGENT-ASSISTED CUSTOM QUOTATION (RFQ) API ENDPOINT
-// Live memory store synchronized with client storage
-// ====================================================================
-
-// Global memory cache preserving live RFQ submissions across API requests
-const LIVE_QUOTES: Quote[] = [...INITIAL_QUOTES];
+import { getLiveQuotes, addLiveQuote } from '@/lib/quotes-store';
 
 export async function POST(req: NextRequest) {
   try {
@@ -73,8 +65,8 @@ export async function POST(req: NextRequest) {
       ],
     };
 
-    // Store in global server memory
-    LIVE_QUOTES.unshift(newQuote);
+    // Store in global singleton memory
+    addLiveQuote(newQuote);
 
     return NextResponse.json({
       success: true,
@@ -97,7 +89,7 @@ export async function GET(req: NextRequest) {
   const agentId = searchParams.get('agentId');
   const subsidiaryId = searchParams.get('subsidiaryId');
 
-  let quotes = [...LIVE_QUOTES];
+  let quotes = [...getLiveQuotes()];
 
   if (customerId) {
     quotes = quotes.filter((q) => q.customerId === customerId);

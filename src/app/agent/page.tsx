@@ -145,6 +145,10 @@ export default function SalesAgentPage() {
 
   const isSalesAgent = activeRole === 'sales_agent';
 
+  // Order Conversion & Notification State
+  const [isConvertingOrder, setIsConvertingOrder] = useState(false);
+  const [convertedOrderSuccess, setConvertedOrderSuccess] = useState<string | null>(null);
+
   // Live Auto-Calculation of the Quoted Price from the Engineering Pricing Matrix
   const subtotalFabrication = fabricationHours * hourlyMachineRate;
   const baseProductionCost = rawMaterialCost + subtotalFabrication + coatingTariff + freightTariff;
@@ -155,6 +159,74 @@ export default function SalesAgentPage() {
     setValidUntil(q.quoteValidUntil || '2026-10-31');
     setAgentNotes(q.agentQuotationNotes || '');
     setIsSaved(false);
+    setConvertedOrderSuccess(null);
+
+    // Adapt engineering cost model dynamically to quote baseline
+    if (q.finalQuotedTotalEtb && q.finalQuotedTotalEtb > 0) {
+      const total = q.finalQuotedTotalEtb;
+      setRawMaterialCost(Math.round(total * 0.65));
+      setFabricationHours(Math.max(40, Math.round((total * 0.15) / 3500)));
+      setCoatingTariff(Math.round(total * 0.05));
+      setFreightTariff(Math.round(total * 0.05));
+      setMarginPercent(10.0);
+    } else if (q.estimatedTotalEtb && q.estimatedTotalEtb > 0) {
+      const total = q.estimatedTotalEtb;
+      setRawMaterialCost(Math.round(total * 0.65));
+      setFabricationHours(Math.max(40, Math.round((total * 0.15) / 3500)));
+      setCoatingTariff(Math.round(total * 0.05));
+      setFreightTariff(Math.round(total * 0.05));
+      setMarginPercent(10.0);
+    } else {
+      setRawMaterialCost(6500000);
+      setFabricationHours(180);
+      setHourlyMachineRate(3500);
+      setCoatingTariff(450000);
+      setFreightTariff(350000);
+      setMarginPercent(10.0);
+    }
+  };
+
+  const handleConvertToOrder = async (quote: Quote) => {
+    setIsConvertingOrder(true);
+    setConvertedOrderSuccess(null);
+    try {
+      const res = await fetch('/api/quotes/convert-to-order', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-user-role': 'sales_agent',
+          'x-user-id': currentUser.id,
+        },
+        body: JSON.stringify({
+          quoteId: quote.id,
+          fulfillmentBranchId: (quote as any).fulfillmentBranchId || (quote as any).branchId || 'a1111111-1111-1111-1111-111111111111',
+          deliveryType: 'branch_pickup',
+          deliveryAddress: quote.deliveryDestination,
+        }),
+      });
+
+      const data = await res.json();
+      if (res.ok && data.success) {
+        setConvertedOrderSuccess(
+          `Contract approved! Converted to Order ${data.order?.orderNumber || ''} and dispatched to regional branch depot.`
+        );
+        const updatedQuote: Quote = {
+          ...quote,
+          status: 'payment_processing',
+        };
+        setSelectedQuote(updatedQuote);
+        setQuotesList((prev) =>
+          prev.map((item) => (item.id === quote.id ? updatedQuote : item))
+        );
+        window.dispatchEvent(new Event('amg_quotes_updated'));
+      } else {
+        alert(data.error || 'Failed to convert quote to order.');
+      }
+    } catch (e: any) {
+      alert(`Conversion error: ${e.message}`);
+    } finally {
+      setIsConvertingOrder(false);
+    }
   };
 
   const handleSaveQuoteMatrix = async (e: React.FormEvent) => {
@@ -249,10 +321,31 @@ export default function SalesAgentPage() {
       assignedAgentName: currentUser.fullName,
       status: q.status === 'inquiry_submitted' ? 'assigned_to_agent' : q.status,
     };
+
     setQuotesList((prev) =>
       prev.map((item) => (item.id === q.id ? updatedQuote : item))
     );
     setSelectedQuote(updatedQuote);
+    handleSelectQuote(updatedQuote);
+
+    // Switch to assigned deals so the newly claimed deal remains actively visible and highlighted
+    if (filterTab === 'inquiries') {
+      setFilterTab('assigned');
+    }
+
+    // Call API to persist assignment
+    fetch(`/api/quotes/${encodeURIComponent(q.quoteNumber || q.id)}/status`, {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-user-role': 'sales_agent',
+        'x-user-id': currentUser.id,
+      },
+      body: JSON.stringify({
+        targetStatus: 'assigned_to_agent',
+        reason: `Claimed by lead sales engineer ${currentUser.fullName} for cost matrix formulation.`,
+      }),
+    }).catch(() => {});
 
     if (typeof window !== 'undefined') {
       try {
@@ -505,10 +598,25 @@ export default function SalesAgentPage() {
                     </div>
 
                     <div className="flex justify-between items-center pt-2.5 mt-2.5 border-t border-slate-100 dark:border-[#222225] font-mono text-[11px]">
-                      <span className="text-slate-400">Pipeline Est:</span>
-                      <span className="font-bold text-emerald-600 dark:text-[#C6F432]">
-                        ETB {(q.finalQuotedTotalEtb || q.estimatedTotalEtb || 0).toLocaleString()}
-                      </span>
+                      <div>
+                        <span className="text-slate-400">Pipeline Est: </span>
+                        <span className="font-bold text-emerald-600 dark:text-[#C6F432]">
+                          ETB {(q.finalQuotedTotalEtb || q.estimatedTotalEtb || 0).toLocaleString()}
+                        </span>
+                      </div>
+                      {isUnassigned && (
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleClaimQuote(q);
+                          }}
+                          className="px-2.5 py-1 bg-[#C6F432] hover:bg-[#D7F860] text-[#0B0B0C] font-extrabold text-[10px] rounded-full transition-all flex items-center space-x-1 shadow-xs"
+                        >
+                          <Check className="w-3 h-3" />
+                          <span>Claim</span>
+                        </button>
+                      )}
                     </div>
                   </div>
                 );
@@ -534,7 +642,7 @@ export default function SalesAgentPage() {
                     {selectedQuote.projectTitle}
                   </h2>
                 </div>
-                <div className="flex items-center space-x-2">
+                <div className="flex flex-wrap items-center gap-2">
                   {!selectedQuote.assignedAgentId && (
                     <button
                       type="button"
@@ -543,6 +651,17 @@ export default function SalesAgentPage() {
                     >
                       <Check className="w-3.5 h-3.5" />
                       <span>Claim &amp; Formulate</span>
+                    </button>
+                  )}
+                  {selectedQuote.status === 'quote_approved' && (
+                    <button
+                      type="button"
+                      disabled={isConvertingOrder}
+                      onClick={() => handleConvertToOrder(selectedQuote)}
+                      className="px-3.5 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold rounded-full text-[11px] transition-colors flex items-center space-x-1.5 shadow-sm cursor-pointer"
+                    >
+                      <CheckCircle2 className="w-3.5 h-3.5" />
+                      <span>{isConvertingOrder ? 'Converting...' : 'Convert to Active Order & Route'}</span>
                     </button>
                   )}
                   <button
@@ -561,6 +680,13 @@ export default function SalesAgentPage() {
                   </span>
                 </div>
               </div>
+
+              {convertedOrderSuccess && (
+                <div className="p-3 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-300 dark:border-emerald-800 rounded-2xl flex items-center space-x-2 text-emerald-800 dark:text-emerald-200 text-xs font-semibold">
+                  <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+                  <span>{convertedOrderSuccess}</span>
+                </div>
+              )}
 
               {/* Requirements Box */}
               <div className="space-y-1.5">

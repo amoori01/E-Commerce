@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { validateQuoteTransition, recordQuoteTransition } from '@/lib/state-machine';
-import { INITIAL_QUOTES } from '@/lib/constants';
 import { QuoteStatus } from '@/types';
 import { authenticateRequest, enforceAbac } from '@/lib/auth-guard';
+import { findQuote } from '@/lib/quotes-store';
 
 // ====================================================================
 // QUOTE STATE MACHINE TRANSITION ENDPOINT
@@ -34,7 +34,7 @@ export async function PATCH(
       return NextResponse.json({ error: 'targetStatus is required' }, { status: 400 });
     }
 
-    const quote = INITIAL_QUOTES.find((q) => q.id === id || q.quoteNumber === id);
+    const quote = findQuote(id);
     if (!quote) {
       return NextResponse.json({ error: 'Quote not found' }, { status: 404 });
     }
