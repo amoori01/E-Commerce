@@ -96,6 +96,11 @@ export default function BranchAdminPage() {
           }
         }
         if (typeof window !== 'undefined') {
+          if (localStorage.getItem('amg_data_version') !== 'v2') {
+            localStorage.removeItem('amg_live_quotes');
+            localStorage.removeItem('amg_live_orders');
+            localStorage.setItem('amg_data_version', 'v2');
+          }
           const local = localStorage.getItem('amg_live_orders');
           if (local) {
             try {

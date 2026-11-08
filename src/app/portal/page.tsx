@@ -107,6 +107,11 @@ export default function CustomerPortalPage() {
           }
         }
         if (typeof window !== 'undefined') {
+          if (localStorage.getItem('amg_data_version') !== 'v2') {
+            localStorage.removeItem('amg_live_quotes');
+            localStorage.removeItem('amg_live_orders');
+            localStorage.setItem('amg_data_version', 'v2');
+          }
           const local = localStorage.getItem('amg_live_orders');
           if (local) {
             try {
@@ -124,9 +129,7 @@ export default function CustomerPortalPage() {
             } catch (e) {}
           }
         }
-        if (combined.length > 0) {
-          setPortalOrders(combined);
-        }
+        setPortalOrders(combined);
       } catch (e) {}
     };
 
@@ -145,6 +148,13 @@ export default function CustomerPortalPage() {
       try {
         let combined: Quote[] = [...INITIAL_QUOTES];
         if (typeof window !== 'undefined') {
+          // Auto-purge stale demo data on first load of clean testing environment
+          if (localStorage.getItem('amg_data_version') !== 'v2') {
+            localStorage.removeItem('amg_live_quotes');
+            localStorage.removeItem('amg_live_orders');
+            localStorage.setItem('amg_data_version', 'v2');
+          }
+
           const local = localStorage.getItem('amg_live_quotes');
           if (local) {
             try {
