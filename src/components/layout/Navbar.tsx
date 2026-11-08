@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname, useRouter } from 'next/navigation';
@@ -28,8 +28,17 @@ import {
   LogOut,
   LogIn,
   ExternalLink,
-  ArrowLeft
+  ArrowLeft,
+  Check,
 } from 'lucide-react';
+
+const SUBSIDIARY_TAGLINES: Record<string, string> = {
+  'amg-heavy-steel': 'Heavy Structural Steel, PEB Buildings & Crane Gantries',
+  'amg-roofing': 'Ethio & Adama Pre-Painted Tiles, Corrugated & Gutters',
+  'amg-transport': 'Commercial Transport Fleet, Sinotruk HOWO & BPW Trailers',
+  'amg-gas-lubricants': 'Industrial Cryogenic LOX/LN2 & Extreme Pressure Oils',
+  'amg-coffee': 'Ethiopian Specialty Arabica Coffee Beans (Export Grade)',
+};
 
 export function Navbar() {
   const pathname = usePathname();
@@ -39,9 +48,23 @@ export function Navbar() {
   const { wishlistCount } = useWishlist();
   const [searchQuery, setSearchQuery] = useState('');
   const [searchSubsidiary, setSearchSubsidiary] = useState('all');
+  const [isSubDropdownOpen, setIsSubDropdownOpen] = useState(false);
+  const subDropdownRef = useRef<HTMLDivElement>(null);
   const [activeSubSlug, setActiveSubSlug] = useState<string>('all');
 
-  React.useEffect(() => {
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (subDropdownRef.current && !subDropdownRef.current.contains(event.target as Node)) {
+        setIsSubDropdownOpen(false);
+      }
+    }
+    if (isSubDropdownOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+      return () => document.removeEventListener('mousedown', handleClickOutside);
+    }
+  }, [isSubDropdownOpen]);
+
+  useEffect(() => {
     const updateActive = () => {
       if (typeof window !== 'undefined') {
         const params = new URLSearchParams(window.location.search);
@@ -360,27 +383,100 @@ export function Navbar() {
           onSubmit={handleSearch}
           className="hidden lg:flex flex-1 max-w-2xl items-center bg-slate-50/90 dark:bg-[#141416]/90 hover:bg-white dark:hover:bg-[#18181B] border border-slate-200/90 dark:border-[#2A2A2E] hover:border-slate-400 dark:hover:border-[#C6F432]/50 focus-within:bg-white dark:focus-within:bg-[#0E0E10] focus-within:border-slate-900 dark:focus-within:border-[#C6F432] focus-within:ring-4 focus-within:ring-[#C6F432]/10 dark:focus-within:ring-[#C6F432]/15 rounded-full p-1 pl-1.5 transition-all duration-300 shadow-xs backdrop-blur-md"
         >
-          {/* Subsidiary Filter Pill */}
-          <div className="relative flex items-center shrink-0">
-            <div className="flex items-center space-x-1.5 px-3 py-1.5 rounded-full bg-white dark:bg-[#1E1E22] border border-slate-200 dark:border-[#2D2D32] text-slate-800 dark:text-white text-xs font-semibold shadow-2xs hover:border-slate-400 dark:hover:border-[#C6F432]/40 transition-colors cursor-pointer group/sub">
-              <Layers className="w-3.5 h-3.5 text-emerald-600 dark:text-[#C6F432] shrink-0" />
-              <select
-                value={searchSubsidiary}
-                onChange={(e) => setSearchSubsidiary(e.target.value)}
-                className="bg-transparent text-slate-900 dark:text-white text-xs font-semibold focus:outline-none cursor-pointer appearance-none pr-4"
-                aria-label="Filter search by subsidiary"
-              >
-                <option value="all" className="bg-white dark:bg-[#141416] text-slate-900 dark:text-white">
-                  All Subsidiaries
-                </option>
-                {SUBSIDIARIES.map((sub) => (
-                  <option key={sub.id} value={sub.slug} className="bg-white dark:bg-[#141416] text-slate-900 dark:text-white">
-                    {sub.name.replace('AMG ', '')}
-                  </option>
-                ))}
-              </select>
-              <ChevronDown className="w-3 h-3 text-slate-400 dark:text-[#A1A1AA] absolute right-2.5 pointer-events-none group-hover/sub:text-slate-900 dark:group-hover/sub:text-white transition-colors" />
-            </div>
+          {/* Subsidiary Filter Popover (Clean custom dropdown without clutter icon) */}
+          <div ref={subDropdownRef} className="relative flex items-center shrink-0">
+            <button
+              type="button"
+              onClick={() => setIsSubDropdownOpen(!isSubDropdownOpen)}
+              className="flex items-center space-x-1.5 px-3.5 py-1.5 rounded-full bg-white dark:bg-[#1E1E22] border border-slate-200 dark:border-[#2D2D32] hover:border-slate-400 dark:hover:border-[#C6F432]/50 text-slate-900 dark:text-white text-xs font-semibold shadow-2xs transition-colors cursor-pointer select-none"
+            >
+              <span>
+                {searchSubsidiary === 'all'
+                  ? 'All Subsidiaries'
+                  : SUBSIDIARIES.find((s) => s.slug === searchSubsidiary)?.name.replace('AMG ', '') || 'All Subsidiaries'}
+              </span>
+              <ChevronDown
+                className={`w-3 h-3 text-slate-400 dark:text-[#A1A1AA] transition-transform duration-200 ${
+                  isSubDropdownOpen ? 'rotate-180 text-slate-900 dark:text-white' : ''
+                }`}
+              />
+            </button>
+
+            {/* Custom Popover Menu */}
+            {isSubDropdownOpen && (
+              <div className="absolute left-0 top-full mt-2 w-80 bg-white dark:bg-[#141416] border border-slate-200 dark:border-[#2A2A2E] rounded-2xl shadow-2xl p-2 z-50 text-xs animate-in fade-in zoom-in-95 backdrop-blur-xl">
+                <div className="px-3 py-2 text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-[#71717A] border-b border-slate-100 dark:border-[#222225] flex items-center justify-between">
+                  <span>Filter Search By Subsidiary</span>
+                  <span className="font-mono text-emerald-600 dark:text-[#C6F432]">5 Subsidiaries</span>
+                </div>
+
+                <div className="space-y-1 pt-1.5 max-h-72 overflow-y-auto scrollbar-none">
+                  {/* All Subsidiaries option */}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setSearchSubsidiary('all');
+                      setIsSubDropdownOpen(false);
+                    }}
+                    className={`w-full text-left p-2.5 rounded-xl transition-all flex items-center justify-between ${
+                      searchSubsidiary === 'all'
+                        ? 'bg-[#C6F432]/15 text-slate-950 dark:text-[#C6F432] font-bold border border-[#C6F432]/30'
+                        : 'text-slate-700 dark:text-[#D4D4D8] hover:bg-slate-100 dark:hover:bg-[#1E1E22]'
+                    }`}
+                  >
+                    <div>
+                      <div className="font-bold flex items-center space-x-1.5">
+                        <span>All Subsidiaries</span>
+                        {searchSubsidiary === 'all' && (
+                          <span className="w-1.5 h-1.5 rounded-full bg-[#16A34A] dark:bg-[#C6F432]" />
+                        )}
+                      </div>
+                      <div className="text-[10px] text-slate-500 dark:text-[#71717A] font-normal">
+                        Consortium-wide catalog across all 5 industrial sectors
+                      </div>
+                    </div>
+                    {searchSubsidiary === 'all' && (
+                      <Check className="w-4 h-4 text-emerald-600 dark:text-[#C6F432] shrink-0" />
+                    )}
+                  </button>
+
+                  {/* Each Sister Company */}
+                  {SUBSIDIARIES.map((sub) => {
+                    const isSelected = searchSubsidiary === sub.slug;
+                    return (
+                      <button
+                        key={sub.id}
+                        type="button"
+                        onClick={() => {
+                          setSearchSubsidiary(sub.slug);
+                          setIsSubDropdownOpen(false);
+                        }}
+                        className={`w-full text-left p-2.5 rounded-xl transition-all flex items-center justify-between ${
+                          isSelected
+                            ? 'bg-[#C6F432]/15 text-slate-950 dark:text-[#C6F432] font-bold border border-[#C6F432]/30'
+                            : 'text-slate-700 dark:text-[#D4D4D8] hover:bg-slate-100 dark:hover:bg-[#1E1E22]'
+                        }`}
+                      >
+                        <div>
+                          <div className="font-bold flex items-center space-x-1.5">
+                            <span>{sub.name.replace('AMG ', '')}</span>
+                            {isSelected && (
+                              <span className="w-1.5 h-1.5 rounded-full bg-[#16A34A] dark:bg-[#C6F432]" />
+                            )}
+                          </div>
+                          <div className="text-[10px] text-slate-500 dark:text-[#71717A] font-normal">
+                            {SUBSIDIARY_TAGLINES[sub.slug] || sub.description}
+                          </div>
+                        </div>
+                        {isSelected && (
+                          <Check className="w-4 h-4 text-emerald-600 dark:text-[#C6F432] shrink-0" />
+                        )}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Search Query Input */}
