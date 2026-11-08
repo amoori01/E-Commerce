@@ -4,6 +4,7 @@ import { authenticateRequest, enforceAbac } from '@/lib/auth-guard';
 import { recordQuoteTransition, recordOrderTransition } from '@/lib/state-machine';
 import { Order } from '@/types';
 import { findQuote } from '@/lib/quotes-store';
+import { addServerOrder } from '@/lib/server-orders';
 
 // ====================================================================
 // SALES AGENT WORKFLOW: CONVERT APPROVED QUOTE TO ORDER (R1.3 & R3.2)
@@ -94,6 +95,7 @@ export async function POST(req: NextRequest) {
     };
 
     INITIAL_ORDERS.unshift(newOrder);
+    addServerOrder(newOrder);
 
     // Transition quote status to 'payment_processing'
     const prevQuoteStatus = quote.status;

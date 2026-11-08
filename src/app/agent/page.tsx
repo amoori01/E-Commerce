@@ -286,7 +286,26 @@ export default function SalesAgentPage() {
         setQuotesList((prev) =>
           prev.map((item) => (item.id === quote.id ? updatedQuote : item))
         );
-        window.dispatchEvent(new Event('amg_quotes_updated'));
+
+        if (typeof window !== 'undefined') {
+          try {
+            // Update live quotes
+            const localQuotes = JSON.parse(localStorage.getItem('amg_live_quotes') || '[]');
+            const updatedQ = localQuotes.map((item: any) =>
+              item.id === quote.id || item.quoteNumber === quote.quoteNumber ? updatedQuote : item
+            );
+            localStorage.setItem('amg_live_quotes', JSON.stringify(updatedQ));
+            window.dispatchEvent(new Event('amg_quotes_updated'));
+
+            // Update live orders so customer portal and branch depot see firm order immediately
+            if (data.order) {
+              const localOrders = JSON.parse(localStorage.getItem('amg_live_orders') || '[]');
+              localOrders.unshift(data.order);
+              localStorage.setItem('amg_live_orders', JSON.stringify(localOrders));
+              window.dispatchEvent(new Event('amg_orders_updated'));
+            }
+          } catch (e) {}
+        }
       } else {
         alert(data.error || 'Failed to convert quote to order.');
       }
