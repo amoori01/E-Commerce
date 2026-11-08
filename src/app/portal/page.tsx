@@ -139,8 +139,12 @@ export default function CustomerPortalPage() {
     };
   }, []);
 
-  const myOrders = portalOrders.filter((o) => o.customerId === currentUser.id || currentUser.role === 'customer');
-  const myQuotes = quotesList.filter((q) => q.customerId === currentUser.id || currentUser.role === 'customer');
+  const myOrders = portalOrders.filter(
+    (o) => o.customerId === currentUser.id || ['super_admin', 'branch_admin'].includes(currentUser.role)
+  );
+  const myQuotes = quotesList.filter(
+    (q) => q.customerId === currentUser.id || ['super_admin', 'sales_agent'].includes(currentUser.role)
+  );
 
   const handleAddAddress = (e: React.FormEvent) => {
     e.preventDefault();
@@ -457,7 +461,33 @@ export default function CustomerPortalPage() {
         {/* TAB 1: QUOTES */}
         {activeTab === 'quotes' && (
           <div className="space-y-6">
-            {myQuotes.map((q) => (
+            {myQuotes.length === 0 ? (
+              <div className="bg-white dark:bg-[#141416] border border-slate-200 dark:border-[#2A2A2E] rounded-3xl p-10 text-center space-y-4 shadow-xs">
+                <div className="w-14 h-14 bg-slate-100 dark:bg-[#1A1A1D] text-slate-400 rounded-2xl flex items-center justify-center mx-auto border border-slate-200 dark:border-[#2A2A2E]">
+                  <FileText className="w-7 h-7 text-[#16A34A] dark:text-[#C6F432]" />
+                </div>
+                <div className="space-y-1">
+                  <h3 className="text-base font-bold text-slate-900 dark:text-white">
+                    No Engineering RFQs on Record
+                  </h3>
+                  <p className="text-xs text-slate-500 dark:text-[#A1A1AA] max-w-md mx-auto">
+                    {currentUser.customerType === 'b2c'
+                      ? 'You are signed in as Ahmed (Individual Retail Customer). When you need custom architectural steel fabrication, custom roofing, or bulk engineering orders, click below to request a formal quote.'
+                      : 'You do not have any active engineering quotations pending technical review or approval.'}
+                  </p>
+                </div>
+                <div className="pt-2">
+                  <button
+                    type="button"
+                    onClick={() => openRfq()}
+                    className="px-5 py-2.5 bg-[#C6F432] hover:bg-[#D7F860] text-[#0B0B0C] font-bold text-xs rounded-full shadow-sm transition-all"
+                  >
+                    Request Custom Quote (RFQ)
+                  </button>
+                </div>
+              </div>
+            ) : (
+              myQuotes.map((q) => (
               <div
                 key={q.id}
                 className="bg-white border border-slate-300 rounded-sm shadow-crisp p-5 space-y-4"
@@ -610,14 +640,37 @@ export default function CustomerPortalPage() {
                   </div>
                 </div>
               </div>
-            ))}
+            )))}
           </div>
         )}
 
         {/* TAB 2: ORDERS (STREAM A) */}
         {activeTab === 'orders' && (
           <div className="space-y-4">
-            {myOrders.map((ord) => (
+            {myOrders.length === 0 ? (
+              <div className="bg-white dark:bg-[#141416] border border-slate-200 dark:border-[#2A2A2E] rounded-3xl p-10 text-center space-y-4 shadow-xs">
+                <div className="w-14 h-14 bg-slate-100 dark:bg-[#1A1A1D] text-slate-400 rounded-2xl flex items-center justify-center mx-auto border border-slate-200 dark:border-[#2A2A2E]">
+                  <ShoppingCart className="w-7 h-7 text-[#16A34A] dark:text-[#C6F432]" />
+                </div>
+                <div className="space-y-1">
+                  <h3 className="text-base font-bold text-slate-900 dark:text-white">
+                    No Direct Purchase Orders Yet
+                  </h3>
+                  <p className="text-xs text-slate-500 dark:text-[#A1A1AA] max-w-md mx-auto">
+                    You have not placed any self-service Stream A direct checkout orders yet. Browse our catalog to place your first order.
+                  </p>
+                </div>
+                <div className="pt-2">
+                  <Link
+                    href="/"
+                    className="inline-flex px-5 py-2.5 bg-[#C6F432] hover:bg-[#D7F860] text-[#0B0B0C] font-bold text-xs rounded-full shadow-sm transition-all"
+                  >
+                    Browse Product Catalog
+                  </Link>
+                </div>
+              </div>
+            ) : (
+              myOrders.map((ord) => (
               <div
                 key={ord.id}
                 className="bg-white border border-slate-300 rounded-sm shadow-crisp p-5 space-y-4"
@@ -851,7 +904,7 @@ export default function CustomerPortalPage() {
                   </div>
                 </div>
               </div>
-            ))}
+            )))}
           </div>
         )}
 
