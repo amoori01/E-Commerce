@@ -553,56 +553,56 @@ export default function SuperAdminPage() {
     <div className="min-h-screen bg-[#FAFAFA] dark:bg-[#0B0B0C] text-[#0B0B0C] dark:text-[#E4E4E7] transition-colors duration-200 pb-20">
       {/* 1. EXECUTIVE THEME HERO BANNER (Flagship Obsidian & Lime Luxury Authority) */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 pt-6">
-        <div className="bg-[#0B0B0C] text-white rounded-3xl p-6 sm:p-8 border border-[#1A1A1D] shadow-2xl relative overflow-hidden group hover:border-[#C6F432]/30 transition-all duration-300">
+        <div className="bg-white dark:bg-[#0B0B0C] text-[#0B0B0C] dark:text-white rounded-3xl p-6 sm:p-8 border border-[#E4E4E7] dark:border-[#1A1A1D] shadow-xl dark:shadow-2xl relative overflow-hidden group hover:border-[#0B0B0C]/30 dark:hover:border-[#C6F432]/30 transition-all duration-300">
           {/* Subtle Ambient Lime Glows */}
-          <div className="absolute -top-32 -right-32 w-[24rem] h-[24rem] bg-[#C6F432]/10 rounded-full blur-3xl pointer-events-none group-hover:bg-[#C6F432]/15 transition-all duration-700" />
-          <div className="absolute -bottom-24 -left-24 w-56 h-56 bg-[#C6F432]/5 rounded-full blur-2xl pointer-events-none" />
+          <div className="absolute -top-32 -right-32 w-[24rem] h-[24rem] bg-lime-400/10 dark:bg-[#C6F432]/10 rounded-full blur-3xl pointer-events-none group-hover:bg-lime-400/20 dark:group-hover:bg-[#C6F432]/15 transition-all duration-700" />
+          <div className="absolute -bottom-24 -left-24 w-56 h-56 bg-lime-400/5 dark:bg-[#C6F432]/5 rounded-full blur-2xl pointer-events-none" />
 
           <div className="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-6">
             <div className="space-y-3 max-w-3xl">
               <div className="flex flex-wrap items-center gap-2">
-                <div className="inline-flex items-center space-x-2 px-3.5 py-1.5 bg-[#141416] border border-[#2A2A2E] rounded-full text-xs font-medium text-[#E4E4E7]">
-                  <span className="w-2 h-2 rounded-full bg-[#C6F432] inline-block shadow-[0_0_8px_#C6F432]" />
+                <div className="inline-flex items-center space-x-2 px-3.5 py-1.5 bg-[#F4F4F5] dark:bg-[#141416] border border-[#E4E4E7] dark:border-[#2A2A2E] rounded-full text-xs font-medium text-[#18181B] dark:text-[#E4E4E7]">
+                  <span className="w-2 h-2 rounded-full bg-[#8FB80D] dark:bg-[#C6F432] inline-block shadow-[0_0_8px_rgba(143,184,13,0.5)] dark:shadow-[0_0_8px_#C6F432]" />
                   <span className="font-semibold tracking-wide">Tier 4: Enterprise Root Governance</span>
-                  <span className="text-[#52525B]">|</span>
-                  <span className="text-[#C6F432] font-mono text-[11px] font-semibold">AMG-CORP-GOV-01</span>
+                  <span className="text-[#A1A1AA] dark:text-[#52525B]">|</span>
+                  <span className="text-[#4D6300] dark:text-[#C6F432] font-mono text-[11px] font-semibold">AMG-CORP-GOV-01</span>
                 </div>
-                <div className="inline-flex items-center space-x-1.5 px-3 py-1 bg-[#141416] border border-[#2A2A2E] rounded-full text-[11px] text-[#A1A1AA]">
-                  <Shield className="w-3.5 h-3.5 text-[#C6F432]" />
+                <div className="inline-flex items-center space-x-1.5 px-3 py-1 bg-[#F4F4F5] dark:bg-[#141416] border border-[#E4E4E7] dark:border-[#2A2A2E] rounded-full text-[11px] text-[#52525B] dark:text-[#A1A1AA]">
+                  <Shield className="w-3.5 h-3.5 text-[#4D6300] dark:text-[#C6F432]" />
                   <span>5 Operating Subsidiaries</span>
                 </div>
               </div>
 
-              <h1 className="text-2xl sm:text-4xl font-serif font-black tracking-tight leading-tight text-white">
+              <h1 className="text-2xl sm:text-4xl font-serif font-black tracking-tight leading-tight text-[#0B0B0C] dark:text-white">
                 Executive Super Admin Command Center
               </h1>
 
-              <p className="text-xs sm:text-sm text-[#A1A1AA] leading-relaxed max-w-2xl font-sans">
+              <p className="text-xs sm:text-sm text-[#52525B] dark:text-[#A1A1AA] leading-relaxed max-w-2xl font-sans">
                 Master conglomerate governance spanning structural steel fabrication, commercial automotive fleets, regional cryogenic gases, pre-painted roofing, and specialty coffee export operations.
               </p>
             </div>
 
             {/* Persona & Theme Switcher Card */}
-            <div className="flex flex-row lg:flex-col items-center lg:items-end justify-between lg:justify-center gap-3 bg-[#141416]/90 border border-[#2A2A2E] hover:border-[#C6F432]/40 p-4 rounded-2xl shadow-lg shrink-0 transition-all">
+            <div className="flex flex-row lg:flex-col items-center lg:items-end justify-between lg:justify-center gap-3 bg-[#F4F4F5] dark:bg-[#141416]/90 border border-[#E4E4E7] dark:border-[#2A2A2E] hover:border-[#0B0B0C]/40 dark:hover:border-[#C6F432]/40 p-4 rounded-2xl shadow-sm transition-all shrink-0">
               <div className="flex items-center space-x-3 lg:space-x-0 lg:text-right">
-                <div className="w-10 h-10 rounded-full bg-[#1F1F24] border border-[#2A2A2E] flex items-center justify-center text-[#C6F432] font-black font-serif text-sm lg:hidden">
+                <div className="w-10 h-10 rounded-full bg-white dark:bg-[#1F1F24] border border-[#E4E4E7] dark:border-[#2A2A2E] flex items-center justify-center text-[#4D6300] dark:text-[#C6F432] font-black font-serif text-sm lg:hidden">
                   {currentUser.fullName.charAt(0)}
                 </div>
                 <div>
                   <div className="text-[10px] uppercase font-bold tracking-wider text-[#71717A]">
                     Authenticated Executive
                   </div>
-                  <div className="text-sm font-bold text-white flex items-center lg:justify-end space-x-1.5 mt-0.5">
+                  <div className="text-sm font-bold text-[#0B0B0C] dark:text-white flex items-center lg:justify-end space-x-1.5 mt-0.5">
                     <span>{currentUser.fullName}</span>
-                    <span className="w-2 h-2 rounded-full bg-[#C6F432] shadow-[0_0_6px_#C6F432]" />
+                    <span className="w-2 h-2 rounded-full bg-[#8FB80D] dark:bg-[#C6F432] shadow-[0_0_6px_#C6F432]" />
                   </div>
-                  <div className="text-[11px] font-mono text-[#C6F432] mt-0.5 font-semibold">
+                  <div className="text-[11px] font-mono text-[#4D6300] dark:text-[#C6F432] mt-0.5 font-semibold">
                     ROLE: {currentUser.role.toUpperCase()}
                   </div>
                 </div>
               </div>
 
-              <div className="pt-2 border-t border-[#2A2A2E] w-full flex items-center justify-end">
+              <div className="pt-2 border-t border-[#E4E4E7] dark:border-[#2A2A2E] w-full flex items-center justify-end">
                 <span className="text-[10px] text-[#71717A] font-mono">Consortium Root Governance</span>
               </div>
             </div>

@@ -669,50 +669,50 @@ export default function BranchAdminPage() {
     <div className="min-h-screen bg-[#FAFAFA] dark:bg-[#0B0B0C] text-[#0B0B0C] dark:text-[#E4E4E7] transition-colors duration-200 pb-20">
       {/* 1. EXECUTIVE THEME HERO BANNER (Flagship Obsidian & Lime Luxury Authority) */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 pt-6">
-        <div className="bg-[#0B0B0C] text-white rounded-3xl p-6 sm:p-8 border border-[#1A1A1D] shadow-2xl relative overflow-hidden group hover:border-[#C6F432]/30 transition-all duration-300">
+        <div className="bg-white dark:bg-[#0B0B0C] text-[#0B0B0C] dark:text-white rounded-3xl p-6 sm:p-8 border border-[#E4E4E7] dark:border-[#1A1A1D] shadow-xl dark:shadow-2xl relative overflow-hidden group hover:border-[#0B0B0C]/30 dark:hover:border-[#C6F432]/30 transition-all duration-300">
           {/* Ambient Lime Glows */}
-          <div className="absolute -top-32 -right-32 w-[24rem] h-[24rem] bg-[#C6F432]/10 rounded-full blur-3xl pointer-events-none group-hover:bg-[#C6F432]/15 transition-all duration-700" />
-          <div className="absolute -bottom-24 -left-24 w-56 h-56 bg-[#C6F432]/5 rounded-full blur-2xl pointer-events-none" />
+          <div className="absolute -top-32 -right-32 w-[24rem] h-[24rem] bg-lime-400/10 dark:bg-[#C6F432]/10 rounded-full blur-3xl pointer-events-none group-hover:bg-lime-400/20 dark:group-hover:bg-[#C6F432]/15 transition-all duration-700" />
+          <div className="absolute -bottom-24 -left-24 w-56 h-56 bg-lime-400/5 dark:bg-[#C6F432]/5 rounded-full blur-2xl pointer-events-none" />
 
           <div className="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-6">
             <div className="space-y-3 max-w-3xl">
               <div className="flex flex-wrap items-center gap-2">
-                <div className="inline-flex items-center space-x-2 px-3.5 py-1.5 bg-[#141416] border border-[#2A2A2E] rounded-full text-xs font-medium text-[#E4E4E7]">
-                  <span className="w-2 h-2 rounded-full bg-[#C6F432] inline-block shadow-[0_0_8px_#C6F432]" />
+                <div className="inline-flex items-center space-x-2 px-3.5 py-1.5 bg-[#F4F4F5] dark:bg-[#141416] border border-[#E4E4E7] dark:border-[#2A2A2E] rounded-full text-xs font-medium text-[#18181B] dark:text-[#E4E4E7]">
+                  <span className="w-2 h-2 rounded-full bg-[#8FB80D] dark:bg-[#C6F432] inline-block shadow-[0_0_8px_rgba(143,184,13,0.5)] dark:shadow-[0_0_8px_#C6F432]" />
                   <span className="font-semibold tracking-wide">Tier 3: Regional Depot &amp; Mill Operations</span>
-                  <span className="text-[#52525B]">|</span>
-                  <span className="text-[#C6F432] font-mono text-[11px] font-semibold">{activeBranch.code}</span>
+                  <span className="text-[#A1A1AA] dark:text-[#52525B]">|</span>
+                  <span className="text-[#4D6300] dark:text-[#C6F432] font-mono text-[11px] font-semibold">{activeBranch.code}</span>
                 </div>
-                <div className="inline-flex items-center space-x-1.5 px-3 py-1 bg-[#141416] border border-[#2A2A2E] rounded-full text-[11px] text-[#A1A1AA]">
-                  <Truck className="w-3.5 h-3.5 text-[#C6F432]" />
+                <div className="inline-flex items-center space-x-1.5 px-3 py-1 bg-[#F4F4F5] dark:bg-[#141416] border border-[#E4E4E7] dark:border-[#2A2A2E] rounded-full text-[11px] text-[#52525B] dark:text-[#A1A1AA]">
+                  <Truck className="w-3.5 h-3.5 text-[#4D6300] dark:text-[#C6F432]" />
                   <span>{activeBranch.city} Central Depot</span>
                 </div>
               </div>
 
-              <h1 className="text-2xl sm:text-4xl font-serif font-black tracking-tight leading-tight text-white">
+              <h1 className="text-2xl sm:text-4xl font-serif font-black tracking-tight leading-tight text-[#0B0B0C] dark:text-white">
                 Regional Branch &amp; Warehouse Logistics Portal
               </h1>
 
-              <p className="text-xs sm:text-sm text-[#A1A1AA] font-sans leading-relaxed max-w-2xl">
+              <p className="text-xs sm:text-sm text-[#52525B] dark:text-[#A1A1AA] font-sans leading-relaxed max-w-2xl">
                 Operating scope assigned to regional mill facilities. Stock threshold alarms, factory mill intake, yard dispatch, and physical gate pass verification under verified enterprise standards.
               </p>
             </div>
 
             {/* Operating Branch Scope Selector */}
             <div className="shrink-0 flex items-center lg:self-center">
-              <div className="bg-[#141416]/90 border border-[#2A2A2E] hover:border-[#C6F432]/40 rounded-xl px-3 py-2 shadow-sm transition-all sm:w-72 w-full">
+              <div className="bg-[#F4F4F5] dark:bg-[#141416]/90 border border-[#E4E4E7] dark:border-[#2A2A2E] hover:border-[#0B0B0C]/40 dark:hover:border-[#C6F432]/40 rounded-xl px-3 py-2 shadow-sm transition-all sm:w-72 w-full">
                 <div className="flex items-center justify-between text-[10px] uppercase font-bold text-[#71717A] tracking-wider mb-1.5 px-0.5">
                   <span className="flex items-center gap-1.5">
-                    <span className="w-1.5 h-1.5 rounded-full bg-[#C6F432] shadow-[0_0_6px_#C6F432]" />
+                    <span className="w-1.5 h-1.5 rounded-full bg-[#8FB80D] dark:bg-[#C6F432] shadow-[0_0_6px_#C6F432]" />
                     Depot Scope
                   </span>
-                  <span className="text-[#C6F432] font-mono text-[10px] font-semibold">{activeBranch.code}</span>
+                  <span className="text-[#4D6300] dark:text-[#C6F432] font-mono text-[10px] font-semibold">{activeBranch.code}</span>
                 </div>
                 <div className="relative">
                   <select
                     value={selectedBranchId}
                     onChange={(e) => setSelectedBranchId(e.target.value)}
-                    className="w-full appearance-none bg-[#0E0E10] border border-[#2A2A2E] hover:border-[#3E3E44] focus:border-[#C6F432] text-white font-medium pl-2.5 pr-7 py-1.5 rounded-lg text-xs outline-none transition-colors cursor-pointer"
+                    className="w-full appearance-none bg-white dark:bg-[#0E0E10] border border-[#E4E4E7] dark:border-[#2A2A2E] hover:border-[#A1A1AA] dark:hover:border-[#3E3E44] focus:border-[#0B0B0C] dark:focus:border-[#C6F432] text-[#0B0B0C] dark:text-white font-medium pl-2.5 pr-7 py-1.5 rounded-lg text-xs outline-none transition-colors cursor-pointer"
                   >
                     <option value="all">All Regional Depots ({ordersList.length} orders)</option>
                     {BRANCHES.map((b) => {
@@ -724,10 +724,10 @@ export default function BranchAdminPage() {
                       );
                     })}
                   </select>
-                  <ChevronDown className="w-3.5 h-3.5 text-[#A1A1AA] pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2" />
+                  <ChevronDown className="w-3.5 h-3.5 text-[#71717A] dark:text-[#A1A1AA] pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2" />
                 </div>
                 <div className="text-[10px] text-[#71717A] mt-1 px-0.5 flex items-center space-x-1 font-mono">
-                  <MapPin className="w-2.5 h-2.5 text-[#C6F432] shrink-0" />
+                  <MapPin className="w-2.5 h-2.5 text-[#4D6300] dark:text-[#C6F432] shrink-0" />
                   <span className="truncate">{activeBranch.address}</span>
                 </div>
               </div>
