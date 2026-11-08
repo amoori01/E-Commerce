@@ -33,6 +33,9 @@ import {
   Sliders,
   Percent,
   TrendingDown,
+  Copy,
+  CreditCard,
+  Check,
 } from 'lucide-react';
 
 export default function CustomerPortalPage() {
@@ -74,6 +77,13 @@ export default function CustomerPortalPage() {
   const [counterTargetPrice, setCounterTargetPrice] = useState<number>(0);
   const [counterReason, setCounterReason] = useState<string>('Budget limit constraint');
   const [isSubmittingCounter, setIsSubmittingCounter] = useState(false);
+
+  // CBE Bank Payment & Settlement Modal State
+  const [payingQuote, setPayingQuote] = useState<Quote | null>(null);
+  const [cbeFtCode, setCbeFtCode] = useState<string>('');
+  const [cbePayerAccount, setCbePayerAccount] = useState<string>('');
+  const [isSubmittingPayment, setIsSubmittingPayment] = useState(false);
+  const [isCopiedAccount, setIsCopiedAccount] = useState(false);
 
   const router = useRouter();
   const isCustomer = activeRole === 'customer';
@@ -265,7 +275,15 @@ export default function CustomerPortalPage() {
     setIsAddingAddress(false);
   };
 
+  const handleOpenPaymentModal = (q: Quote) => {
+    setPayingQuote(q);
+    setCbeFtCode(q.cbeFtReference || '');
+    setCbePayerAccount(q.cbePayerAccount || currentUser.companyName || currentUser.fullName || '');
+    setIsCopiedAccount(false);
+  };
+
   const handleApproveQuote = async (quoteId: string) => {
+    const target = quotesList.find((q) => q.id === quoteId);
     setQuotesList((prev) =>
       prev.map((q) => (q.id === quoteId ? { ...q, status: 'quote_approved' } : q))
     );
@@ -296,8 +314,155 @@ export default function CustomerPortalPage() {
       });
     } catch (e) {}
 
-    setApprovalMessage('Official quotation accepted & authorized! Sales engineering team notified for contract issuance.');
-    setTimeout(() => setApprovalMessage(null), 4000);
+    setApprovalMessage('Official quotation accepted & contract authorized! Please submit your CBE bank transfer reference to begin fulfillment.');
+    setTimeout(() => setApprovalMessage(null), 5000);
+
+    if (target) {
+      handleOpenPaymentModal({ ...target, status: 'quote_approved' });
+    }
+  };
+
+  const handleSubmitCbePayment = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!payingQuote || !cbeFtCode.trim()) {
+      alert('Please enter a valid CBE Bank FT Reference Number');
+      return;
+    }
+    setIsSubmittingPayment(true);
+    const ftUpper = cbeFtCode.trim().toUpperCase();
+    const subtotal = payingQuote.finalQuotedTotalEtb || payingQuote.estimatedTotalEtb || 0;
+    const tax = subtotal * 0.15;
+    const totalAmount = subtotal + tax;
+
+    let targetOrderNumber = payingQuote.convertedOrderNumber || '';
+    let targetOrderId = '';
+
+    // 1. Convert quote to firm order via API if needed
+    try {
+      const convertRes = await fetch('/api/quotes/convert-to-order', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-user-role': 'sales_agent',
+          'x-user-id': currentUser.id,
+        },
+        body: JSON.stringify({
+          quoteId: payingQuote.id,
+          fulfillmentBranchId: (payingQuote as any).fulfillmentBranchId || 'a1111111-1111-1111-1111-111111111111',
+          deliveryType: 'branch_pickup',
+          deliveryAddress: payingQuote.deliveryDestination,
+        }),
+      });
+      const convertData = await convertRes.json();
+      if (convertData?.order) {
+        targetOrderNumber = convertData.order.orderNumber;
+        targetOrderId = convertData.order.id;
+      }
+    } catch (e) {}
+
+    if (!targetOrderNumber) {
+      targetOrderNumber = `AMG-ORD-FROM-RFQ-${Math.floor(1000 + Math.random() * 9000)}`;
+      targetOrderId = `ord-rfq-${Date.now()}`;
+    }
+
+    const firmOrder: Order = {
+      id: targetOrderId,
+      orderNumber: targetOrderNumber,
+      customerId: currentUser.id,
+      customerName: currentUser.fullName,
+      customerCompany: currentUser.companyName,
+      fulfillmentBranchId: 'a1111111-1111-1111-1111-111111111111',
+      fulfillmentBranchName: 'Addis Ababa Central Hub',
+      status: 'payment_pending',
+      deliveryType: 'branch_pickup',
+      deliveryAddress: payingQuote.deliveryDestination,
+      subtotalEtb: subtotal,
+      taxEtb: tax,
+      totalAmountEtb: totalAmount,
+      paymentMethod: 'cbe_transfer',
+      cbeFtReference: ftUpper,
+      cbePayerAccount: cbePayerAccount.trim(),
+      paymentSubmittedAt: new Date().toISOString(),
+      createdAt: new Date().toISOString(),
+      items: payingQuote.items.map((i, idx) => ({
+        id: `ord-item-${idx + 1}`,
+        productId: i.productId || `custom-prod-${idx + 1}`,
+        productName: i.customProductName,
+        sku: `AMG-RFQ-${i.customProductName.substring(0, 10).replace(/\\s+/g, '-').toUpperCase()}`,
+        quantity: i.quantity,
+        unitPriceEtb: i.quotedUnitPriceEtb || (subtotal / Math.max(1, i.quantity)),
+        totalPriceEtb: i.quotedTotalPriceEtb || subtotal,
+      })),
+    };
+
+    // 2. Submit CBE FT reference to payments API
+    try {
+      await fetch('/api/payments/cbe-submit', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          orderId: targetOrderId,
+          orderNumber: targetOrderNumber,
+          cbeFtReference: ftUpper,
+          cbePayerAccount: cbePayerAccount.trim(),
+          order: firmOrder,
+        }),
+      });
+    } catch (e) {}
+
+    // 3. Post audit chat message to collaboration thread
+    try {
+      await fetch('/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          quoteId: payingQuote.id,
+          senderId: currentUser.id,
+          senderName: currentUser.fullName,
+          senderRole: currentUser.role,
+          message: `💳 [CBE BANK PAYMENT SUBMITTED]: Buyer submitted CBE bank transfer transaction reference ${ftUpper} for ETB ${totalAmount.toLocaleString('en-US', { minimumFractionDigits: 2 })}. Awaiting Finance verification against core bank statement.`,
+        }),
+      });
+    } catch (e) {}
+
+    // 4. Update quote and order in state and local storage
+    const updatedQuote: Quote = {
+      ...payingQuote,
+      status: 'payment_processing',
+      cbeFtReference: ftUpper,
+      cbePayerAccount: cbePayerAccount.trim(),
+      paymentSubmittedAt: new Date().toISOString(),
+      convertedOrderNumber: targetOrderNumber,
+    };
+
+    setQuotesList((prev) =>
+      prev.map((q) =>
+        q.id === payingQuote.id || q.quoteNumber === payingQuote.quoteNumber ? updatedQuote : q
+      )
+    );
+
+    setPortalOrders((prev) => [firmOrder, ...prev.filter((o) => o.orderNumber !== targetOrderNumber)]);
+
+    if (typeof window !== 'undefined') {
+      try {
+        const localQuotes = JSON.parse(localStorage.getItem('amg_live_quotes') || '[]');
+        const updatedQ = localQuotes.map((item: any) =>
+          item.id === payingQuote.id || item.quoteNumber === payingQuote.quoteNumber ? updatedQuote : item
+        );
+        localStorage.setItem('amg_live_quotes', JSON.stringify(updatedQ));
+        window.dispatchEvent(new Event('amg_quotes_updated'));
+
+        const localOrders = JSON.parse(localStorage.getItem('amg_live_orders') || '[]');
+        localOrders.unshift(firmOrder);
+        localStorage.setItem('amg_live_orders', JSON.stringify(localOrders));
+        window.dispatchEvent(new Event('amg_orders_updated'));
+      } catch (e) {}
+    }
+
+    setIsSubmittingPayment(false);
+    setPayingQuote(null);
+    setApprovalMessage(`CBE Payment Reference ${ftUpper} submitted! AMG Finance Officer is auditing the CBE statement.`);
+    setTimeout(() => setApprovalMessage(null), 6000);
   };
 
   const handleOpenRevisionModal = (quoteId: string) => {
@@ -931,11 +1096,33 @@ export default function CustomerPortalPage() {
                           </button>
                         </>
                       )}
-                      {q.status === 'quote_approved' && (
-                        <span className="px-3.5 py-2 bg-emerald-100 text-emerald-800 font-bold text-xs rounded-sm flex items-center space-x-1.5">
-                          <CheckCircle className="w-4 h-4 text-emerald-600" />
-                          <span>Quotation Authorized &amp; In Production Queue</span>
-                        </span>
+                      {(q.status === 'quote_approved' || q.status === 'payment_processing') && (
+                        <div className="flex flex-wrap items-center gap-2">
+                          {q.cbeFtReference ? (
+                            <div className="flex items-center gap-2">
+                              <span className="px-3.5 py-2 bg-amber-100 text-amber-900 border border-amber-300 font-bold text-xs rounded-sm flex items-center space-x-1.5">
+                                <Clock className="w-4 h-4 text-amber-700 animate-spin" />
+                                <span>CBE Transfer Submitted ({q.cbeFtReference}) • Finance Verifying</span>
+                              </span>
+                              <button
+                                type="button"
+                                onClick={() => handleOpenPaymentModal(q)}
+                                className="px-3 py-2 bg-slate-100 hover:bg-slate-200 border border-slate-300 text-slate-800 font-bold text-xs rounded-sm transition-colors"
+                              >
+                                Update FT Ref
+                              </button>
+                            </div>
+                          ) : (
+                            <button
+                              type="button"
+                              onClick={() => handleOpenPaymentModal(q)}
+                              className="px-4 py-2 bg-gradient-to-r from-emerald-600 to-teal-700 hover:from-emerald-700 hover:to-teal-800 text-white font-bold text-xs rounded-sm transition-all flex items-center space-x-2 shadow-md ring-2 ring-emerald-400/40 animate-pulse cursor-pointer"
+                            >
+                              <Building2 className="w-4 h-4 text-[#C6F432]" />
+                              <span>Pay Invoice via CBE Bank Transfer</span>
+                            </button>
+                          )}
+                        </div>
                       )}
                     </div>
                   </div>
@@ -965,11 +1152,35 @@ export default function CustomerPortalPage() {
                   )}
 
                   {q.pendingCounterOffer && q.pendingCounterOffer.status === 'accepted' && (
-                    <div className="mt-1 p-3 bg-emerald-500/10 border border-emerald-500/30 rounded-md text-xs text-emerald-900 flex items-center space-x-2">
-                      <CheckCircle className="w-4 h-4 text-emerald-600 shrink-0" />
-                      <div>
-                        <strong className="font-bold">Requested Discount Approved!</strong> Sales engineer accepted your -{q.pendingCounterOffer.discountPercent}% counter-offer. Revision v{q.currentVersion} has been issued at{' '}
-                        <span className="font-mono font-bold">ETB {(q.finalQuotedTotalEtb || 0).toLocaleString()}</span>. You can now accept &amp; authorize the contract!
+                    <div className="mt-1 p-3.5 bg-emerald-500/10 border border-emerald-500/30 rounded-md text-xs text-emerald-900 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
+                      <div className="flex items-center space-x-2">
+                        <CheckCircle className="w-4 h-4 text-emerald-600 shrink-0" />
+                        <div>
+                          <strong className="font-bold">Requested Discount Approved!</strong> Sales engineer accepted your -{q.pendingCounterOffer.discountPercent}% counter-offer. Revision v{q.currentVersion} has been issued at{' '}
+                          <span className="font-mono font-bold">ETB {(q.finalQuotedTotalEtb || 0).toLocaleString()}</span>.
+                          <span className="block text-[11px] text-emerald-700 mt-0.5">Authorize contract and submit your CBE Bank transfer to initiate manufacturing/dispatch.</span>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2 shrink-0">
+                        {q.status !== 'quote_approved' && q.status !== 'payment_processing' ? (
+                          <button
+                            type="button"
+                            onClick={() => handleApproveQuote(q.id)}
+                            className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-sm text-xs transition-colors flex items-center space-x-1 shadow-sm"
+                          >
+                            <CheckCircle className="w-3.5 h-3.5" />
+                            <span>Accept &amp; Pay via CBE</span>
+                          </button>
+                        ) : (
+                          <button
+                            type="button"
+                            onClick={() => handleOpenPaymentModal(q)}
+                            className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-sm text-xs transition-colors flex items-center space-x-1 shadow-sm"
+                          >
+                            <Building2 className="w-3.5 h-3.5 text-[#C6F432]" />
+                            <span>{q.cbeFtReference ? 'Update CBE Payment' : 'Pay via CBE Bank Transfer'}</span>
+                          </button>
+                        )}
                       </div>
                     </div>
                   )}
@@ -1761,6 +1972,188 @@ export default function CustomerPortalPage() {
                   >
                     <Send className="w-3.5 h-3.5" />
                     <span>{isSubmittingCounter ? 'Submitting...' : `Submit Counter-Offer (ETB ${counterTargetPrice.toLocaleString()})`}</span>
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        )}
+
+        {/* CBE Bank Transfer & Settlement Modal */}
+        {payingQuote && (
+          <div
+            onClick={() => setPayingQuote(null)}
+            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/80 backdrop-blur-sm animate-in fade-in cursor-pointer"
+          >
+            <div
+              onClick={(e) => e.stopPropagation()}
+              className="bg-white border border-slate-300 rounded-2xl shadow-2xl max-w-xl w-full flex flex-col overflow-hidden text-xs cursor-default max-h-[90vh]"
+            >
+              {/* Header with CBE Theme */}
+              <div className="px-6 py-4 bg-gradient-to-r from-[#6A1B29] via-[#851C2C] to-[#54121F] text-white flex items-center justify-between border-b border-amber-500/30">
+                <div className="flex items-center space-x-3">
+                  <div className="w-10 h-10 rounded-xl bg-amber-400 text-[#54121F] flex items-center justify-center font-serif font-black text-sm shadow-md">
+                    CBE
+                  </div>
+                  <div>
+                    <h3 className="font-bold text-sm uppercase tracking-wide flex items-center space-x-2">
+                      <span>Commercial Bank of Ethiopia (CBE) Settlement</span>
+                    </h3>
+                    <span className="text-[11px] text-amber-200 block">
+                      Official B2B Proforma Payment Rail • Quote: {payingQuote.quoteNumber}
+                    </span>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setPayingQuote(null)}
+                  className="text-white/80 hover:text-white font-bold text-base p-1"
+                >
+                  ✕
+                </button>
+              </div>
+
+              {/* Scrollable Body */}
+              <form onSubmit={handleSubmitCbePayment} className="p-6 space-y-4 overflow-y-auto">
+                {/* Financial Summary Card */}
+                <div className="bg-gradient-to-br from-slate-50 to-slate-100 border border-slate-200 rounded-xl p-4 space-y-2">
+                  <div className="flex justify-between items-center text-slate-600 text-xs">
+                    <span>Quoted Subtotal (Production Baseline):</span>
+                    <span className="font-mono font-bold text-slate-800">
+                      ETB {(payingQuote.finalQuotedTotalEtb || payingQuote.estimatedTotalEtb || 0).toLocaleString('en-US', { minimumFractionDigits: 2 })}
+                    </span>
+                  </div>
+                  <div className="flex justify-between items-center text-slate-600 text-xs">
+                    <span>ERCA VAT (15%):</span>
+                    <span className="font-mono font-bold text-slate-800">
+                      ETB {((payingQuote.finalQuotedTotalEtb || payingQuote.estimatedTotalEtb || 0) * 0.15).toLocaleString('en-US', { minimumFractionDigits: 2 })}
+                    </span>
+                  </div>
+                  <div className="border-t border-slate-300 pt-2 flex justify-between items-center">
+                    <span className="font-bold text-xs uppercase text-slate-900">Total Settlement Due (ETB):</span>
+                    <span className="font-mono text-lg font-black text-emerald-700">
+                      ETB {((payingQuote.finalQuotedTotalEtb || payingQuote.estimatedTotalEtb || 0) * 1.15).toLocaleString('en-US', { minimumFractionDigits: 2 })}
+                    </span>
+                  </div>
+                </div>
+
+                {/* Official CBE Account Details Card */}
+                <div className="bg-[#6A1B29]/5 border border-[#6A1B29]/30 rounded-xl p-4 space-y-2.5">
+                  <div className="flex items-center justify-between">
+                    <div className="text-xs font-bold text-[#6A1B29] uppercase tracking-wide flex items-center space-x-1.5">
+                      <Building2 className="w-4 h-4" />
+                      <span>AMG Holdings CBE Bank Account Details</span>
+                    </div>
+                    <span className="text-[10px] font-mono bg-[#6A1B29] text-white px-2 py-0.5 rounded-full font-bold">
+                      Account of Record
+                    </span>
+                  </div>
+
+                  <div className="bg-white border border-[#6A1B29]/20 p-3 rounded-lg flex items-center justify-between">
+                    <div>
+                      <span className="text-[10px] text-slate-500 uppercase block font-semibold">
+                        CBE Account Number:
+                      </span>
+                      <span className="font-mono text-base font-black text-slate-900 tracking-wider">
+                        1000192837461
+                      </span>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        navigator.clipboard.writeText('1000192837461');
+                        setIsCopiedAccount(true);
+                        setTimeout(() => setIsCopiedAccount(false), 2500);
+                      }}
+                      className="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 border border-slate-300 rounded text-xs font-bold text-slate-800 flex items-center space-x-1 transition-colors"
+                    >
+                      {isCopiedAccount ? (
+                        <>
+                          <Check className="w-3.5 h-3.5 text-emerald-600" />
+                          <span className="text-emerald-700 font-bold">Copied!</span>
+                        </>
+                      ) : (
+                        <>
+                          <Copy className="w-3.5 h-3.5" />
+                          <span>Copy A/C</span>
+                        </>
+                      )}
+                    </button>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-2 text-[11px] text-slate-700 pt-1">
+                    <div>
+                      <span className="text-slate-500 block text-[10px]">Beneficiary Name:</span>
+                      <strong>AMG Holdings Industrial PLC</strong>
+                    </div>
+                    <div>
+                      <span className="text-slate-500 block text-[10px]">Branch / Division:</span>
+                      <strong>Addis Ababa Corporate Hub</strong>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Transfer Guidance Steps */}
+                <div className="bg-slate-50 border border-slate-200 rounded-xl p-3.5 text-xs text-slate-700 space-y-1.5">
+                  <div className="font-bold text-slate-900 uppercase text-[10px] tracking-wider">
+                    How to Complete Payment:
+                  </div>
+                  <ol className="list-decimal pl-4 space-y-1 text-[11px] leading-relaxed">
+                    <li>Transfer total payable to the CBE Account above via <strong>CBE Mobile Banking (App/USSD *847#)</strong>, Internet Banking, or in-person branch teller deposit.</li>
+                    <li>Locate the <strong>FT Reference Number</strong> in your CBE confirmation SMS or teller receipt (e.g. <span className="font-mono font-bold text-slate-900">FT261109923841</span>).</li>
+                    <li>Enter your FT Reference Number below and submit for instant ledger verification by AMG Finance.</li>
+                  </ol>
+                </div>
+
+                {/* Payment Input Form */}
+                <div className="space-y-3 pt-1">
+                  <div className="space-y-1">
+                    <label className="block text-xs font-bold text-slate-900">
+                      CBE Bank FT Reference Number <span className="text-rose-500">*</span>:
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      placeholder="e.g. FT261109923841 or CBE-10928374"
+                      value={cbeFtCode}
+                      onChange={(e) => setCbeFtCode(e.target.value.toUpperCase())}
+                      className="w-full px-3.5 py-2.5 text-sm font-mono font-black uppercase tracking-wider bg-white border border-slate-300 rounded-xl focus:border-[#6A1B29] outline-none shadow-xs"
+                    />
+                    <span className="text-[10px] text-slate-500 block">
+                      Found in your CBE SMS: &quot;Your account ... debited ... FT...&quot;
+                    </span>
+                  </div>
+
+                  <div className="space-y-1">
+                    <label className="block text-xs font-bold text-slate-900">
+                      Depositor Name / Payer Account Number:
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="e.g. Almaz Worku / MIDROC PLC (100028472918)"
+                      value={cbePayerAccount}
+                      onChange={(e) => setCbePayerAccount(e.target.value)}
+                      className="w-full px-3.5 py-2 text-xs bg-white border border-slate-300 rounded-xl focus:border-[#6A1B29] outline-none"
+                    />
+                  </div>
+                </div>
+
+                {/* Submit Actions */}
+                <div className="flex items-center justify-end space-x-2 pt-3 border-t border-slate-200">
+                  <button
+                    type="button"
+                    onClick={() => setPayingQuote(null)}
+                    className="px-4 py-2 border border-slate-300 text-slate-700 font-bold text-xs rounded-xl hover:bg-slate-100 transition-all"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={isSubmittingPayment || !cbeFtCode.trim()}
+                    className="px-5 py-2.5 bg-[#6A1B29] hover:bg-[#851C2C] text-white font-bold text-xs rounded-xl shadow-md transition-all flex items-center space-x-2 disabled:opacity-50"
+                  >
+                    <Building2 className="w-4 h-4 text-amber-300" />
+                    <span>{isSubmittingPayment ? 'Submitting to Finance...' : 'Submit CBE Payment Reference'}</span>
                   </button>
                 </div>
               </form>

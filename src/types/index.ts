@@ -262,6 +262,10 @@ export interface Quote {
   customerRequirements: string;
   agentQuotationNotes?: string;
   pendingCounterOffer?: CounterOfferDetails;
+  cbeFtReference?: string;
+  cbePayerAccount?: string;
+  paymentSubmittedAt?: string;
+  convertedOrderNumber?: string;
   createdAt: string;
   items: QuoteItem[];
   messages: QuoteMessage[];
