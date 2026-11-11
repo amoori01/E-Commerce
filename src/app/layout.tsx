@@ -39,6 +39,33 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" suppressHydrationWarning className={`h-full ${playfair.variable} ${inter.variable}`}>
+      <head>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              try {
+                var theme = localStorage.getItem('amg_theme');
+                if (theme === 'dark') {
+                  document.documentElement.classList.add('dark');
+                  document.documentElement.classList.remove('light');
+                  document.documentElement.setAttribute('data-theme', 'dark');
+                  document.documentElement.style.colorScheme = 'dark';
+                } else {
+                  document.documentElement.classList.remove('dark');
+                  document.documentElement.classList.add('light');
+                  document.documentElement.setAttribute('data-theme', 'light');
+                  document.documentElement.style.colorScheme = 'light';
+                }
+              } catch (e) {
+                document.documentElement.classList.remove('dark');
+                document.documentElement.classList.add('light');
+                document.documentElement.setAttribute('data-theme', 'light');
+                document.documentElement.style.colorScheme = 'light';
+              }
+            `,
+          }}
+        />
+      </head>
       <body className="flex flex-col min-h-screen bg-[#FAFAFA] dark:bg-[#0B0B0C] text-[#0B0B0C] dark:text-white font-sans antialiased selection:bg-[#C6F432] selection:text-[#0B0B0C]">
         <ThemeProvider>
           <AuthProvider>

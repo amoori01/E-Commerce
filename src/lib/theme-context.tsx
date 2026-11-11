@@ -23,13 +23,14 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
         setThemeState(storedTheme);
         applyTheme(storedTheme);
       } else {
-        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-        const initialTheme: Theme = prefersDark ? 'dark' : 'light';
+        // Default to 'light' for any new visitor opening the link
+        const initialTheme: Theme = 'light';
         setThemeState(initialTheme);
         applyTheme(initialTheme);
       }
     } catch {
       // fallback in case localStorage is disabled
+      applyTheme('light');
     }
     setMounted(true);
   }, []);
